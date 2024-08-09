@@ -1,0 +1,29 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertEntityAndPlace`(
+    IN p_entityType ENUM('ATTRACTION', 'HOTEL', 'RESTAURANT'),
+    IN p_name VARCHAR(255),
+    IN p_coordinates VARCHAR(255),
+    IN p_address VARCHAR(255),
+    IN p_type VARCHAR(255),
+    IN p_description VARCHAR(255),
+    IN p_city varchar(255),
+    IN p_title varchar(255)
+)
+BEGIN
+    DECLARE new_entityID BIGINT;
+
+    -- Insert into entity_type table
+    INSERT INTO entity_type (entity_type) VALUES (p_entityType);
+    SET new_entityID = LAST_INSERT_ID();
+
+    -- Insert into specific table based on entity type
+    IF p_entityType = 'HOTEL' THEN
+        INSERT INTO hotel (name, coordinates, address, entityID)
+        VALUES (p_name, p_coordinates, p_address, new_entityID);
+    ELSEIF p_entityType = 'RESTAURANT' THEN
+        INSERT INTO restaurant (name, coordinates, address, entityID)
+        VALUES (p_name, p_coordinates, p_address, new_entityID);
+    ELSEIF p_entityType = 'ATTRACTION' THEN
+        INSERT INTO tourist_attraction (type, description, name, coordinates, entityID,city,title)
+        VALUES (p_type, p_description, p_name, p_coordinates, new_entityID,p_city,p_title);
+    END IF;
+END

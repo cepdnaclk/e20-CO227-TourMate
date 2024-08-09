@@ -1,0 +1,102 @@
+INSERT INTO user (firstname, lastname, email, gender, age, usertype) 
+VALUES ('Test', 'Spring', 'test@test.com', 'male', 22, 'local');
+
+INSERT INTO user_plan (user_ID, start_date, end_date, start_time, end_time, start_location, end_location) 
+VALUES (1, '2024-07-29', '2024-08-01', '08:00:00', '16:00:00', 'Colombo', 'Galle');
+
+
+CALL InsertEntityAndPlace(
+    'ATTRACTION', 
+    'Gangaramaya Temple', 
+    '6.9271,79.8612', 
+    NULL, 
+    'Temple', 
+    'One of the most important temples in Colombo',
+    'Colombo',
+    NULL
+);
+
+CALL InsertEntityAndPlace(
+    'ATTRACTION', 
+    'Independence Memorial Hall', 
+    '6.9276,79.8670', 
+    NULL, 
+    'Historic Site', 
+    'A national monument in Sri Lanka built for commemoration of the independence from the British rule',
+    'Colombo',
+    NULL
+);
+
+CALL InsertEntityAndPlace(
+    'ATTRACTION', 
+    'Mount Lavinia Beach', 
+    '6.8292,79.8636', 
+    NULL, 
+    'Beach', 
+    'A popular tourist destination known for its golden sands and blue waters',
+    'Colombo',
+    NULL
+);
+
+CALL InsertEntityAndPlace(
+    'ATTRACTION', 
+    'Hikkaduwa Beach', 
+    '6.1393,80.1033', 
+    NULL, 
+    'Beach', 
+    'A vibrant beach town known for its coral reefs and nightlife',
+    'Hikkaduwa',
+    NULL
+);
+
+CALL InsertEntityAndPlace(
+    'ATTRACTION', 
+    'Galle Fort', 
+    '6.0324,80.2170', 
+    NULL, 
+    'Historic Site', 
+    'A UNESCO World Heritage Site, the fort was built first in 1588 by the Portuguese',
+    'Galle',
+    NULL
+);
+
+CALL InsertEntityAndPlace(
+    'ATTRACTION', 
+    'Japanese Peace Pagoda', 
+    '6.0081,80.2412', 
+    NULL, 
+    'Pagoda', 
+    'A beautiful and serene pagoda located on a hilltop offering stunning views of the coast',
+    'Unawatuna',
+    NULL
+);
+
+CALL InsertEntityAndPlace(
+    'ATTRACTION', 
+    'Galle Face', 
+    '6.092,80.2167', 
+     NULL, 
+    'Beach', 
+    'A Beatifull beach',
+    'Colombo',
+    null
+
+);
+CALL InsertEntityAndPlace(
+    'ATTRACTION', 
+    'Sea Turtle Farm Galle Mahamodara', 
+    '6.0535,80.2156',     
+     NULL, 
+    'Nature & Wildlife Areas', 
+    'Caring for the sick turtles',
+    'Galle',
+    null
+);
+
+
+INSERT INTO bookmarked_place (date, entity_id, user_id) VALUES ('2024-07-20', 1, 1);
+INSERT INTO bookmarked_place (date, entity_id, user_id) VALUES ('2024-07-21', 2, 1);
+INSERT INTO bookmarked_place (date, entity_id, user_id) VALUES ('2024-07-22', 3, 1);
+INSERT INTO bookmarked_place (date, entity_id, user_id) VALUES ('2024-07-23', 4, 1);
+INSERT INTO bookmarked_place (date, entity_id, user_id) VALUES ('2024-07-24', 5, 1);
+INSERT INTO bookmarked_place (date, entity_id, user_id) VALUES ('2024-07-25', 6, 1);
