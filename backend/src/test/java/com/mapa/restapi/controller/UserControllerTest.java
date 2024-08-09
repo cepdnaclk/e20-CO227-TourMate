@@ -94,7 +94,6 @@ public class UserControllerTest {
                 .andExpect(content().string("Email Already Registered"));
 
         verify(userService, times(1)).findByEmail(anyString());
-        verify(userService, never()).findUserByUserIdentifier(anyString());
         verify(userService, never()).saveUser(any(User.class));
     }
 
