@@ -1,7 +1,8 @@
 import "./App.css";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Home from "./pages/Home";
+import Home from "./pages/home/Home";
+import Plan from "./pages/plan/Plan";
 import RoutePage from "./pages/RoutePage";
 import HotelPage from "./pages/HotelPage";
 import AddBookmarks from "./pages/bookmarks/AddBookmarks";
@@ -35,6 +36,7 @@ const App = () => {
                   <Route path="/schedule-plan" element={<PlanPage />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/add-bookmarks" element={<AddBookmarks />} />
+                  <Route path="/create-plan" element={<Plan />} />
                 </Route>
                 <Route path="/" element={<Home />} />{" "}
                 <Route path="/signup" element={<Signup />} />

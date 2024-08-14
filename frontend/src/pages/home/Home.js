@@ -1,10 +1,10 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import backgroundVideo from "../istockphoto-1362880565-640_adpp_is.mp4";
+import backgroundVideo from "../../istockphoto-1362880565-640_adpp_is.mp4";
+import "./Home.css";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 
-export default function Dashboard() {
+export default function Home() {
   const navigate = useNavigate();
 
   const handleFindRoute = () => {
@@ -19,18 +19,6 @@ export default function Dashboard() {
     navigate("/find-restaurant");
   };
 
-  const handleSchedulePlan = () => {
-    navigate("/schedule-plan");
-  };
-
-  const handleBookmarks = () => {
-    navigate("/add-bookmarks");
-  };
-
-  const handlePlan = () => {
-    navigate("/create-plan");
-  };
-
   const btnStyle = {
     backgroundColor: "#007bff",
     color: "#ffffff",
@@ -42,7 +30,6 @@ export default function Dashboard() {
   };
   return (
     <div>
-      <Navbar />
       <div className="container mt-5">
         <div className="jumbotron">
           <h1 className="display-4">Welcome to Tourmate</h1>
@@ -78,15 +65,6 @@ export default function Dashboard() {
                 </button>
                 <button style={btnStyle} onClick={handleFindRestaurant}>
                   Find a Restaurant
-                </button>
-                <button style={btnStyle} onClick={handleSchedulePlan}>
-                  Schedule a Plan
-                </button>
-                <button style={btnStyle} onClick={handleBookmarks}>
-                  Add Bookmarks
-                </button>
-                <button style={btnStyle} onClick={handlePlan}>
-                  Create Plan
                 </button>
               </>
             }

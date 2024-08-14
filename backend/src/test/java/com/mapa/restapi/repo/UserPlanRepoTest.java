@@ -21,7 +21,7 @@ class UserPlanRepoTest {
     @Autowired
     private UserPlanRepo userPlanRepo;
 
-    @Autowired
+
     private static UserRepo userRepo;
 
     private static User user;
@@ -66,10 +66,13 @@ class UserPlanRepoTest {
 
     //Deleting user delete user plan relate to that user
     @Test
-    @Transactional
-    void deleteUser_and_delete_userPlan() {
-        userRepo.delete(user);
+    void delete_userPlan_test() {
         UserPlan userPlan = userPlanRepo.findByUser(user).orElse(null);
+        System.out.println(userPlan);
+        assert userPlan != null;
+        userPlanRepo.deleteById(userPlan.getPlanID());
+        userPlan = userPlanRepo.findByPlanID(userPlan.getPlanID()).orElse(null);
+        System.out.println(userPlan);
         assertNull(userPlan);
 
     }

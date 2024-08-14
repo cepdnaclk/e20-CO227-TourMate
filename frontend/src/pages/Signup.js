@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -28,18 +28,14 @@ const textstyle = {
   marginBottom: 2, // adds some spacing below the text
 };
 export default function Signup() {
+  const navigate = useNavigate();
+
   const initialFormData = {
-    username: "",
     firstname: "",
     lastname: "",
     email: "",
     gender: "",
     age: "",
-    places: {
-      forest: false,
-      sea: false,
-      desert: false,
-    },
     usertype: "local",
     identifier: "",
     password: "",
@@ -48,32 +44,16 @@ export default function Signup() {
   const [formData, setFormData] = useState(initialFormData);
 
   const handleInputChange = (event) => {
-    const { name, value, type, checked } = event.target;
-    if (type === "checkbox") {
-      setFormData((prev) => ({
-        ...prev,
-        places: { ...prev.places, [name]: checked },
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    const { name, value } = event.target;
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Convert the places object to a list of strings
-    const selectedPlaces = Object.keys(formData.places).filter(
-      (place) => formData.places[place]
-    );
-
-    const formDataWithPlacesList = {
-      ...formData,
-      places: selectedPlaces,
-    };
-
     // Log form data to the console
-    console.log("Form Data to be submitted:", formDataWithPlacesList);
+    console.log("Form Data to be submitted:", formData);
 
     try {
       const response = await fetch("http://localhost:1200/signup", {
@@ -81,7 +61,7 @@ export default function Signup() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formDataWithPlacesList),
+        body: JSON.stringify(formData),
       });
 
       // Log the raw response
@@ -95,6 +75,7 @@ export default function Signup() {
         if (responseData) {
           console.log("Form Data Submitted Successfully");
           alert("Form is submitted");
+          navigate("/");
           setFormData(initialFormData);
         } else {
           console.error(
@@ -148,26 +129,6 @@ export default function Signup() {
               />
               <Typography>
                 <form onSubmit={handleSubmit}>
-                  <div>
-                    {/* <FormLabel >Username</FormLabel><br/> */}
-                    <label htmlFor="username">Username</label>
-                    <br />
-                    <TextField
-                      placeholder="Username"
-                      type="text"
-                      name="username"
-                      value={formData.username}
-                      onChange={handleInputChange}
-                      required
-                      fullWidth
-                      InputProps={{
-                        style: {
-                          height: "40px",
-                        },
-                      }}
-                    />
-                    <FormHelperText>Username should be unique</FormHelperText>
-                  </div>
                   <div>
                     <label htmlFor="firstname">First Name</label>
                     <br />
@@ -258,36 +219,7 @@ export default function Signup() {
                       }}
                     />
                   </div>
-                  <div>
-                    <label>Select your preferred places:</label>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="forest"
-                        onChange={handleInputChange}
-                        checked={formData.places.forest}
-                      />
-                      <label htmlFor="forest">Forest</label>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="sea"
-                        onChange={handleInputChange}
-                        checked={formData.places.sea}
-                      />
-                      <label htmlFor="sea">Sea</label>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="desert"
-                        onChange={handleInputChange}
-                        checked={formData.places.desert}
-                      />
-                      <label htmlFor="desert">Desert</label>
-                    </div>
-                  </div>
+
                   <div>
                     <label htmlFor="password">Password</label>
                     <br />

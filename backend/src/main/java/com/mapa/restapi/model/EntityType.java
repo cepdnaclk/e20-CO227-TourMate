@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -29,7 +31,7 @@ public class EntityType {
     @OneToOne(mappedBy = "entityID",fetch = FetchType.LAZY)
     private TouristAttraction touristAttraction;
 
-    @OneToOne(mappedBy = "entityID",fetch = FetchType.LAZY)
-    private BookmarkedPlace bookmarked;
+    @OneToMany(mappedBy = "entityID",fetch = FetchType.LAZY)
+    private List<BookmarkedPlace> bookmarked;
 
 }

@@ -34,8 +34,8 @@ public class UserPlan {
 //    @OneToMany
 //    private List<BookmarkedPlace> bookmarkedPlaces;
 
-    @OneToMany(cascade = CascadeType.ALL , mappedBy = "planID",fetch = FetchType.EAGER)
-    private List<PlanItems> planItems;
+//    @OneToMany(cascade = CascadeType.ALL , mappedBy = "planID",fetch = FetchType.EAGER)
+//    private List<PlanItems> planItems;
 
 
 }

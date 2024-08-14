@@ -13,6 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @ToString(exclude = {"user","entityID"})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "entity_id"})})
 public class BookmarkedPlace {
 
     @Id
@@ -21,10 +22,9 @@ public class BookmarkedPlace {
 
     private LocalDate date;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne (fetch = FetchType.EAGER)
     @JoinColumn(name = "entity_id")
     private EntityType entityID;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

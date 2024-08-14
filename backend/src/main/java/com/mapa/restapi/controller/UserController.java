@@ -5,10 +5,8 @@ import com.mapa.restapi.dto.TouristAttractionDTO;
 import com.mapa.restapi.dto.UserDto;
 import com.mapa.restapi.model.TouristAttraction;
 import com.mapa.restapi.model.User;
-import com.mapa.restapi.service.BookmarkPlaceService;
-import com.mapa.restapi.service.SchedulePlan;
-import com.mapa.restapi.service.TouristAttractionService;
-import com.mapa.restapi.service.UserService;
+import com.mapa.restapi.model.UserPlan;
+import com.mapa.restapi.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +28,8 @@ public class UserController {
     @Autowired
     private BookmarkPlaceService bookmarkPlaceService;
 
+    @Autowired
+    private UserPlanService userPlanService;
 
     @PostMapping("/addBookmarks")
     public ResponseEntity<?> addBookmarks(@RequestBody TouristAttraction place , @AuthenticationPrincipal UserDetails userDetails){
@@ -42,6 +42,17 @@ public class UserController {
         return ResponseEntity.badRequest().body(null);
     }
 
+    @PostMapping("/create-plan")
+    public ResponseEntity<?> createPlan(@RequestBody UserPlan plan, @AuthenticationPrincipal UserDetails userDetails){
+
+        String username = userDetails.getUsername();
+
+        userPlanService.addPlan(plan,username);
+
+        return ResponseEntity.ok("Plan created");
+
+        //return ResponseEntity.badRequest().body(null);
+    }
 
     @GetMapping("/getUsers")
     @PreAuthorize("hasRole('ADMIN')")
@@ -71,5 +82,7 @@ public class UserController {
         userService.deleteUser(id);
         return "Deleted";
     }
+
+
 
 }
