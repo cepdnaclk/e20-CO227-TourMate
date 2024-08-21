@@ -54,12 +54,7 @@ public class UserController {
         //return ResponseEntity.badRequest().body(null);
     }
 
-    @GetMapping("/getUsers")
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<User> getUsers() {
 
-        return userService.getAllUsers();
-    }
 
 
     @PostMapping("/signup")
@@ -76,12 +71,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userdto);
     }
 
-    @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String deleteUser(@PathVariable long id) {
-        userService.deleteUser(id);
-        return "Deleted";
-    }
+
 
 
 
