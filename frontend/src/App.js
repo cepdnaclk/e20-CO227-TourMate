@@ -4,7 +4,7 @@ import Signup from "./pages/Signup";
 import Home from "./pages/home/Home";
 import Plan from "./pages/plan/Plan";
 import RoutePage from "./pages/RoutePage";
-import HotelPage from "./pages/HotelPage";
+import HotelPage from "./pages/hotels/HotelPage";
 import AddBookmarks from "./pages/bookmarks/AddBookmarks";
 import PlanPage from "./pages/PlanPage";
 import RestaurantPage from "./pages/RestaurantPage";

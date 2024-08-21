@@ -1,30 +1,26 @@
 import React, { useEffect, useState } from "react";
 import Card from "../../components/PlaceCard/Card";
-import "./AddBookmarks.css";
 
-export default function AddBookmarks() {
-  const [attractions, setAttractions] = useState([]);
+export default function HotelPage() {
+  const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchAttractions = async () => {
+    const fetchHotels = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:1200/getTouristAttractions",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+        const response = await fetch("http://localhost:1200/getHotels", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
 
         if (response.ok) {
           const data = await response.json();
           console.log(data);
-          setAttractions(data);
+          setHotels(data);
         } else {
           console.error("Error:", response.statusText);
           setError("Failed to fetch data");
@@ -37,7 +33,7 @@ export default function AddBookmarks() {
       }
     };
 
-    fetchAttractions();
+    fetchHotels();
   }, []);
 
   if (loading) {
@@ -50,18 +46,17 @@ export default function AddBookmarks() {
 
   return (
     <div>
-      <h1 className="header">Tourist Attractions</h1>
+      <h1 className="header">Hotels</h1>
       <div className="card-container">
-        {attractions.map((attraction, index) => (
+        {hotels.map((hotels, index) => (
           <Card
             key={index}
-            image={attraction.imageUrl}
-            name={attraction.name}
-            type={attraction.type}
-            description={attraction.description}
-            city={attraction.city}
-            id={attraction.id}
-            cardType="bookmark"
+            image={hotels.imageUrl}
+            name={hotels.name}
+            city={hotels.city}
+            address={hotels.address}
+            coordinates={hotels.coordinates}
+            cardType="hotel"
           />
         ))}
       </div>
