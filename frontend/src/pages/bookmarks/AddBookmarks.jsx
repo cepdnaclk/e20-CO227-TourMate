@@ -46,7 +46,8 @@ export default function AddBookmarks() {
     const filteredPlace = attractions.filter(
       (place) =>
         place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        place.city.toLowerCase().includes(searchTerm.toLowerCase())
+        place.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        place.type.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredPlaces(filteredPlace);
   }, [searchTerm, attractions]);
@@ -66,7 +67,7 @@ export default function AddBookmarks() {
         <input
           type="text"
           className="text"
-          placeholder="search by city or name.."
+          placeholder="search by city or name or type.."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
