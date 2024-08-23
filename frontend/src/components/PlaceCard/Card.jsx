@@ -46,7 +46,6 @@ export default function Card(props) {
         <h2 className="type">{props.type}</h2>
         <h2 className="description">{props.description}</h2>
         <h2 className="city">{props.city}</h2>
-        <h1 className="id">{props.id}</h1>
         <h1 className="address">{props.address}</h1>
       </div>
     </div>
