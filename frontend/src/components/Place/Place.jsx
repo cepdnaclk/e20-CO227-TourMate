@@ -59,6 +59,9 @@ export default function Place({ place, selected, refProp }) {
         {place?.cuisine?.map(({ name }) => (
           <Chip key={name} size="small" label={name} className="chip"></Chip>
         ))}
+        {place?.subtype?.map(({ name }) => (
+          <Chip key={name} size="small" label={name} className="chip"></Chip>
+        ))}
         {place?.address && (
           <Typography
             gutterBottom

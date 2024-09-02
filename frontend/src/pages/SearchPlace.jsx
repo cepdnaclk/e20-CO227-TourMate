@@ -1,10 +1,31 @@
-import "../App.css";
-import { CssBaseline, Grid } from "@mui/material";
-import SearchHeader from "../components/Header/SearchHeader";
+import { CssBaseline, Grid, Box, Typography } from "@mui/material";
+import { Search } from "@mui/icons-material";
+import SearchHeader from "../components/SearchHeader/SearchHeader";
 import Map from "../components/Map/Map";
 import List from "../components/List/List";
 import { getPlaceData } from "../api";
 import { useEffect, useState, useRef } from "react";
+
+const SearchArea = ({ setSearchClicked, searchAreaBtn }) => {
+  const handleClick = () => {
+    setSearchClicked(true);
+  };
+
+  return (
+    <Box
+      display={searchAreaBtn ? "flex" : "none"}
+      position="absolute"
+      zIndex="1000"
+      top="5%"
+      left="40%"
+      className="search-label"
+      onClick={handleClick}
+    >
+      <Search />
+      <Typography variant="subtitle">Search this area</Typography>
+    </Box>
+  );
+};
 
 function SearchPlace() {
   const [places, setPlace] = useState([]);
@@ -17,19 +38,20 @@ function SearchPlace() {
   const [filteredPlaces, setFilteredPlaces] = useState([]);
   const previousBoundsRef = useRef(null);
   const previousTypeRef = useRef(type);
+  const [searchClicked, setSearchClicked] = useState(false);
+  const [searchAreaBtn, setSearchAreaBtn] = useState(false);
 
-  const threshold = 0.02; // Adjust this value as needed
+  const threshold = 0.2; // Adjust this value as needed
 
   const hasSignificantBoundChange = (newBounds, oldBounds) => {
     if (!oldBounds) return true; // First run, no previous bounds to compare
-
+    setSearchAreaBtn(true);
     const latDiff = Math.abs(
       newBounds._northEast.lat - oldBounds._northEast.lat
     );
     const lngDiff = Math.abs(
       newBounds._northEast.lng - oldBounds._northEast.lng
     );
-
     return latDiff > threshold || lngDiff > threshold;
   };
 
@@ -47,36 +69,43 @@ function SearchPlace() {
   }, []);
 
   useEffect(() => {
-    const filteredPlaces = places.filter((place) => place.rating > rating);
+    const filteredPlaces = places.filter((place) => place.rating >= rating);
     setFilteredPlaces(filteredPlaces);
   }, [rating]);
 
   useEffect(() => {
     if (bound) {
-      const fetchPlaces = () => {
-        setIsLoading(true);
-        getPlaceData(bound._southWest, bound._northEast, type).then((data) => {
-          setPlace(
-            data?.filter((place) => place.name && place.num_reviews > 0)
+      if (
+        searchClicked ||
+        hasSignificantBoundChange(bound, previousBoundsRef.current) ||
+        type !== previousTypeRef.current
+      ) {
+        const fetchPlaces = () => {
+          setIsLoading(true);
+          getPlaceData(bound._southWest, bound._northEast, type).then(
+            (data) => {
+              setPlace(
+                data?.filter((place) => place.name && place.num_reviews > 0)
+              );
+              setFilteredPlaces([]);
+              setChildClicked(0);
+              setIsLoading(false);
+              console.log(data);
+
+              // Update previousTypeRef and previousBoundsRef after fetching
+              previousTypeRef.current = type;
+              previousBoundsRef.current = bound;
+            }
           );
-          setFilteredPlaces([]);
-          setChildClicked(0);
-          setIsLoading(false);
-          console.log(data);
+        };
 
-          // Update previousTypeRef and previousBoundsRef after fetching
-          previousTypeRef.current = type;
-          previousBoundsRef.current = bound;
-        });
-      };
-
-      if (hasSignificantBoundChange(bound, previousBoundsRef.current)) {
         fetchPlaces();
-      } else if (type !== previousTypeRef.current) {
-        fetchPlaces();
+        setSearchClicked(false); // Reset after fetching
+        setSearchAreaBtn(false);
       }
     }
-  }, [bound, type]);
+  }, [type, searchClicked, bound]);
+
   return (
     <>
       <CssBaseline />
@@ -93,13 +122,17 @@ function SearchPlace() {
             setRating={setRating}
           />
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={8} position="relative">
           <Map
             setCoordinates={setCoordinates}
             setBound={setBound}
             coordinates={coordinates}
             places={filteredPlaces.length ? filteredPlaces : places}
             setChildClicked={setChildClicked}
+          />
+          <SearchArea
+            setSearchClicked={setSearchClicked}
+            searchAreaBtn={searchAreaBtn}
           />
         </Grid>
       </Grid>

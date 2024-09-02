@@ -73,7 +73,7 @@ export default function List({
             container
             spacing={3}
             className="list"
-            style={{ height: "80vh", overflowY: "auto" }}
+            style={{ height: "70vh", overflowY: "auto" }}
           >
             {places?.map((place, i) => (
               <Grid item key={i} xs={12} ref={elRefs[i]}>

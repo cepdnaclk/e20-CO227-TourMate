@@ -14,7 +14,6 @@ import java.util.List;
 @CrossOrigin(origins="*",allowedHeaders = "*")
 public class EntityController {
 
-
     @Autowired
     private TouristAttractionService touristAttractionService;
 

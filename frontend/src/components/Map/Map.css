@@ -24,3 +24,17 @@
 .pointer {
   cursor: pointer;
 }
+
+.search-label {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Example box shadow */
+  padding: 3px;
+}
+
+.search-label:hover {
+  outline: rgb(83, 83, 235);
+  background-color: rgb(202, 214, 227);
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}

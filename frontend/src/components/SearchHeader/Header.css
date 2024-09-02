@@ -2,7 +2,7 @@
 
 .simple-header {
   background-color: #fff;
-  padding: 10px;
+  padding: 3px;
   width: 100%;
   margin-top: 5px;
   margin-bottom: 5px;
@@ -76,7 +76,9 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  z-index: 1000;
+  z-index: 1002;
+  max-height: 200px; /* Adjust the height as needed */
+  overflow-y: auto;
 }
 
 .suggestion {

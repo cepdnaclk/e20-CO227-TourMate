@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from "react";
-import {  Box, InputBase,  Typography } from "@mui/material";
+import { Box, InputBase, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import "./Header.css";
 
@@ -63,37 +63,41 @@ export default function SearchHeader({ setCoordinates }) {
   };
 
   return (
-      <Box display="flex" alignItems="center" justifyContent="center" className="simple-header">
-        <Typography variant="h6" className="title">
-          Explore New Places
-        </Typography>
-        <div className="search">
-          <div className="searchIcon">
-            <SearchIcon />
-          </div>
-          <InputBase
-              placeholder="search..."
-              className="input"
-              value={searchTerm}
-              onChange={handleInputChange}
-              onClick={handleInputClick}
-              inputRef={inputRef}
-          />
-          {suggestions.length > 0 && (
-              <ul className="suggestionsList">
-                {suggestions.map((suggestion, index) => (
-                    <li
-                        className="suggestion"
-                        key={index}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                    >
-                      {suggestion.display_name}
-                    </li>
-                ))}
-              </ul>
-          )}
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      className="simple-header"
+    >
+      <Typography variant="h6" className="title">
+        Explore New Places
+      </Typography>
+      <div className="search">
+        <div className="searchIcon">
+          <SearchIcon />
         </div>
-      </Box>
-
+        <InputBase
+          placeholder="search..."
+          className="input"
+          value={searchTerm}
+          onChange={handleInputChange}
+          onClick={handleInputClick}
+          inputRef={inputRef}
+        />
+        {suggestions.length > 0 && (
+          <ul className="suggestionsList">
+            {suggestions.map((suggestion, index) => (
+              <li
+                className="suggestion"
+                key={index}
+                onClick={() => handleSuggestionClick(suggestion)}
+              >
+                {suggestion.display_name}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </Box>
   );
 }

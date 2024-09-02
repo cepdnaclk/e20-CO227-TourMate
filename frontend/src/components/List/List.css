@@ -32,8 +32,3 @@
   height: 75vh;
   overflow: auto;
 }
-
-.scrollBtn {
-  position: absolute;
-  top: auto;
-}

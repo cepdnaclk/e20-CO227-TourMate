@@ -28,7 +28,6 @@ const App = () => {
             display: "flex",
             flexDirection: "column",
             minHeight: "100vh",
-
             alignItems: "center",
           }}
         >
@@ -39,7 +38,6 @@ const App = () => {
             style={{
               padding: 0,
               margin: 0,
-              width: "100%",
             }}
           >
             <div>
