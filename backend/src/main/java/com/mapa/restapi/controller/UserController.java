@@ -55,8 +55,6 @@ public class UserController {
     }
 
 
-
-
     @PostMapping("/signup")
     public ResponseEntity<?> createUser(@RequestBody User user) {
         if (userService.findByEmail(user.getEmail()) != null) {

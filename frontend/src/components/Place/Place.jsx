@@ -4,7 +4,6 @@ import {
   Phone,
   BookmarkTwoTone as BookmarkIcon,
   BookmarkBorder as BookmarkBorderIcon,
-  Toll,
 } from "@mui/icons-material";
 import "./Place.css";
 import {
@@ -22,6 +21,8 @@ import {
   IconButton,
 } from "@mui/material";
 
+import { useAuth } from "../../utils/AuthContext";
+
 export default function Place({
   place,
   selected,
@@ -31,6 +32,7 @@ export default function Place({
 }) {
   const isDesktop = useMediaQuery("(min-width:600px)");
   const [Bookmark, setBookmark] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const handleBookmark = () => {
     setBookmark((prevBookmark) => !prevBookmark);
@@ -136,19 +138,24 @@ export default function Place({
               Website
             </Button>
           )}
-          <Tooltip title="Add bookmark">
-            <IconButton onClick={handleBookmark} style={{ cursor: "pointer" }}>
-              {Bookmark ? (
-                <BookmarkIcon
-                  sx={{
-                    color: "green",
-                  }}
-                />
-              ) : (
-                <BookmarkBorderIcon />
-              )}
-            </IconButton>
-          </Tooltip>
+          {isAuthenticated && place.category.key === "attraction" && (
+            <Tooltip title="Add bookmark">
+              <IconButton
+                onClick={handleBookmark}
+                style={{ cursor: "pointer" }}
+              >
+                {Bookmark ? (
+                  <BookmarkIcon
+                    sx={{
+                      color: "green",
+                    }}
+                  />
+                ) : (
+                  <BookmarkBorderIcon />
+                )}
+              </IconButton>
+            </Tooltip>
+          )}
         </CardActions>
       </CardContent>
     </Card>
