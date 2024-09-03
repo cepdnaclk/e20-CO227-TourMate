@@ -17,7 +17,7 @@ public class Restaurant {
     private String name;
     private String coordinates;
     private String address;
-
+    private String city;
     @OneToOne(
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY
