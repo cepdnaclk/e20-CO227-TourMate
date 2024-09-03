@@ -1,5 +1,11 @@
-import React from "react";
-import { LocationOn, Phone } from "@mui/icons-material";
+import React, { useState } from "react";
+import {
+  LocationOn,
+  Phone,
+  BookmarkTwoTone as BookmarkIcon,
+  BookmarkBorder as BookmarkBorderIcon,
+  Toll,
+} from "@mui/icons-material";
 import "./Place.css";
 import {
   Box,
@@ -11,16 +17,32 @@ import {
   Chip,
   Rating,
   Typography,
+  useMediaQuery,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 
-export default function Place({ place, selected, refProp }) {
+export default function Place({
+  place,
+  selected,
+  refProp,
+  setCardSelect,
+  index,
+}) {
+  const isDesktop = useMediaQuery("(min-width:600px)");
+  const [Bookmark, setBookmark] = useState(false);
+
+  const handleBookmark = () => {
+    setBookmark((prevBookmark) => !prevBookmark);
+  };
+
   if (selected) {
     refProp?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     selected = false;
   }
 
   return (
-    <Card elevation={6}>
+    <Card elevation={6} className="card">
       <CardMedia
         style={{ height: 350 }}
         image={
@@ -29,13 +51,15 @@ export default function Place({ place, selected, refProp }) {
             : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
         }
         title={place.name}
+        onClick={() => setCardSelect(index)}
+        className="card-media"
       />
       <CardContent>
         <Typography variant="h5" gutterBottom>
           {place.name}
         </Typography>
         <Box display="flex" justifyContent="space-between">
-          <Rating value={place.rating} readOnly />
+          <Rating value={Number(place.rating)} precision={0.5} readOnly />
           <Typography gutterBottom variant="subtitle">
             out of {place.num_reviews} reviews
           </Typography>
@@ -81,12 +105,21 @@ export default function Place({ place, selected, refProp }) {
             className="spacing"
           >
             <Phone />
-            <a href={`tel:${place.phone}`} className="phoneLink">
-              {place.phone}
-            </a>
+            {isDesktop ? (
+              <span className="phoneLink">{place.phone}</span>
+            ) : (
+              <a href={`tel:${place.phone}`} className="phoneLink">
+                {place.phone}
+              </a>
+            )}
           </Typography>
         )}
-        <CardActions>
+        <CardActions
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
           <Button
             size="small"
             color="primary"
@@ -103,6 +136,19 @@ export default function Place({ place, selected, refProp }) {
               Website
             </Button>
           )}
+          <Tooltip title="Add bookmark">
+            <IconButton onClick={handleBookmark} style={{ cursor: "pointer" }}>
+              {Bookmark ? (
+                <BookmarkIcon
+                  sx={{
+                    color: "green",
+                  }}
+                />
+              ) : (
+                <BookmarkBorderIcon />
+              )}
+            </IconButton>
+          </Tooltip>
         </CardActions>
       </CardContent>
     </Card>

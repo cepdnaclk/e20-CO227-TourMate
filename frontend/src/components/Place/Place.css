@@ -20,4 +20,9 @@
   text-decoration: none;
   color: inherit;
   cursor: pointer;
+  user-select: all;
+}
+
+.card-media:hover {
+  cursor: pointer;
 }

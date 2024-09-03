@@ -23,6 +23,7 @@ export default function List({
   setRating,
   type,
   setType,
+  setCardSelect,
 }) {
   const [elRefs, setElRefs] = useState([]);
 
@@ -81,6 +82,8 @@ export default function List({
                   place={place}
                   selected={childClicked === i}
                   refProp={elRefs[i]}
+                  setCardSelect={setCardSelect}
+                  index={i}
                 />
               </Grid>
             ))}

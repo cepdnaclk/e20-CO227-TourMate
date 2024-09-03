@@ -40,6 +40,7 @@ function SearchPlace() {
   const previousTypeRef = useRef(type);
   const [searchClicked, setSearchClicked] = useState(false);
   const [searchAreaBtn, setSearchAreaBtn] = useState(false);
+  const [cardSelect, setCardSelect] = useState(null);
 
   const threshold = 0.2; // Adjust this value as needed
 
@@ -102,6 +103,7 @@ function SearchPlace() {
         fetchPlaces();
         setSearchClicked(false); // Reset after fetching
         setSearchAreaBtn(false);
+        setCardSelect(null);
       }
     }
   }, [type, searchClicked, bound]);
@@ -120,6 +122,7 @@ function SearchPlace() {
             setType={setType}
             rating={rating}
             setRating={setRating}
+            setCardSelect={setCardSelect}
           />
         </Grid>
         <Grid item xs={12} md={8} position="relative">
@@ -129,6 +132,7 @@ function SearchPlace() {
             coordinates={coordinates}
             places={filteredPlaces.length ? filteredPlaces : places}
             setChildClicked={setChildClicked}
+            cardSelect={cardSelect}
           />
           <SearchArea
             setSearchClicked={setSearchClicked}

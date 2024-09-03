@@ -34,7 +34,9 @@ const App = () => {
           <Header />
           <Container
             component="main"
-            sx={{ flex: 1 }}
+            sx={{
+              flex: 1,
+            }}
             style={{
               padding: 0,
               margin: 0,
