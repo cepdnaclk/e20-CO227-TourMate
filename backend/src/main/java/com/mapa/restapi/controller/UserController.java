@@ -1,20 +1,19 @@
 package com.mapa.restapi.controller;
 
 
-import com.mapa.restapi.dto.TouristAttractionDTO;
 import com.mapa.restapi.dto.UserDto;
 import com.mapa.restapi.model.TouristAttraction;
 import com.mapa.restapi.model.User;
 import com.mapa.restapi.model.UserPlan;
-import com.mapa.restapi.service.*;
+import com.mapa.restapi.service.BookmarkPlaceService;
+import com.mapa.restapi.service.UserPlanService;
+import com.mapa.restapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.List;
 
@@ -31,15 +30,32 @@ public class UserController {
     @Autowired
     private UserPlanService userPlanService;
 
-    @PostMapping("/addBookmarks")
+    @PostMapping("/addbookmarks")
     public ResponseEntity<?> addBookmarks(@RequestBody TouristAttraction place , @AuthenticationPrincipal UserDetails userDetails){
 
         String username = userDetails.getUsername();
-        String msg = bookmarkPlaceService.addBookmark(username,place);
-        if (msg.equals("ok")){
-            return ResponseEntity.ok("{\"msg\":\"Bookmark added successfully\"}");
+        int code = bookmarkPlaceService.addBookmark(username,place);
+        if (code==1){
+            return ResponseEntity.ok().body("Bookmark added successfully");
         }
-        return ResponseEntity.badRequest().body(null);
+        return ResponseEntity.badRequest().body("Bookmark could not be added");
+    }
+
+    @PostMapping("/removebookmark")
+    public ResponseEntity<?> removeBookmarks(@RequestBody TouristAttraction place){
+
+        int code = bookmarkPlaceService.removeBookmark(place);
+        if (code==1){
+            return ResponseEntity.ok().body("Bookmark removed");
+        }
+        return ResponseEntity.badRequest().body("Error while removing bookmark");
+    }
+
+    @GetMapping("/getbookmarks")
+    public ResponseEntity<?> getBookmarks(@AuthenticationPrincipal UserDetails userDetails){
+        String username = userDetails.getUsername();
+        List<Long> code = bookmarkPlaceService.getBookmarks(username);
+        return ResponseEntity.ok().body(code);
     }
 
     @PostMapping("/create-plan")
@@ -51,7 +67,6 @@ public class UserController {
 
         return ResponseEntity.ok("Plan created");
 
-        //return ResponseEntity.badRequest().body(null);
     }
 
 

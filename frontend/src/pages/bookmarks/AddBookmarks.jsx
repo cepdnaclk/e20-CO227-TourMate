@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Card from "../../components/PlaceCard/Card";
 import "./AddBookmarks.css";
+import { Box } from "@mui/material";
 
 export default function AddBookmarks() {
   const [attractions, setAttractions] = useState([]);
@@ -43,12 +44,20 @@ export default function AddBookmarks() {
   }, []);
 
   useEffect(() => {
-    const filteredPlace = attractions.filter(
-      (place) =>
+    const filteredPlace = attractions.filter((place) => {
+      const typeMatches = place.type
+        .split(",")
+        .map((type) => type.trim().toLowerCase()) // Split and trim each type
+        .some((type) => type.includes(searchTerm.toLowerCase())); // Check if any type matches the searchTerm
+
+      // Filter based on name, city, or type
+      return (
         place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         place.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        place.type.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+        typeMatches
+      );
+    });
+
     setFilteredPlaces(filteredPlace);
   }, [searchTerm, attractions]);
 
@@ -61,7 +70,7 @@ export default function AddBookmarks() {
   }
 
   return (
-    <div>
+    <div className="container">
       <h1 className="header">Tourist Attractions</h1>
       <div className="search">
         <input
@@ -73,20 +82,20 @@ export default function AddBookmarks() {
         />
       </div>
 
-      <div className="card-container">
-        {filteredPlaces.map((attraction, index) => (
-          <Card
-            key={index}
-            image={attraction.imageUrl}
-            name={attraction.name}
-            type={attraction.type}
-            description={attraction.description}
-            city={attraction.city}
-            id={attraction.id}
-            cardType="bookmark"
-          />
+      <Box
+        display="flex"
+        sx={{
+          flexWrap: "wrap",
+          gap: 2,
+          justifyContent: "center",
+          padding: 2,
+          maxWidth: "100%",
+        }}
+      >
+        {filteredPlaces.map((attraction, _) => (
+          <Card place={attraction} />
         ))}
-      </div>
+      </Box>
     </div>
   );
 }

@@ -26,6 +26,7 @@ export default function List({
   setCardSelect,
 }) {
   const [elRefs, setElRefs] = useState([]);
+  const [bookmarks, setBookmarks] = useState([]);
 
   useEffect(() => {
     const refs = Array(places?.length)
@@ -34,10 +35,35 @@ export default function List({
     setElRefs(refs);
   }, [places]);
 
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      try {
+        const response = await fetch("http://localhost:1200/getbookmarks", {
+          method: "get",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setBookmarks(data);
+        } else {
+          console.error("Error :", response.status);
+        }
+      } catch (error) {
+        console.log("Error fetching bookmarks");
+      }
+    };
+
+    fetchBookmarks();
+  }, [places]);
+
   return (
     <div
       className="container"
-      style={{ position: "relative", height: "100%", overflowY: "auto" }}
+      style={{ position: "relative", height: "80vh", overflowY: "auto" }}
     >
       <Typography variant="h6">Restaurant, Hotels & Attractions</Typography>
       {isLoading ? (
@@ -84,6 +110,7 @@ export default function List({
                   refProp={elRefs[i]}
                   setCardSelect={setCardSelect}
                   index={i}
+                  bookmarked={bookmarks.includes(Number(place.location_id))}
                 />
               </Grid>
             ))}

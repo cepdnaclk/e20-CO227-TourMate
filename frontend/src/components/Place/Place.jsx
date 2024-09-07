@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   LocationOn,
   Phone,
@@ -29,13 +29,57 @@ export default function Place({
   refProp,
   setCardSelect,
   index,
+  bookmarked,
 }) {
   const isDesktop = useMediaQuery("(min-width:600px)");
   const [Bookmark, setBookmark] = useState(false);
   const { isAuthenticated } = useAuth();
 
-  const handleBookmark = () => {
-    setBookmark((prevBookmark) => !prevBookmark);
+  useEffect(() => {
+    if (bookmarked) {
+      setBookmark(true);
+    }
+  }, [place]);
+
+  const handleBookmark = async () => {
+    const typeNames = place.subtype.map((sub) => sub.name).join(", ");
+    try {
+      const url = Bookmark
+        ? "http://localhost:1200/removebookmark"
+        : "http://localhost:1200/addbookmarks";
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          type: typeNames,
+          description: place.description,
+          name: place.name,
+          city: place.parent_display_name,
+          imgUrl: place.photo.images.large.url,
+          latitude: place.latitude,
+          longitude: place.longitude,
+          rating: place.rating,
+          phone: place.phone,
+          web_url: place.web_url,
+          apiLocationId: place.location_id,
+          address: place.address,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.text();
+        console.log(data);
+        setBookmark((prevBookmark) => !prevBookmark);
+      } else {
+        console.error("Error adding/removing bookmark:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error in fetching data:", error);
+    }
   };
 
   if (selected) {

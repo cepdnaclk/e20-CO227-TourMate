@@ -34,7 +34,7 @@ function SearchPlace() {
   const [childClicked, setChildClicked] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [rating, setRating] = useState("");
-  const [type, setType] = useState("restaurants");
+  const [type, setType] = useState("attractions");
   const [filteredPlaces, setFilteredPlaces] = useState([]);
   const previousBoundsRef = useRef(null);
   const previousTypeRef = useRef(type);
@@ -85,9 +85,7 @@ function SearchPlace() {
           setIsLoading(true);
           getPlaceData(bound._southWest, bound._northEast, type).then(
             (data) => {
-              setPlace(
-                data?.filter((place) => place.name && place.num_reviews > 0)
-              );
+              setPlace(data?.filter((place) => place.name && place.rating > 0));
               setFilteredPlaces([]);
               setChildClicked(0);
               setIsLoading(false);
