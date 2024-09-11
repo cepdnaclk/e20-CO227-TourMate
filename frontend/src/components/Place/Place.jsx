@@ -82,10 +82,11 @@ export default function Place({
     }
   };
 
-  if (selected) {
-    refProp?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    selected = false;
-  }
+  useEffect(() => {
+    if (selected) {
+      refProp?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [selected]);
 
   return (
     <Card elevation={6} className="card">
@@ -97,7 +98,7 @@ export default function Place({
             : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
         }
         title={place.name}
-        onClick={() => setCardSelect(index)}
+        onMouseEnter={() => setCardSelect(index)}
         className="card-media"
       />
       <CardContent>

@@ -64,7 +64,7 @@ export default function Home() {
                   Find a Hotel
                 </button>
                 <button style={btnStyle} onClick={handleFindRestaurant}>
-                  Find a Restaurant
+                  Find Places
                 </button>
               </>
             }

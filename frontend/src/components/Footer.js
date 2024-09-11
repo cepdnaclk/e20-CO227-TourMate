@@ -12,6 +12,7 @@ function Footer() {
         backgroundColor: "primary.main",
         color: "white",
         width: "100%",
+        zIndex: 1000,
       }}
     >
       <Typography variant="body1" align="center">
