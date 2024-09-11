@@ -18,7 +18,7 @@ import ProtectedRoutes from "./utils/ProtectedRoutes";
 import { Box, Container } from "@mui/material";
 import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
-
+jannaga
 const App = () => {
   return (
     <AuthProvider>
