@@ -1,12 +1,14 @@
 package com.mapa.restapi.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Hotel {
@@ -18,7 +20,7 @@ public class Hotel {
     private String name;
     private String coordinates;
     private String address;
-
+    private String city;
     @OneToOne(
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY

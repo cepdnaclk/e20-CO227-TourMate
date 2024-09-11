@@ -6,10 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TouristAttractionRepo extends JpaRepository<TouristAttraction, Long> {
 
     @Query( value = "select * from tourist_attraction", nativeQuery = true)
     List<TouristAttraction> findTouristAttraction();
+
+    Optional<TouristAttraction> findByName(String name);
 }

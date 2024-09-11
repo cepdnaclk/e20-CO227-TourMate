@@ -100,3 +100,58 @@ INSERT INTO bookmarked_place (date, entity_id, user_id) VALUES ('2024-07-22', 3,
 INSERT INTO bookmarked_place (date, entity_id, user_id) VALUES ('2024-07-23', 4, 1);
 INSERT INTO bookmarked_place (date, entity_id, user_id) VALUES ('2024-07-24', 5, 1);
 INSERT INTO bookmarked_place (date, entity_id, user_id) VALUES ('2024-07-25', 6, 1);
+
+CALL InsertEntityAndPlace(
+    'HOTEL', -- Entity Type
+    'The Kingsbury Colombo', -- Name
+    '6.930679, 79.841776', -- Coordinates
+    '48 Janadhipathi Mawatha, Colombo', -- Address
+    NULL, -- Type (Not applicable for hotels)
+    NULL, -- Description (Not applicable for hotels)
+    'Colombo', -- City
+    NULL -- Title (Not applicable for hotels)
+);
+
+CALL InsertEntityAndPlace(
+    'HOTEL', -- Entity Type
+    'Jetwing Lighthouse', -- Name
+    '6.046373, 80.219461', -- Coordinates
+    'Dadella, Galle', -- Address
+    NULL, -- Type (Not applicable for hotels)
+    NULL, -- Description (Not applicable for hotels)
+    'Galle', -- City
+    NULL -- Title (Not applicable for hotels)
+);
+
+CALL InsertEntityAndPlace(
+    'HOTEL', -- Entity Type
+    'Cinnamon Grand Colombo', -- Name
+    '6.927227, 79.848578', -- Coordinates
+    '77 Galle Road, Colombo', -- Address
+    NULL, -- Type (Not applicable for hotels)
+    NULL, -- Description (Not applicable for hotels)
+    'Colombo', -- City
+    NULL -- Title (Not applicable for hotels)
+);
+
+CALL InsertEntityAndPlace(
+    'HOTEL', -- Entity Type
+    'Heritance Kandalama', -- Name
+    '7.866104, 80.692692', -- Coordinates
+    'Kandalama Lake, Dambulla', -- Address
+    NULL, -- Type (Not applicable for hotels)
+    NULL, -- Description (Not applicable for hotels)
+    'Dambulla', -- City
+    NULL -- Title (Not applicable for hotels)
+);
+
+CALL InsertEntityAndPlace(
+    'HOTEL', -- Entity Type
+    'Shangri-La Hambantota', -- Name
+    '6.124123, 81.135103', -- Coordinates
+    'Sittrakala Estate, Hambantota', -- Address
+    NULL, -- Type (Not applicable for hotels)
+    NULL, -- Description (Not applicable for hotels)
+    'Hambantota', -- City
+    NULL -- Title (Not applicable for hotels)
+);

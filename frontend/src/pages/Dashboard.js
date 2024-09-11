@@ -77,7 +77,7 @@ export default function Dashboard() {
                   Find a Hotel
                 </button>
                 <button style={btnStyle} onClick={handleFindRestaurant}>
-                  Find a Restaurant
+                  Find a Places
                 </button>
                 <button style={btnStyle} onClick={handleSchedulePlan}>
                   Schedule a Plan

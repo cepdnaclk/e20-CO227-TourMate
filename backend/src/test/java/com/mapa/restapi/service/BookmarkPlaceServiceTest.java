@@ -8,6 +8,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,7 +43,7 @@ class BookmarkPlaceServiceTest {
         } else {
             // Iterate and print details
             for (BookmarkedPlace bookmarkedPlace : list) {
-                    System.out.println(bookmarkedPlace.getEntityID().getEntityType());
+                    System.out.println(bookmarkedPlace.getAttraction_id().getName());
                 
             }
         }
@@ -58,5 +59,31 @@ class BookmarkPlaceServiceTest {
                 System.out.println(attraction.getName());
             }
         }
+    }
+
+    @Test
+    void addBookmarkTest() {
+        TouristAttraction attraction = TouristAttraction.builder()
+                .city("Gampola")
+                .name("Ambuluwawa")
+                .type("Historical")
+                .build();
+        bookmarkPlaceService.addBookmark(user.getEmail(),attraction);
+    }
+
+    @Test
+    void removeBookmarkTest(){
+        TouristAttraction attraction = TouristAttraction.builder()
+                .city("Gampola")
+                .name("Ambuluwawa")
+                .type("Historical")
+                .build();
+        System.out.println(bookmarkPlaceService.removeBookmark(attraction));
+    }
+
+    @Test
+    void getBookmarkTest(){
+
+        System.out.println(bookmarkPlaceService.getBookmarks("test@test.com"));
     }
 }
