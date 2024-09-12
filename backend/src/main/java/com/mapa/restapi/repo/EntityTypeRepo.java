@@ -10,5 +10,4 @@ import java.util.Optional;
 @Repository
 public interface EntityTypeRepo extends JpaRepository<EntityType, Long> {
 
-    Optional<EntityType> findEntityTypeByTouristAttraction(TouristAttraction touristAttraction) ;
 }

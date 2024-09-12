@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Card from "../../components/PlaceCard/Card";
+import "./hotel.css";
 
 export default function HotelPage() {
   const [hotels, setHotels] = useState([]);
+  const [filteredHotels, setFilteredHotels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -19,8 +22,8 @@ export default function HotelPage() {
 
         if (response.ok) {
           const data = await response.json();
-          console.log(data);
           setHotels(data);
+          setFilteredHotels(data);
         } else {
           console.error("Error:", response.statusText);
           setError("Failed to fetch data");
@@ -36,6 +39,15 @@ export default function HotelPage() {
     fetchHotels();
   }, []);
 
+  useEffect(() => {
+    const filtered = hotels.filter(
+      (hotel) =>
+        hotel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        hotel.city.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredHotels(filtered);
+  }, [searchTerm, hotels]);
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -47,15 +59,24 @@ export default function HotelPage() {
   return (
     <div>
       <h1 className="header">Hotels</h1>
+      <div className="search">
+        <input
+          type="text"
+          className="text"
+          placeholder="Search by city or hotel name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
       <div className="card-container">
-        {hotels.map((hotels, index) => (
+        {filteredHotels.map((hotel, index) => (
           <Card
             key={index}
-            image={hotels.imageUrl}
-            name={hotels.name}
-            city={hotels.city}
-            address={hotels.address}
-            coordinates={hotels.coordinates}
+            image={hotel.imageUrl}
+            name={hotel.name}
+            city={hotel.city}
+            address={hotel.address}
+            coordinates={hotel.coordinates}
             cardType="hotel"
           />
         ))}

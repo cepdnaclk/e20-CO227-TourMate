@@ -40,26 +40,13 @@ class BookmarkedPlaceRepoTest {
     static void tearDown() {
     }
 
-    @Test
-    public void addBookmarkedPlace() throws EntityServiceException {
-
-        EntityType entityType = entityTypeRepo.findById(2L).orElseThrow(()-> new EntityServiceException("Entity Not Found"));
-        BookmarkedPlace bookmarkedPlace = BookmarkedPlace.builder()
-                .date(LocalDate.of(2024,8,22))
-                .user(testUser)
-                .entityID(entityType)
-                .build();
-
-        bookmarkedPlaceRepo.save(bookmarkedPlace);
-
-    }
 
     @Test
     public void findBookmarkedPlace_by_userID() throws EntityServiceException {
         List<BookmarkedPlace> places = bookmarkedPlaceRepo.findByUserID(testUser.getUserid()).orElse(null);
 
         for (BookmarkedPlace place : places) {
-            System.out.println(place.getEntityID().getEntityType());
+            System.out.println(place.getAttraction_id().getName());
         }
 
         assertNotNull(places);
@@ -70,7 +57,7 @@ class BookmarkedPlaceRepoTest {
         List<BookmarkedPlace> places = bookmarkedPlaceRepo.findByUser(testUser).orElse(null);
 
         for (BookmarkedPlace place : places) {
-            System.out.println(place.getEntityID().getEntityType());
+            System.out.println(place.getAttraction_id().getName());
         }
 
         assertNotNull(places);
