@@ -67,6 +67,9 @@
 }
 
 /*Sign in button---------------------------------------*/
+.link-button {
+    text-decoration: none; /* Remove underline */
+  }
 .signin-btn{
     /* Sign in button */
     color: white;

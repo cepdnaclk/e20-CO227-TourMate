@@ -1,6 +1,7 @@
 import React,{useEffect} from 'react'
 import './Navbar.css'
 import logob from '../../assets/logob.png'
+import { Link } from 'react-router-dom';
 const Navbar = () => {
     useEffect(() => {
         const handleScroll = () => {
@@ -39,7 +40,7 @@ const Navbar = () => {
             <a href='/'>About me</a>
             <a href='/'>Contact me</a>
         </nav>
-        <button className="signin-btn">SIGN IN</button>
+        <Link to="/signup" className="link-button"><button className="signin-btn">SIGN IN</button></Link>
     </header>
   )
 }
