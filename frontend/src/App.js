@@ -11,6 +11,9 @@ import Navbar from "./components/Navbar";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Dashboard from "./pages/Dashboard";
+import CurrencyConverter from "./pages/CurrencyConverter";
+import EmergencyConnector from "./pages/EmergencyConnector";
+import Weather from "./pages/Weather";
 import HotelPage from "./pages/HotelPage";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./utils/AuthContext";
@@ -22,6 +25,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 const App = () => {
   return (
     <AuthProvider>
+
       <Router>
         <Box
           sx={{
@@ -51,13 +55,16 @@ const App = () => {
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/add-bookmarks" element={<AddBookmarks />} />
                   <Route path="/create-plan" element={<Plan />} />
+                  <Route path="/find-hotel" element={<HotelPage />} />
+                  <Route path="/find-restaurant" element={<RestaurantPage />} />
                 </Route>
                 <Route path="/" element={<Home />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/find-route" element={<RoutePage />} />
-                <Route path="/find-hotel" element={<HotelPage />} />
-                <Route path="/find-restaurant" element={<SearchPlace />} />
+                <Route path="/currency-converter" element={<CurrencyConverter />} />
+                <Route path="/emergency-connector" element={<EmergencyConnector />} />
+                <Route path="/weather" element={<Weather />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/navbar" element={<Navbar />} />
               </Routes>
