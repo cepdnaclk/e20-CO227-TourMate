@@ -1,10 +1,30 @@
 .card-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .header {
   display: flex;
   justify-content: center;
+}
+
+.search {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.search .text {
+  width: 300px;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.search .text:focus {
+  outline: none;
+  border-color: #007bff;
 }

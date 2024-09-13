@@ -27,6 +27,10 @@ export default function Dashboard() {
     navigate("/add-bookmarks");
   };
 
+  const handlePlan = () => {
+    navigate("/create-plan");
+  };
+
   const btnStyle = {
     backgroundColor: "#007bff",
     color: "#ffffff",
@@ -73,13 +77,16 @@ export default function Dashboard() {
                   Find a Hotel
                 </button>
                 <button style={btnStyle} onClick={handleFindRestaurant}>
-                  Find a Restaurant
+                  Find a Places
                 </button>
                 <button style={btnStyle} onClick={handleSchedulePlan}>
                   Schedule a Plan
                 </button>
                 <button style={btnStyle} onClick={handleBookmarks}>
                   Add Bookmarks
+                </button>
+                <button style={btnStyle} onClick={handlePlan}>
+                  Create Plan
                 </button>
               </>
             }

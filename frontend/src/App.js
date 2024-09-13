@@ -1,16 +1,17 @@
 import "./App.css";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Home from "./pages/Home";
+import Home from "./pages/home/Home";
+import Plan from "./pages/plan/Plan";
 import RoutePage from "./pages/RoutePage";
-import HotelPage from "./pages/HotelPage";
+import SearchPlace from "./pages/SearchPlace";
 import AddBookmarks from "./pages/bookmarks/AddBookmarks";
 import PlanPage from "./pages/PlanPage";
-import RestaurantPage from "./pages/RestaurantPage";
 import Navbar from "./components/Navbar";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Dashboard from "./pages/Dashboard";
+import HotelPage from "./pages/HotelPage";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./utils/AuthContext";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
@@ -23,10 +24,24 @@ const App = () => {
     <AuthProvider>
       <Router>
         <Box
-          sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            minHeight: "100vh",
+            alignItems: "center",
+          }}
         >
           <Header />
-          <Container component="main" sx={{ flex: 1 }}>
+          <Container
+            component="main"
+            sx={{
+              flex: 1,
+            }}
+            style={{
+              padding: 0,
+              margin: 0,
+            }}
+          >
             <div>
               <Routes>
                 <Route element={<ProtectedRoutes />}>
@@ -35,13 +50,14 @@ const App = () => {
                   <Route path="/schedule-plan" element={<PlanPage />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/add-bookmarks" element={<AddBookmarks />} />
+                  <Route path="/create-plan" element={<Plan />} />
                 </Route>
-                <Route path="/" element={<Home />} />{" "}
+                <Route path="/" element={<Home />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/find-route" element={<RoutePage />} />
                 <Route path="/find-hotel" element={<HotelPage />} />
-                <Route path="/find-restaurant" element={<RestaurantPage />} />
+                <Route path="/find-restaurant" element={<SearchPlace />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/navbar" element={<Navbar />} />
               </Routes>

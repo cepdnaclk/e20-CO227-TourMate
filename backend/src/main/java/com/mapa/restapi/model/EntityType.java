@@ -6,11 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"entityType","restaurant","hotel","touristAttraction","bookmarked"})
+@ToString(exclude = {"entityType","restaurant","hotel"})
 public class EntityType {
 
     @Id
@@ -25,11 +27,5 @@ public class EntityType {
 
     @OneToOne(mappedBy = "entityID")
     private Hotel hotel;
-
-    @OneToOne(mappedBy = "entityID",fetch = FetchType.LAZY)
-    private TouristAttraction touristAttraction;
-
-    @OneToOne(mappedBy = "entityID",fetch = FetchType.LAZY)
-    private BookmarkedPlace bookmarked;
 
 }

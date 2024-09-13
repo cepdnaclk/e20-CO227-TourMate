@@ -17,13 +17,13 @@ BEGIN
 
     -- Insert into specific table based on entity type
     IF p_entityType = 'HOTEL' THEN
-        INSERT INTO hotel (name, coordinates, address, entityID)
-        VALUES (p_name, p_coordinates, p_address, new_entityID);
+        INSERT INTO hotel (name, coordinates, address, entityID,city)
+        VALUES (p_name, p_coordinates, p_address, new_entityID,p_city);
     ELSEIF p_entityType = 'RESTAURANT' THEN
         INSERT INTO restaurant (name, coordinates, address, entityID)
         VALUES (p_name, p_coordinates, p_address, new_entityID);
     ELSEIF p_entityType = 'ATTRACTION' THEN
-        INSERT INTO tourist_attraction (type, description, name, coordinates, entityID,city,title)
-        VALUES (p_type, p_description, p_name, p_coordinates, new_entityID,p_city,p_title);
+        INSERT INTO tourist_attraction (type, description, name, coordinates, entityID,city,title,city)
+        VALUES (p_type, p_description, p_name, p_coordinates, new_entityID,p_city,p_title,p_city);
     END IF;
 END

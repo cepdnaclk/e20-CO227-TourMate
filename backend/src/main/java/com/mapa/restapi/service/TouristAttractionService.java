@@ -25,9 +25,14 @@ public class TouristAttractionService {
                 .type(touristAttraction.getType())
                 .city(touristAttraction.getCity())
                 .name(touristAttraction.getName())
-                .title(touristAttraction.getTitle())
-                .coordinates(touristAttraction.getCoordinates())
+                .latitude(touristAttraction.getLatitude())
+                .longitude(touristAttraction.getLongitude())
+                .phone(touristAttraction.getPhone())
                 .description(touristAttraction.getDescription())
+                .imgUrl(touristAttraction.getImgUrl())
+                .web_url(touristAttraction.getWeb_url())
+                .address(touristAttraction.getAddress())
+                .rating(touristAttraction.getRating())
                 .build();
         return dto;
     }
