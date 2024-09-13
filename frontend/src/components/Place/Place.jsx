@@ -167,13 +167,6 @@ export default function Place({
             justifyContent: "space-between",
           }}
         >
-          <Button
-            size="small"
-            color="primary"
-            onClick={() => window.open(place.web_url, "_blank")}
-          >
-            Trip Advisor
-          </Button>
           {place?.website && (
             <Button
               size="small"
