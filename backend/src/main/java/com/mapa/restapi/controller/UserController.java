@@ -2,7 +2,7 @@ package com.mapa.restapi.controller;
 
 
 import com.mapa.restapi.dto.UserDto;
-import com.mapa.restapi.model.TouristAttraction;
+import com.mapa.restapi.model.Destination;
 import com.mapa.restapi.model.User;
 import com.mapa.restapi.model.UserPlan;
 import com.mapa.restapi.service.BookmarkPlaceService;
@@ -31,18 +31,18 @@ public class UserController {
     private UserPlanService userPlanService;
 
     @PostMapping("/addbookmarks")
-    public ResponseEntity<?> addBookmarks(@RequestBody TouristAttraction place , @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<?> addBookmarks(@RequestBody Destination place , @AuthenticationPrincipal UserDetails userDetails){
 
         String username = userDetails.getUsername();
         int code = bookmarkPlaceService.addBookmark(username,place);
-        if (code==1){
+        if (code==0){
             return ResponseEntity.ok().body("Bookmark added successfully");
         }
         return ResponseEntity.badRequest().body("Bookmark could not be added");
     }
 
     @PostMapping("/removebookmark")
-    public ResponseEntity<?> removeBookmarks(@RequestBody TouristAttraction place){
+    public ResponseEntity<?> removeBookmarks(@RequestBody Destination place){
 
         int code = bookmarkPlaceService.removeBookmark(place);
         if (code==1){
@@ -84,6 +84,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userdto);
     }
 
+    @PostMapping("/addPlan")
+    public ResponseEntity<?> addPlan(@RequestBody UserPlan plan,@AuthenticationPrincipal UserDetails userDetails){
+        String username = userDetails.getUsername();
+        userPlanService.addPlan(plan,username);
+        return ResponseEntity.ok().body("Plan added");
+    }
 
 
 

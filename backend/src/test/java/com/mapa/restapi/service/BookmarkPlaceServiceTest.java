@@ -1,17 +1,14 @@
 package com.mapa.restapi.service;
 
 import com.mapa.restapi.model.BookmarkedPlace;
-import com.mapa.restapi.model.TouristAttraction;
+import com.mapa.restapi.model.Destination;
 import com.mapa.restapi.model.User;
 import com.mapa.restapi.repo.UserRepo;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class BookmarkPlaceServiceTest {
@@ -43,7 +40,7 @@ class BookmarkPlaceServiceTest {
         } else {
             // Iterate and print details
             for (BookmarkedPlace bookmarkedPlace : list) {
-                    System.out.println(bookmarkedPlace.getAttraction_id().getName());
+                    System.out.println(bookmarkedPlace.getAttraction_id());
                 
             }
         }
@@ -51,11 +48,11 @@ class BookmarkPlaceServiceTest {
 
     @Test
     void findAttractionPlaceTest(){
-        List<TouristAttraction> list = bookmarkPlaceService.findAttractionPlaces(user.getUserid());
+        List<Destination> list = bookmarkPlaceService.findAttractionPlaces(user.getUserid());
         if (list.isEmpty()) {
             System.out.println("No places found");
         }else {
-            for (TouristAttraction attraction : list) {
+            for (Destination attraction : list) {
                 System.out.println(attraction.getName());
             }
         }
@@ -63,7 +60,7 @@ class BookmarkPlaceServiceTest {
 
     @Test
     void addBookmarkTest() {
-        TouristAttraction attraction = TouristAttraction.builder()
+        Destination attraction = Destination.builder()
                 .city("Gampola")
                 .name("Ambuluwawa")
                 .type("Historical")
@@ -73,7 +70,7 @@ class BookmarkPlaceServiceTest {
 
     @Test
     void removeBookmarkTest(){
-        TouristAttraction attraction = TouristAttraction.builder()
+        Destination attraction = Destination.builder()
                 .city("Gampola")
                 .name("Ambuluwawa")
                 .type("Historical")

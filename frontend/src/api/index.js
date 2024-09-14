@@ -84,3 +84,30 @@ export const fetchExchangeRate = async () => {
     console.error("Error fetching the exchange rate:", error);
   }
 };
+
+export const getPlaceSuggestions = async (query) => {
+  const options = {
+    params: {
+      input: query,
+      radius: "500",
+    },
+    headers: {
+      "x-rapidapi-key": "8ecbf3f5d9mshdae784e4c5b86a1p1e8241jsneaae86936521",
+      "x-rapidapi-host": "place-autocomplete1.p.rapidapi.com",
+    },
+  };
+  try {
+    const response = await axios.get(
+      "https://place-autocomplete1.p.rapidapi.com/autocomplete/json",
+      options
+    );
+
+    if (response.status === 200) {
+      return response.data.predictions;
+    }
+    console.log("Error fetching place suggestions:");
+    return [];
+  } catch (error) {
+    console.error(error);
+  }
+};

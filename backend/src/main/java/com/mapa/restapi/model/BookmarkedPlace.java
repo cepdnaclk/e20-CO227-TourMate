@@ -21,7 +21,7 @@ public class BookmarkedPlace {
 
     @ManyToOne (fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     @JoinColumn(name = "attraction_id")
-    private TouristAttraction attraction_id;
+    private Destination attraction_id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @ToString(exclude = {"bookmarkedPlaces"})
-public class TouristAttraction {
+public class Destination {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +20,7 @@ public class TouristAttraction {
 
     @Column(length = 1000)
     private String description;
+
     private String name;
     private String city;
     private String imgUrl;
@@ -30,6 +31,7 @@ public class TouristAttraction {
     private String phone;
     private Long apiLocationId;
     private String address;
+    private String district;
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<BookmarkedPlace> bookmarkedPlaces;

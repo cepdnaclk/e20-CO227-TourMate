@@ -49,14 +49,14 @@ const App = () => {
               <Routes>
                 <Route element={<ProtectedRoutes />}>
                   {/* Add other protected routes here if needed */}
-                  <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/schedule-plan" element={<PlanPage />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/add-bookmarks" element={<AddBookmarks />} />
-                  <Route path="/create-plan" element={<Plan />} />
                   <Route path="/find-hotel" element={<HotelPage />} />
                   <Route path="/find-restaurant" element={<SearchPlace />} />
                 </Route>
+                <Route path="/create-plan" element={<Plan />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
