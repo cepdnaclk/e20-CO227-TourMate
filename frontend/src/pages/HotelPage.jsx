@@ -223,8 +223,14 @@ export default function HotelPage() {
         </div>
         <div>
           {/* Single Dropdown Button */}
-          <Button variant="outlined" onClick={handleClick}>
-            Select Guests & Rooms <KeyboardArrowDown />
+          <Button
+            variant="outlined"
+            onClick={handleClick}
+            style={{ color: "grey" }} // Changing text color to grey
+          >
+            {adults > 0 && `${adults} adults`}
+            {children > 0 && ` .${children} children`}
+            {rooms > 0 && ` .${rooms} rooms`} <KeyboardArrowDown />
           </Button>
 
           {/* Popover Container */}
@@ -347,7 +353,7 @@ export default function HotelPage() {
                 </FormControl>
                 <FormControl
                   className="formControl"
-                  sx={{ width: "60%", height: "150px" }}
+                  sx={{ width: "100%", height: "150px" }}
                 >
                   <Box>
                     <Typography gutterBottom>Price Range</Typography>
@@ -359,13 +365,14 @@ export default function HotelPage() {
                       max={maxPrice}
                       step={5000}
                       aria-labelledby="range-slider"
+                      sx={{ width: "60%" }}
                     />
                     <Box
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         mt: 2,
-                        width: "100%",
+                        width: "60%",
                       }}
                     >
                       <Typography>Min: LKR {priceRange[0]}</Typography>

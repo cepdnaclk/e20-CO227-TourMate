@@ -72,7 +72,7 @@ export default function List({
         </div>
       ) : (
         <>
-          <FormControl className="formControl">
+          <FormControl className="formControl" sx={{ zIndex: "10" }}>
             <InputLabel>Type</InputLabel>
             <Select
               value={type}
@@ -84,7 +84,7 @@ export default function List({
               <MenuItem value="attractions">Attractions</MenuItem>
             </Select>
           </FormControl>
-          <FormControl className="formControl">
+          <FormControl className="formControl" sx={{ zIndex: "10" }}>
             <InputLabel>Rating</InputLabel>
             <Select
               value={rating}
