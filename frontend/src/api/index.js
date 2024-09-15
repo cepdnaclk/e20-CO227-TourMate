@@ -101,12 +101,19 @@ export const getPlaceSuggestions = async (query) => {
       "https://place-autocomplete1.p.rapidapi.com/autocomplete/json",
       options
     );
+    console.log(response);
 
-    if (response.status === 200) {
-      return response.data.predictions;
+    if (response.status !== 200) {
+      console.log("Error fetching place suggestions");
+      return [];
     }
-    console.log("Error fetching place suggestions:");
-    return [];
+
+    if (response.data.predictions.length === 0) {
+      console.log("No predictions found");
+      return [];
+    }
+
+    return response.data.predictions;
   } catch (error) {
     console.error(error);
   }

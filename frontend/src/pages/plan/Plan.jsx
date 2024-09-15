@@ -7,10 +7,14 @@ import {
   Step,
   StepLabel,
   Typography,
+  InputAdornment,
+  Tooltip,
 } from "@mui/material";
 import { getPlaceSuggestions } from "../../api";
 import "./plan.css";
 import { useNavigate } from "react-router-dom";
+import { Error } from "@mui/icons-material";
+import { Search } from "@mui/icons-material";
 
 const Plan = () => {
   const [step, setStep] = useState(1);
@@ -42,12 +46,23 @@ const Plan = () => {
         return;
       }
 
-      getPlaceSuggestions(query).then((data) => {
-        setSuggestions(data);
-        console.log(data);
-      });
-    }, 400), // Debounce delay in milliseconds
-    [userPlan.startLocation, userPlan.endLocation]
+      getPlaceSuggestions(query)
+        .then((data) => {
+          // Filter out suggestions where type is 'country'
+          const filteredSuggestions = data.filter(
+            (suggestion) => !suggestion.types.includes("country")
+          );
+
+          // Set the filtered suggestions to state
+          setSuggestions(filteredSuggestions);
+
+          console.log(filteredSuggestions);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }, 600), // Debounce delay in milliseconds
+    []
   );
 
   const handleSuggestionClick = (field, suggestion) => {
@@ -66,7 +81,7 @@ const Plan = () => {
 
   // Placeholder function for form submission
   const handleSubmit = async () => {
-    console.log("User Plan Submitted:", userPlan);
+    console.log({ userPlan });
     // Add your API call logic here to save the userPlan details.
     try {
       const response = await fetch("http://localhost:1200/addPlan", {
@@ -85,9 +100,11 @@ const Plan = () => {
       } else {
         const error = await response.text();
         console.error(error);
+        window.alert("Error in Submitting");
       }
     } catch (error) {
       console.error(error);
+      window.alert("Error in Submitting plan");
     }
   };
 
@@ -114,7 +131,7 @@ const Plan = () => {
         );
         break;
       case 2:
-        setIsNextDisabled(!userPlan.startTime || !userPlan.endTime);
+        setIsNextDisabled(!userPlan.startTime || !userPlan.startDate);
         break;
       case 3:
         setIsNextDisabled(!userPlan.preference.trim());
@@ -159,7 +176,6 @@ const Plan = () => {
           <Button
             variant="contained"
             onClick={handleSubmit}
-            disabled={isNextDisabled}
             sx={{
               backgroundColor: "red",
               borderRadius: 10,
@@ -196,128 +212,175 @@ const Step1 = ({
     <Box sx={{ display: "flex", justifyContent: "center", margin: "10px" }}>
       <Typography variant="h5">Where Do You Want To Go?</Typography>
     </Box>
-    <Box sx={{ position: "relative" }}>
-      <TextField
-        label="Start Location"
-        variant="outlined"
-        fullWidth
-        value={userPlan.startLocation}
-        onChange={handleChange("startLocation")}
-        margin="normal"
-        required
-      />
-      {currentField === "startLocation" && suggestions.length > 0 && (
-        <ul className="suggestionsList">
-          {suggestions.map((suggestion, index) => (
-            <li
-              className="suggestion"
-              key={index}
-              onClick={() =>
-                handleSuggestionClick(
-                  "startLocation",
-                  suggestion.structured_formatting.main_text
-                )
-              }
-            >
-              {suggestion.description}
-            </li>
-          ))}
-        </ul>
-      )}
+    <Box sx={{ marginBottom: "20px" }}>
+      <Typography>Start</Typography>
+      <Box sx={{ position: "relative" }}>
+        <TextField
+          label="Search City or Town"
+          variant="outlined"
+          fullWidth
+          value={userPlan.startLocation}
+          onChange={handleChange("startLocation")}
+          margin="normal"
+          required
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <Search />
+              </InputAdornment>
+            ),
+          }}
+        />
+        {currentField === "startLocation" && suggestions.length > 0 && (
+          <ul className="suggestionsList">
+            {suggestions.map((suggestion, index) => (
+              <li
+                className="suggestion"
+                key={index}
+                onClick={() =>
+                  handleSuggestionClick(
+                    "startLocation",
+                    suggestion.structured_formatting.main_text
+                  )
+                }
+              >
+                {suggestion.description}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Box>
     </Box>
 
-    <Box sx={{ position: "relative" }}>
-      <TextField
-        label="Destination"
-        variant="outlined"
-        fullWidth
-        value={userPlan.endLocation}
-        onChange={handleChange("endLocation")}
-        margin="normal"
-        required
-      />
-      {currentField === "endLocation" && suggestions.length > 0 && (
-        <ul className="suggestionsList">
-          {suggestions.map((suggestion, index) => (
-            <li
-              className="suggestion"
-              key={index}
-              onClick={() =>
-                handleSuggestionClick(
-                  "endLocation",
-                  suggestion.structured_formatting.main_text
-                )
-              }
-            >
-              {suggestion.description}
-            </li>
-          ))}
-        </ul>
-      )}
+    <Box>
+      <Typography>Destination</Typography>
+      <Box sx={{ position: "relative" }}>
+        <TextField
+          label="Search City or Town"
+          variant="outlined"
+          fullWidth
+          value={userPlan.endLocation}
+          onChange={handleChange("endLocation")}
+          margin="normal"
+          required
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <Search />
+              </InputAdornment>
+            ),
+          }}
+        />
+        {currentField === "endLocation" && suggestions.length > 0 && (
+          <ul className="suggestionsList">
+            {suggestions.map((suggestion, index) => (
+              <li
+                className="suggestion"
+                key={index}
+                onClick={() =>
+                  handleSuggestionClick(
+                    "endLocation",
+                    suggestion.structured_formatting.main_text
+                  )
+                }
+              >
+                {suggestion.description}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Box>
     </Box>
   </Box>
 );
 
 // Step 2: Time
-const Step2 = ({ handleChange, userPlan }) => (
-  <>
-    <Box sx={{ display: "flex", justifyContent: "center", margin: "10px" }}>
-      <Typography variant="h5">When Are You Planning To Go?</Typography>
-    </Box>
-    <Box
-      sx={{
-        mt: 2,
-      }}
-    >
-      <Box sx={{ display: "flex", flexDirection: "column" }}>
-        <label>Start Date:</label>
-        <input
-          type="date"
-          value={userPlan.startDate}
-          onChange={handleChange("startDate")}
-          min={new Date().toISOString().split("T")[0]}
-          required
-          style={{
-            padding: "10px",
-            height: "40px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            fontSize: "16px",
-            marginTop: "5px",
-            marginBottom: "20px",
-            width: "80%",
-          }}
-        />
+const Step2 = ({ handleChange, userPlan, setUserPlan }) => {
+  const today = new Date().toISOString().split("T")[0]; // Today's date in YYYY-MM-DD format
+
+  // Function to handle time validation
+  const handleTimeChange = (e, field) => {
+    const selectedTime = e.target.value;
+    const currentTime = new Date().toLocaleTimeString("en-US", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    // Check if the selected date is today and the time is earlier than the current time
+    if (userPlan.startDate === today && selectedTime < currentTime) {
+      alert("Selected time is in the past. Please select a valid time.");
+      return; // Prevent updating the state with the invalid time
+    }
+
+    handleChange(field)(e); // Proceed with updating time if it's valid
+  };
+
+  return (
+    <>
+      <Box sx={{ display: "flex", justifyContent: "center", margin: "10px" }}>
+        <Typography variant="h5">When Are You Planning To Go?</Typography>
       </Box>
-      <TextField
-        label="Start Time"
-        type="time"
-        variant="outlined"
-        style={{ width: "80%", marginBottom: "20px" }}
-        value={userPlan.startTime}
-        onChange={handleChange("startTime")}
-        InputLabelProps={{
-          shrink: true,
+      <Box
+        sx={{
+          mt: 2,
         }}
-        margin="normal"
-        required
-      />
-      <TextField
-        label="End Time"
-        type="time"
-        variant="outlined"
-        style={{ width: "80%", marginBottom: "20px" }}
-        value={userPlan.endTime}
-        onChange={handleChange("endTime")}
-        InputLabelProps={{
-          shrink: true,
-        }}
-        margin="normal"
-        required
-      />
-    </Box>
-  </>
-);
+      >
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
+          <label>Start Date:</label>
+          <input
+            type="date"
+            value={userPlan.startDate}
+            onChange={handleChange("startDate")}
+            min={today} // Disable past dates
+            required
+            style={{
+              padding: "10px",
+              height: "40px",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+              fontSize: "16px",
+              marginTop: "5px",
+              marginBottom: "20px",
+              width: "80%",
+            }}
+          />
+        </Box>
+
+        {/* Start Time Input */}
+        <TextField
+          label="Start Time"
+          type="time"
+          variant="outlined"
+          style={{ width: "80%", marginBottom: "20px" }}
+          value={userPlan.startTime}
+          onChange={(e) => handleTimeChange(e, "startTime")}
+          InputLabelProps={{
+            shrink: true,
+          }}
+          margin="normal"
+          required
+        />
+
+        {/* End Time Input */}
+        <Tooltip title="Tell Us When do you plan to stop your journey each day? ">
+          <TextField
+            label={"End Time"}
+            type="time"
+            variant="outlined"
+            style={{ width: "80%", marginBottom: "20px" }}
+            value={userPlan.endTime}
+            onChange={handleChange("endTime")}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            margin="normal"
+          />
+        </Tooltip>
+      </Box>
+    </>
+  );
+};
 
 // Step 3: User Preference
 const Step3 = ({ handleChange }) => {
@@ -372,24 +435,35 @@ const Step3 = ({ handleChange }) => {
   return (
     <Box sx={{ mt: 2 }}>
       <Typography variant="h6">Select Your Preferences</Typography>
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: "10px", mt: 2 }}>
-        {types.map((type, index) => (
-          <Button
-            key={index}
-            variant={selectedTypes.includes(type) ? "contained" : "outlined"}
-            color={selectedTypes.includes(type) ? "secondary" : "primary"}
-            onClick={() => handleTypeClick(type)}
-            sx={{
-              textTransform: "capitalize",
-              borderRadius: "20px",
-              padding: "5px 15px",
-              margin: "5px",
-            }}
-          >
-            {type}
-          </Button>
-        ))}
-      </Box>
+      {types.length > 0 ? (
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: "10px", mt: 2 }}>
+          {types.map((type, index) => (
+            <Button
+              key={index}
+              variant={selectedTypes.includes(type) ? "contained" : "outlined"}
+              color={selectedTypes.includes(type) ? "secondary" : "primary"}
+              onClick={() => handleTypeClick(type)}
+              sx={{
+                textTransform: "capitalize",
+                borderRadius: "20px",
+                padding: "5px 15px",
+                margin: "5px",
+              }}
+            >
+              {type}
+            </Button>
+          ))}
+        </Box>
+      ) : (
+        <Box
+          sx={{ display: "flex", border: "solid black", alignItems: "center" }}
+        >
+          <Typography variant="h6" sx={{ margin: "10px" }}>
+            No Tags to Show now
+          </Typography>
+          <Error></Error>
+        </Box>
+      )}
     </Box>
   );
 };
