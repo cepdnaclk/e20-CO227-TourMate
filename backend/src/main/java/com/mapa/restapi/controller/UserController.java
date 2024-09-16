@@ -2,10 +2,10 @@ package com.mapa.restapi.controller;
 
 
 import com.mapa.restapi.dto.UserDto;
-import com.mapa.restapi.model.Destination;
+import com.mapa.restapi.model.TouristAttraction;
 import com.mapa.restapi.model.User;
 import com.mapa.restapi.model.UserPlan;
-//import com.mapa.restapi.service.BookmarkPlaceService;
+import com.mapa.restapi.service.BookmarkPlaceService;
 import com.mapa.restapi.service.UserPlanService;
 import com.mapa.restapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,39 +24,39 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-//    @Autowired
-//    private BookmarkPlaceService bookmarkPlaceService;
+    @Autowired
+    private BookmarkPlaceService bookmarkPlaceService;
 
     @Autowired
     private UserPlanService userPlanService;
 
-//    @PostMapping("/addbookmarks")
-//    public ResponseEntity<?> addBookmarks(@RequestBody Destination place , @AuthenticationPrincipal UserDetails userDetails){
-//
-//        String username = userDetails.getUsername();
-////        int code = bookmarkPlaceService.addBookmark(username,place);
-//        if (code==0){
-//            return ResponseEntity.ok().body("Bookmark added successfully");
-//        }
-//        return ResponseEntity.badRequest().body("Bookmark could not be added");
-//    }
-//
-//    @PostMapping("/removebookmark")
-//    public ResponseEntity<?> removeBookmarks(@RequestBody Destination place){
-//
-//        int code = bookmarkPlaceService.removeBookmark(place);
-//        if (code==1){
-//            return ResponseEntity.ok().body("Bookmark removed");
-//        }
-//        return ResponseEntity.badRequest().body("Error while removing bookmark");
-//    }
-//
-//    @GetMapping("/getbookmarks")
-//    public ResponseEntity<?> getBookmarks(@AuthenticationPrincipal UserDetails userDetails){
-//        String username = userDetails.getUsername();
-//        List<Long> code = bookmarkPlaceService.getBookmarks(username);
-//        return ResponseEntity.ok().body(code);
-//    }
+    @PostMapping("/addbookmarks")
+    public ResponseEntity<?> addBookmarks(@RequestBody TouristAttraction place , @AuthenticationPrincipal UserDetails userDetails){
+
+        String username = userDetails.getUsername();
+        int code = bookmarkPlaceService.addBookmark(username,place);
+        if (code==0){
+            return ResponseEntity.ok().body("Bookmark added successfully");
+        }
+        return ResponseEntity.badRequest().body("Bookmark could not be added");
+    }
+
+    @PostMapping("/removebookmark")
+    public ResponseEntity<?> removeBookmarks(@RequestBody TouristAttraction place){
+
+        int code = bookmarkPlaceService.removeBookmark(place);
+        if (code==0){
+            return ResponseEntity.ok().body("Bookmark removed");
+        }
+        return ResponseEntity.badRequest().body("Error while removing bookmark");
+    }
+
+    @GetMapping("/getbookmarks")
+    public ResponseEntity<?> getBookmarks(@AuthenticationPrincipal UserDetails userDetails){
+        String username = userDetails.getUsername();
+        List<Long> code = bookmarkPlaceService.getBookmarks(username);
+        return ResponseEntity.ok().body(code);
+    }
 
     @PostMapping("/create-plan")
     public ResponseEntity<?> createPlan(@RequestBody UserPlan plan, @AuthenticationPrincipal UserDetails userDetails){

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class DestinationDTO {
+public class TouristAttractionDTO {
 
     private long id;
     private String type;
@@ -19,7 +19,6 @@ public class DestinationDTO {
     private String web_url;
     private String phone;
     private String address;
-    private String district;
 
 
 }

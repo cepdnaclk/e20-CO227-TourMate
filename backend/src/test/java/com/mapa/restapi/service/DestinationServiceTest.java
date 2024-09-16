@@ -1,6 +1,5 @@
 package com.mapa.restapi.service;
 
-import com.mapa.restapi.dto.DestinationDTO;
 import com.mapa.restapi.model.Destination;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

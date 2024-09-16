@@ -75,10 +75,10 @@ export default function Place({
         console.log(data);
         setBookmark((prevBookmark) => !prevBookmark);
       } else {
-        console.error("Error adding/removing bookmark:", response.statusText);
+        console.log("Error adding/removing bookmark:", response.statusText);
       }
     } catch (error) {
-      console.error("Error in fetching data:", error);
+      console.log("Error in fetching data:", error);
     }
   };
 

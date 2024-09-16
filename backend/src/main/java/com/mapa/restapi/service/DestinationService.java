@@ -10,13 +10,8 @@ import java.util.List;
 @Service
 public class DestinationService {
 
-    private final DestinationRepo destinationRepository;
-
-    // Constructor-based Dependency Injection
     @Autowired
-    public DestinationService(DestinationRepo destinationRepository) {
-        this.destinationRepository = destinationRepository;
-    }
+    private DestinationRepo destinationRepository;
 
     // Fetch all destinations from the database
     public List<Destination> getAllDestinations() {

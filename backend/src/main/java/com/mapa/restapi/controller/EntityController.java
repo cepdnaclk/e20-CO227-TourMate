@@ -1,12 +1,15 @@
 package com.mapa.restapi.controller;
 
 import com.mapa.restapi.dto.HotelDto;
-import com.mapa.restapi.dto.DestinationDTO;
-import com.mapa.restapi.service.HotelRestaurantService;
 import com.mapa.restapi.service.DestinationService;
+import com.mapa.restapi.service.HotelRestaurantService;
+import com.mapa.restapi.service.TouristAttractionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -15,8 +18,7 @@ import java.util.List;
 public class EntityController {
 
     @Autowired
-    private DestinationService destinationService;
-
+    private TouristAttractionService touristAttractionService;
     @Autowired
     private HotelRestaurantService hotelRestaurantService;
 
@@ -36,6 +38,14 @@ public class EntityController {
     public ResponseEntity<List<HotelDto>> getHotelsByCity(@PathVariable String city){
         List<HotelDto> hotels = hotelRestaurantService.getHotelsByCity(city);
         return ResponseEntity.ok(hotels);
+    }
+
+    @GetMapping("/attractions/getTypes")
+    public ResponseEntity<List<String>> getDestinationTypes() {
+
+        List<String> typesSet =touristAttractionService.getAttractionsTypes ();
+
+        return ResponseEntity.ok(typesSet); // Return the set wrapped in ResponseEntity
     }
 
 }

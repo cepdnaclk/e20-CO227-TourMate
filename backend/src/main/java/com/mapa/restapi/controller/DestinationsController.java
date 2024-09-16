@@ -12,14 +12,8 @@ import java.util.List;
 @CrossOrigin // Allows requests from other origins (like your HTML/JS frontend)
 public class DestinationsController {
 
-    private final DestinationService destinationService;
-
-    // Constructor-based Dependency Injection
     @Autowired
-    public DestinationsController(DestinationService destinationService) {
-        this.destinationService = destinationService;
-    }
-
+    private DestinationService destinationService;
     // Endpoint to fetch all destinations (optional, useful for debugging)
     @GetMapping
     public List<Destination> getAllDestinations() {

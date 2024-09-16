@@ -2,10 +2,15 @@ package com.mapa.restapi.repo;
 
 import com.mapa.restapi.model.Destination;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
+import org.springframework.stereotype.Repository;
 
-// Extend JpaRepository to provide basic CRUD operations
+import java.util.List;
+import java.util.Optional;
+
+@Repository
 public interface DestinationRepo extends JpaRepository<Destination, Long> {
-    // Custom query method to find destinations by name (this is optional)
+
+    Optional<Destination> findByDestinationName(String name);
+
     List<Destination> findByDestinationNameContaining(String destinationName);
 }

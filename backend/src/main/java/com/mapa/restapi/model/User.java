@@ -17,7 +17,7 @@ PK : id (Auto Increment)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"userPlan", "forgotPassword", "userHistories", "bookmarkedPlaces"})
+@ToString(exclude = {"userPlan", "forgotPassword", "bookmarkedPlaces"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,18 +42,5 @@ public class User {
     private ForgotPassword forgotPassword;
 
 
-    @OneToOne(
-            mappedBy = "user",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY
-    )
-    private UserPlan userPlan;
-
-
-    @OneToMany(
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY
-    )
-    private List<BookmarkedPlace> bookmarkedPlaces;
     
 }
