@@ -21,6 +21,8 @@ import ProtectedRoutes from "./utils/ProtectedRoutes";
 import { Box, Container } from "@mui/material";
 import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
+import SchedulePlan from "./pages/schedulePlanning/SchedulePlan";
+
 
 const App = () => {
   return (
@@ -49,12 +51,13 @@ const App = () => {
               <Routes>
                 <Route element={<ProtectedRoutes />}>
                   {/* Add other protected routes here if needed */}
-                  <Route path="/schedule-plan" element={<PlanPage />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/add-bookmarks" element={<AddBookmarks />} />
                   <Route path="/find-hotel" element={<HotelPage />} />
                   <Route path="/find-restaurant" element={<SearchPlace />} />
                   <Route path="/create-plan" element={<Plan />} />
+                  <Route path="/schedule-plan" element={<SchedulePlan />} />
+
                 </Route>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/" element={<Home />} />
