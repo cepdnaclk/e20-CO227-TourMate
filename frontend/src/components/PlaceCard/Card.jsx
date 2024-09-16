@@ -99,20 +99,6 @@ export default function AttractionCard({ place }) {
             )}
           </Typography>
         )}
-        <CardActions
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          <Button
-            size="small"
-            color="primary"
-            onClick={() => window.open(place.web_url, "_blank")}
-          >
-            Trip Advisor
-          </Button>
-        </CardActions>
       </CardContent>
     </Card>
   );

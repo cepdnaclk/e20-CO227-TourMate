@@ -1,5 +1,6 @@
 package com.mapa.restapi.service;
 
+import com.mapa.restapi.dto.TouristAttractionDTO;
 import com.mapa.restapi.model.BookmarkedPlace;
 import com.mapa.restapi.model.TouristAttraction;
 import com.mapa.restapi.model.User;
@@ -85,5 +86,14 @@ class BookmarkPlaceServiceTest {
     void getBookmarkTest(){
 
         System.out.println(bookmarkPlaceService.getBookmarks("test@test.com"));
+    }
+
+    @Test
+    void getBookmarkPlacesTest(){
+        List<TouristAttractionDTO> bookmarkPlaces = bookmarkPlaceService.getBookmarksPlaces("test@test.com");
+        for(TouristAttractionDTO bookmark: bookmarkPlaces){
+            System.out.println(bookmark.getName());
+
+        }
     }
 }

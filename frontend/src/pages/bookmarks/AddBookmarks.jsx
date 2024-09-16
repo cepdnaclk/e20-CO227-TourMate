@@ -14,9 +14,9 @@ export default function AddBookmarks() {
     const fetchAttractions = async () => {
       try {
         const response = await fetch(
-          "http://localhost:1200/api/destinations",
+          "http://localhost:1200/attractions/getall",
           {
-            method: "POST",
+            method: "GET",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${localStorage.getItem("token")}`,

@@ -1,10 +1,11 @@
 package com.mapa.restapi.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TouristAttractionDTO {
 
     private long id;

@@ -51,6 +51,7 @@ public class UserController {
         return ResponseEntity.badRequest().body("Error while removing bookmark");
     }
 
+    //Get Bookmark Id
     @GetMapping("/getbookmarks")
     public ResponseEntity<?> getBookmarks(@AuthenticationPrincipal UserDetails userDetails){
         String username = userDetails.getUsername();

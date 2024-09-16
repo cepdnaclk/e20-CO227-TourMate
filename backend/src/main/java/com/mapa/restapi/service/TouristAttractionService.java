@@ -28,7 +28,7 @@ public class TouristAttractionService {
         Set<String> typesSet = new HashSet<>();
 
         for (TouristAttraction destination : destinations) {
-            String[] types = destination.getType().split(","); // Assuming `getTypes()` returns the comma-separated string
+            String[] types = destination.getType().split(",");
             for (String type : types) {
                 typesSet.add(type.trim()); // Trim to remove extra spaces
             }
@@ -38,7 +38,7 @@ public class TouristAttractionService {
     }
 
 
-    private TouristAttractionDTO convertToDTO(TouristAttraction touristAttraction) {
+    public TouristAttractionDTO convertToDTO(TouristAttraction touristAttraction) {
         TouristAttractionDTO dto = TouristAttractionDTO.builder()
                 .id(touristAttraction.getAttractionID())
                 .type(touristAttraction.getType())

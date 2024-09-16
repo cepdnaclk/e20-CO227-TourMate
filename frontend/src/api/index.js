@@ -21,7 +21,8 @@ export const getPlaceData = async (sw, ne, type) => {
       `https://travel-advisor.p.rapidapi.com/${type}/list-in-boundary`,
       options
     );
-    return data;
+
+    return data || [];
   } catch (error) {
     console.error(error);
   }
@@ -66,7 +67,7 @@ export const getHotelData = async (
       options
     );
     // console.log(results);
-    return results;
+    return results || [];
   } catch (error) {
     console.error(error);
   }

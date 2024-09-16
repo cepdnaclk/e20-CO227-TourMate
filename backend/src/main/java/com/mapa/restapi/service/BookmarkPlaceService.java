@@ -1,11 +1,10 @@
 package com.mapa.restapi.service;
 
+import com.mapa.restapi.dto.TouristAttractionDTO;
 import com.mapa.restapi.model.BookmarkedPlace;
-import com.mapa.restapi.model.EntityType;
 import com.mapa.restapi.model.TouristAttraction;
 import com.mapa.restapi.model.User;
 import com.mapa.restapi.repo.BookmarkedPlaceRepo;
-import com.mapa.restapi.repo.EntityTypeRepo;
 import com.mapa.restapi.repo.TouristAttractionRepo;
 import com.mapa.restapi.repo.UserRepo;
 import jakarta.transaction.Transactional;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BookmarkPlaceService {
@@ -28,6 +27,9 @@ public class BookmarkPlaceService {
 
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private TouristAttractionService touristAttractionService;
 
 
     public List<BookmarkedPlace> findBookMarks(long userID) {
@@ -104,4 +106,24 @@ public class BookmarkPlaceService {
         return bookmarkIDs;
 
     }
+
+    public List<TouristAttractionDTO> getBookmarksPlaces(String email) {
+        // Find the user by email, or throw an exception if the user is not found
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Find bookmarked places for the user
+        List<BookmarkedPlace> bookmarks = bookmarkedPlaceRepo.findByUserID(user.getUserid())
+                .orElseThrow(() -> new RuntimeException("No bookmark found"));
+
+        // Extract the tourist attractions from the bookmarks and map them to DTOs
+        return bookmarks.stream()
+                .map(bookmark -> {
+                    TouristAttraction attraction = bookmark.getAttraction_id();
+                    return touristAttractionService.convertToDTO(attraction);
+
+                })
+                .collect(Collectors.toList());
+    }
+
 }
