@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./Card.css";
 import {
+  LocationOn,
+  Phone,
+  BookmarkTwoTone as BookmarkIcon,
+  BookmarkBorder as BookmarkBorderIcon,
+} from "@mui/icons-material";
+import {
   Box,
-  Button,
   Card,
   CardActions,
   CardContent,
@@ -11,42 +16,53 @@ import {
   Rating,
   Typography,
   useMediaQuery,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 
-import { LocationOn, Phone } from "@mui/icons-material";
+export default function AttractionCard({ place, bookmarked }) {
+  const [Bookmark, setBookmark] = useState(false);
 
-export default function AttractionCard({ place }) {
+  useEffect(() => {
+    if (bookmarked) {
+      setBookmark(true);
+    }
+  }, [place]);
+
   const isDesktop = useMediaQuery("(min-width:600px)");
-  const handleClick = async () => {
+  const handleBookmark = async () => {
     try {
-      const response = await fetch("http://localhost:1200/addBookmarks", {
+      const url = Bookmark
+        ? "http://localhost:1200/removebookmark"
+        : "http://localhost:1200/addbookmarks";
+
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
-          attractionID: place.id,
+          name: place.name,
         }),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log("Bookmark added:", data);
-        window.alert("Bookmark added");
+        const data = await response.text();
+        console.log(data);
+        setBookmark((prevBookmark) => !prevBookmark);
       } else {
-        console.error("Error adding bookmark:", response.statusText);
-        window.alert("Error adding bookmark");
+        console.log("Error adding/removing bookmark:", response.statusText);
       }
     } catch (error) {
-      console.error("Error in fetching data:", error);
+      console.log("Error in fetching data:", error);
     }
   };
 
   return (
-    <Card elevation={6} className="card" sx={{ width: 300 }}>
+    <Card elevation={6} className="card" sx={{ width: 350 }}>
       <CardMedia
-        style={{ height: 350 }}
+        style={{ height: 250, position: "relative" }}
         image={
           place.imgUrl
             ? place.imgUrl
@@ -54,8 +70,29 @@ export default function AttractionCard({ place }) {
         }
         title={place.name}
         className="card-media"
-        onClick={handleClick}
-      />
+      >
+        <Box sx={{ position: "absolute", top: 10, right: 10 }}>
+          <Tooltip title="Add bookmark">
+            <IconButton onClick={handleBookmark} style={{ cursor: "pointer" }}>
+              {Bookmark ? (
+                <BookmarkIcon
+                  fontSize="large"
+                  sx={{
+                    color: "yellow",
+                  }}
+                />
+              ) : (
+                <BookmarkBorderIcon
+                  fontSize="large"
+                  sx={{
+                    color: "white",
+                  }}
+                />
+              )}
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </CardMedia>
       <CardContent>
         <Typography variant="h5" gutterBottom>
           {place.name}
@@ -100,6 +137,7 @@ export default function AttractionCard({ place }) {
           </Typography>
         )}
       </CardContent>
+      <CardActions></CardActions>
     </Card>
   );
 }

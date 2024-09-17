@@ -4,14 +4,14 @@ import "leaflet-routing-machine";
 import "leaflet/dist/leaflet.css";
 import "./SchedulePlan.css";
 import townBoundingBoxes from "./TownBoundingBox";
-import { Box, Rating, Typography } from "@mui/material";
-import { LocationOn } from "@mui/icons-material";
+import { Box, Button, Rating, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const SchedulePlan = () => {
   const [start, setStart] = useState("");
   const [destination, setDestination] = useState("");
-  const [stops, setStops] = useState(["", "", "", "", ""]);
-  const [waitingTimes, setWaitingTimes] = useState([0, 0, 0, 0, 0]);
+  const [stops, setStops] = useState([""]);
+  const [waitingTimes, setWaitingTimes] = useState(Array(stops.length).fill(0));
   const [startDateTime, setStartDateTime] = useState("");
   const [reverseRoute, setReverseRoute] = useState(false);
   const [segmentDetails, setSegmentDetails] = useState([]);
@@ -25,7 +25,12 @@ const SchedulePlan = () => {
   const [passingTowns, setPassingTowns] = useState([]);
   const [nearbyTowns, setNearbyTowns] = useState([]);
   const [bookmarkPlaces, setBookmarkPlaces] = useState([]);
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(0); //Count to select which part to render
+  const navigate = useNavigate();
+
+  const handleManageBookmarksClick = () => {
+    navigate("/add-bookmarks");
+  };
 
   useEffect(() => {
     const fetchBookmarkPlaces = async () => {
@@ -43,7 +48,7 @@ const SchedulePlan = () => {
 
         if (response.ok) {
           const data = await response.json();
-          console.log(data);
+          // console.log(data);
           setBookmarkPlaces(data);
         } else {
           console.log("Error fetching bookmark places");
@@ -56,12 +61,27 @@ const SchedulePlan = () => {
     fetchBookmarkPlaces();
   }, []);
 
-  //BookmarkCard function
-  const handleBookmarkClick = (bookmark) => {
-    console.log(bookmark);
-  };
+  // Update waitingTimes when stops length changes
+  useEffect(() => {
+    setWaitingTimes((prevTimes) => {
+      // Create a new array with the same length as stops, preserving existing values
+      const updatedTimes = [...prevTimes];
+
+      // If stops have increased, add 0 for each new stop
+      if (stops.length > prevTimes.length) {
+        return [
+          ...updatedTimes,
+          ...Array(stops.length - prevTimes.length).fill(0),
+        ];
+      }
+
+      // If stops have decreased, slice the array to match the stops length
+      return updatedTimes.slice(0, stops.length);
+    });
+  }, [stops]);
 
   useEffect(() => {
+    //If count is 1 (When Schedule button clicked) fetch Map
     if (count === 1) {
       mapRef.current = L.map("map").setView([7.8731, 80.7718], 7);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -102,11 +122,27 @@ const SchedulePlan = () => {
     }
   };
 
-  const handleStopInput = (index, value) => {
-    const newStops = [...stops];
-    newStops[index] = value;
-    setStops(newStops);
+  //BookmarkCard function
+  const handleBookmarkClick = (bookmark, index) => {
+    // setStops([...stops], bookmark.name);
+    // console.log({ stops });
+  };
 
+  const handleStopInput = (index, value) => {
+    let newStops = [...stops];
+    newStops[index] = value;
+
+    // Remove trailing empty stops
+    while (newStops.length > 1 && newStops[newStops.length - 1] === "") {
+      newStops.pop();
+    }
+
+    // Add an empty string if the last stop is not empty
+    if (newStops[newStops.length - 1] !== "") {
+      newStops.push("");
+    }
+
+    setStops(newStops);
     handleLocationInput(`stop${index + 1}`, value);
   };
 
@@ -140,6 +176,7 @@ const SchedulePlan = () => {
   const findRoute = () => {
     const stopsToFetch = stops.filter((stop) => stop.trim() !== "");
     const locations = [start, ...stopsToFetch, destination];
+    console.log("Stops ", { locations });
     setCount(count + 1); //Count to render which part
 
     const locationPromises = locations.map((loc) =>
@@ -568,14 +605,16 @@ const SchedulePlan = () => {
 
   return (
     <div>
-      <h1>Schedule Planner</h1>
+      <h1 className="Schedule-Header">Schedule Planner</h1>
       <div className="container">
         {count === 0 ? (
           //Getting Stops and Bookmark places for schedule
           <>
             <div className="input-container">
               <div>
-                <label htmlFor="start">Start Location:</label>
+                <label htmlFor="start" className="label">
+                  Start Location:
+                </label>
                 <input
                   type="text"
                   id="start"
@@ -583,11 +622,12 @@ const SchedulePlan = () => {
                   onChange={(e) => setStart(e.target.value)}
                   list="startSuggestions"
                   onInput={(e) => handleLocationInput("start", e.target.value)}
+                  className="location-input"
                 />
                 <datalist id="startSuggestions"></datalist>
               </div>
               <div>
-                <label htmlFor="startDateTime">
+                <label htmlFor="startDateTime" className="label">
                   Journey Start Time & Date:
                 </label>
                 <input
@@ -595,10 +635,15 @@ const SchedulePlan = () => {
                   id="startDateTime"
                   value={startDateTime}
                   onChange={(e) => setStartDateTime(e.target.value)}
+                  className="date-input"
+                  min={new Date().toISOString().split("T")[0] + "T00:00"}
+                  required
                 />
               </div>
               <div>
-                <label htmlFor="destination">Destination:</label>
+                <label htmlFor="destination" className="label">
+                  Destination:
+                </label>
                 <input
                   type="text"
                   id="destination"
@@ -608,6 +653,7 @@ const SchedulePlan = () => {
                   onInput={(e) =>
                     handleLocationInput("destination", e.target.value)
                   }
+                  className="location-input"
                 />
                 <datalist id="destinationSuggestions"></datalist>
               </div>
@@ -623,14 +669,19 @@ const SchedulePlan = () => {
                 Use Destination as Start Location
               </label>
             </div>
-            <Typography variant="h5">Your Bookmarks:</Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography variant="h5">Your Bookmarks:</Typography>
+              <Button variant="contained" onClick={handleManageBookmarksClick}>
+                Manage Bookmarks
+              </Button>
+            </Box>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
               {bookmarkPlaces.length > 0 &&
                 bookmarkPlaces.map((bookmark, index) => (
                   <div
                     key={index}
                     className="bookmark-card"
-                    onClick={() => handleBookmarkClick(bookmark)}
+                    onClick={() => handleBookmarkClick(bookmark, index)}
                   >
                     <img
                       src={bookmark.imgUrl}
@@ -673,6 +724,7 @@ const SchedulePlan = () => {
                   onInput={(e) => handleStopInput(index, e.target.value)}
                   list={`stop${index + 1}Suggestions`}
                   placeholder="Enter stop location"
+                  className="stop-input"
                 />
                 <datalist id={`stop${index + 1}Suggestions`}></datalist>
                 <div

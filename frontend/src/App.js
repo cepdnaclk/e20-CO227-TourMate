@@ -23,7 +23,6 @@ import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
 import SchedulePlan from "./pages/schedulePlanning/SchedulePlan";
 
-
 const App = () => {
   return (
     <AuthProvider>
@@ -57,7 +56,6 @@ const App = () => {
                   <Route path="/find-restaurant" element={<SearchPlace />} />
                   <Route path="/create-plan" element={<Plan />} />
                   <Route path="/schedule-plan" element={<SchedulePlan />} />
-
                 </Route>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/" element={<Home />} />

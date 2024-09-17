@@ -52,6 +52,7 @@ public class TouristAttractionService {
                 .web_url(touristAttraction.getWeb_url())
                 .address(touristAttraction.getAddress())
                 .rating(touristAttraction.getRating())
+                .apiLocationId(touristAttraction.getApiLocationId())
                 .build();
         return dto;
     }

@@ -20,6 +20,7 @@ public class TouristAttractionDTO {
     private String web_url;
     private String phone;
     private String address;
+    private Long apiLocationId;
 
 
 }
