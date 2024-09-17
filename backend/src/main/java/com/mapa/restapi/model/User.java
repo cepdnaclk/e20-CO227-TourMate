@@ -41,11 +41,6 @@ public class User {
             fetch = FetchType.LAZY)
     private ForgotPassword forgotPassword;
 
-    @OneToMany(
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY
-    )
-    private List<UserHistory> userHistories;
 
     @OneToOne(
             mappedBy = "user",

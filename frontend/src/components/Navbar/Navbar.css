@@ -47,6 +47,7 @@
     font-weight: 500;
     margin-left: 40px;
     transition: color 0.3s ease;
+    text-decoration: none; 
 }
 .nav a.scrolled{
     color: white;
@@ -81,6 +82,7 @@
     justify-content: center;
     align-items: center;
     padding: 10px 40px;
+    margin-left: 222px;
     gap: 14px;
     /* Assests colour */
     background: #FF6F61;
@@ -94,3 +96,33 @@
     background-color: #FF3B2F; /* Change background color on hover */
     transform: scale(1.05); /* Slightly enlarge the button on hover */
 }
+
+/*Logout button*/
+.logout-btn{
+    /* Sign in button */
+   
+    font-size: 18px;
+    font-weight: 500;
+    /* Auto layout */
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 40px;
+    margin-left: 222px;
+    gap: 14px;
+    /* Assests colour */
+    background: #90C3FF;
+    border: 2px solid black;
+    border-radius: 100px;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Add transition */
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    border: none;
+    color: white;
+    background-color: #FF3B2F; /* Change background color on hover */
+    transform: scale(1.05); /* Slightly enlarge the button on hover */
+}
+

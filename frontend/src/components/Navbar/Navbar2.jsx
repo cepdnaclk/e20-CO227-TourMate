@@ -1,8 +1,10 @@
+/*Navbar for after login pages*/
 import React,{useEffect} from 'react'
 import './Navbar.css'
 import logob from '../../assets/logob.png'
 import { Link } from 'react-router-dom';
-const Navbar = () => {
+import { useAuth } from "../../utils/AuthContext";
+const Navbar2 = () => {
     useEffect(() => {
         const handleScroll = () => {
             const header = document.querySelector('.header');
@@ -26,7 +28,12 @@ const Navbar = () => {
             window.removeEventListener('scroll', handleScroll);
         };
     }, []);
+    const { logout } = useAuth();
 
+    const handleLogout = async () => {
+      await logout();
+      // Optionally redirect to homepage or another appropriate page after logout
+    };
 
   return (
     <header className="header">
@@ -35,14 +42,14 @@ const Navbar = () => {
             </a>
 
         <nav className="nav">
-            <Link to='/'>Home</Link>
-            <Link to='/'>Tours</Link>
-            <Link to='/'>About me</Link>
-            <Link to='/'>Contact me</Link>
+            <Link to='/find-route'>Route</Link>
+            <Link to='/find-hotel'>Hotels</Link>
+            <Link to='/find-restaurants'>Restaurants</Link>
+            <Link to='/create-plan'>Schedule</Link>
         </nav>
-        <Link to="/signup" className="link-button"><button className="signin-btn">SIGN IN</button></Link>
+        <Link to="/" className="link-button"><button onClick={handleLogout} className="logout-btn">LOG OUT</button></Link>
     </header>
   )
 }
 
-export default Navbar
+export default Navbar2
