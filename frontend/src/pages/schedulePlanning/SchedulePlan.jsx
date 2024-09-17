@@ -49,7 +49,7 @@ const SchedulePlan = () => {
           console.log("Error fetching bookmark places");
         }
       } catch (error) {
-        console.log("Something went wrong");
+        console.log("Something went wrong in fetching bookmark places");
       }
     };
 
@@ -62,14 +62,16 @@ const SchedulePlan = () => {
   };
 
   useEffect(() => {
-    mapRef.current = L.map("map").setView([7.8731, 80.7718], 7);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(mapRef.current);
-    return () => {
-      if (mapRef.current) mapRef.current.remove();
-    };
-  }, []);
+    if (count === 1) {
+      mapRef.current = L.map("map").setView([7.8731, 80.7718], 7);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors",
+      }).addTo(mapRef.current);
+      return () => {
+        if (mapRef.current) mapRef.current.remove();
+      };
+    }
+  }, [count]);
 
   const handleLocationInput = (inputId, value) => {
     if (value.length > 1) {
@@ -568,137 +570,148 @@ const SchedulePlan = () => {
     <div>
       <h1>Schedule Planner</h1>
       <div className="container">
-        <div className="input-container">
-          <div>
-            <label htmlFor="start">Start Location:</label>
-            <input
-              type="text"
-              id="start"
-              value={start}
-              onChange={(e) => setStart(e.target.value)}
-              list="startSuggestions"
-              onInput={(e) => handleLocationInput("start", e.target.value)}
-            />
-            <datalist id="startSuggestions"></datalist>
-          </div>
-          <div>
-            <label htmlFor="startDateTime">Journey Start Time & Date:</label>
-            <input
-              type="datetime-local"
-              id="startDateTime"
-              value={startDateTime}
-              onChange={(e) => setStartDateTime(e.target.value)}
-            />
-          </div>
-          <div>
-            <label htmlFor="destination">Destination:</label>
-            <input
-              type="text"
-              id="destination"
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              list="destinationSuggestions"
-              onInput={(e) =>
-                handleLocationInput("destination", e.target.value)
-              }
-            />
-            <datalist id="destinationSuggestions"></datalist>
-          </div>
-        </div>
-        <div className="checkbox-container">
-          <label>
-            <input
-              type="checkbox"
-              id="reverseRoute"
-              checked={reverseRoute}
-              onChange={handleReverseRouteChange}
-            />{" "}
-            Use Destination as Start Location
-          </label>
-        </div>
-        <Typography variant="h5">Your Bookmarks:</Typography>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-          {bookmarkPlaces.length > 0 &&
-            bookmarkPlaces.map((bookmark, index) => (
-              <div
-                key={index}
-                className="bookmark-card"
-                onClick={() => handleBookmarkClick(bookmark)}
-              >
-                <img
-                  src={bookmark.imgUrl}
-                  alt={bookmark.name}
-                  className="bookmark-image"
+        {count === 0 ? (
+          //Getting Stops and Bookmark places for schedule
+          <>
+            <div className="input-container">
+              <div>
+                <label htmlFor="start">Start Location:</label>
+                <input
+                  type="text"
+                  id="start"
+                  value={start}
+                  onChange={(e) => setStart(e.target.value)}
+                  list="startSuggestions"
+                  onInput={(e) => handleLocationInput("start", e.target.value)}
                 />
-                <div className="bookmark-details">
-                  <Box>
-                    <h4>{bookmark.name}</h4>
-                    <Rating
-                      name={`bookmark-rating-${index}`}
-                      value={bookmark.rating}
-                      precision={0.5} // Allows half-star increments
-                      readOnly
-                      size="small"
-                    />
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
+                <datalist id="startSuggestions"></datalist>
+              </div>
+              <div>
+                <label htmlFor="startDateTime">
+                  Journey Start Time & Date:
+                </label>
+                <input
+                  type="datetime-local"
+                  id="startDateTime"
+                  value={startDateTime}
+                  onChange={(e) => setStartDateTime(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="destination">Destination:</label>
+                <input
+                  type="text"
+                  id="destination"
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                  list="destinationSuggestions"
+                  onInput={(e) =>
+                    handleLocationInput("destination", e.target.value)
+                  }
+                />
+                <datalist id="destinationSuggestions"></datalist>
+              </div>
+            </div>
+            <div className="checkbox-container">
+              <label>
+                <input
+                  type="checkbox"
+                  id="reverseRoute"
+                  checked={reverseRoute}
+                  onChange={handleReverseRouteChange}
+                />{" "}
+                Use Destination as Start Location
+              </label>
+            </div>
+            <Typography variant="h5">Your Bookmarks:</Typography>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+              {bookmarkPlaces.length > 0 &&
+                bookmarkPlaces.map((bookmark, index) => (
+                  <div
+                    key={index}
+                    className="bookmark-card"
+                    onClick={() => handleBookmarkClick(bookmark)}
                   >
-                    {/* <LocationOn fontSize="small" /> */}
-                    <Typography sx={{ ml: 0.5 }}>{bookmark.city}</Typography>
-                  </Box>
+                    <img
+                      src={bookmark.imgUrl}
+                      alt={bookmark.name}
+                      className="bookmark-image"
+                    />
+                    <div className="bookmark-details">
+                      <Box>
+                        <h4>{bookmark.name}</h4>
+                        <Rating
+                          name={`bookmark-rating-${index}`}
+                          value={bookmark.rating}
+                          precision={0.5} // Allows half-star increments
+                          readOnly
+                          size="small"
+                        />
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {/* <LocationOn fontSize="small" /> */}
+                        <Typography sx={{ ml: 0.5 }}>
+                          {bookmark.city}
+                        </Typography>
+                      </Box>
+                    </div>
+                  </div>
+                ))}
+            </Box>
+            {stops.map((stop, index) => (
+              <div key={index}>
+                <label htmlFor={`stop${index + 1}`}>Stop {index + 1}:</label>
+                <input
+                  type="text"
+                  id={`stop${index + 1}`}
+                  value={stop || ""}
+                  onInput={(e) => handleStopInput(index, e.target.value)}
+                  list={`stop${index + 1}Suggestions`}
+                  placeholder="Enter stop location"
+                />
+                <datalist id={`stop${index + 1}Suggestions`}></datalist>
+                <div
+                  className="waiting-time"
+                  style={{ display: stop ? "block" : "none" }}
+                >
+                  <label>Waiting Time:</label>
+                  <input
+                    type="radio"
+                    name={`waitingTime${index + 1}`}
+                    value="15"
+                  />{" "}
+                  15 min
+                  <input
+                    type="radio"
+                    name={`waitingTime${index + 1}`}
+                    value="30"
+                  />{" "}
+                  30 min
+                  <input
+                    type="radio"
+                    name={`waitingTime${index + 1}`}
+                    value="60"
+                  />{" "}
+                  1 hour
                 </div>
               </div>
             ))}
-        </Box>
-        {stops.map((stop, index) => (
-          <div key={index}>
-            <label htmlFor={`stop${index + 1}`}>Stop {index + 1}:</label>
-            <input
-              type="text"
-              id={`stop${index + 1}`}
-              value={stop || ""}
-              onInput={(e) => handleStopInput(index, e.target.value)}
-              list={`stop${index + 1}Suggestions`}
-              placeholder="Enter stop location"
-            />
-            <datalist id={`stop${index + 1}Suggestions`}></datalist>
-            <div
-              className="waiting-time"
-              style={{ display: stop ? "block" : "none" }}
-            >
-              <label>Waiting Time:</label>
-              <input
-                type="radio"
-                name={`waitingTime${index + 1}`}
-                value="15"
-              />{" "}
-              15 min
-              <input
-                type="radio"
-                name={`waitingTime${index + 1}`}
-                value="30"
-              />{" "}
-              30 min
-              <input
-                type="radio"
-                name={`waitingTime${index + 1}`}
-                value="60"
-              />{" "}
-              1 hour
-            </div>
-          </div>
-        ))}
-        <button id="findRoute" onClick={findRoute}>
-          Schedule
-        </button>
-        <div id="map" style={{ height: "400px" }}></div>
-        <div id="segmentDetails">
-          <h2>Segment Details</h2>
-          {/* <div className="towns">
+            <button id="findRoute" onClick={findRoute}>
+              Schedule
+            </button>
+          </>
+        ) : (
+          //Schedule Display segment with route map
+          <>
+            <div id="map" style={{ height: "400px" }}></div>
+            <div id="segmentDetails">
+              <h2>Segment Details</h2>
+              {/* <div className="towns">
             <h4>Passing Towns</h4>
             {passingTowns.length > 0 ? (
               <p>{passingTowns.join(", ")}</p>
@@ -707,77 +720,71 @@ const SchedulePlan = () => {
             )}
           </div> */}
 
-          <div className="towns">
-            <h4>Nearby Towns</h4>
-            {nearbyTowns.length > 0 ? (
-              <p>{nearbyTowns.join(", ")}</p>
-            ) : (
-              <p>No nearby towns found.</p>
-            )}
-          </div>
-          <div>
-            {segmentDetails.map((segment, index) => (
-              <div key={index}>
-                <h4>
-                  From {segment.from} to {segment.to}
-                </h4>
-                <p>
-                  <strong>Distance:</strong> {segment.distance} km
-                </p>
-                <p>
-                  <strong>Time:</strong> {segment.time} minutes
-                </p>
-                <p>
-                  <strong>Waiting Time:</strong> {segment.waitingTime} minutes
-                </p>
+              <div className="towns">
+                <h4>Nearby Towns</h4>
+                {nearbyTowns.length > 0 ? (
+                  <p>{nearbyTowns.join(", ")}</p>
+                ) : (
+                  <p>No nearby towns found.</p>
+                )}
               </div>
-            ))}
-          </div>
-        </div>
-        <div id="arrivalTableContainer">
-          <h2>Schedule Table</h2>
-          <table id="arrivalTable">
-            <thead>
-              <tr>
-                <th>From</th>
-                <th>To</th>
-                <th>Distance</th>
-                <th>Estimated Departure Time</th>
-                <th>Estimated Arrival Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {arrivalTable.map((row, index) => (
-                <tr key={index}>
-                  <td>{row.from}</td>
-                  <td>{row.to}</td>
-                  <td>{row.distance} km</td>
-                  <td>{row.departure}</td>
-                  <td>{row.arrival}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div id="summaryDiv">
-          <h3>Overall Summary</h3>
-          <p>
-            <strong>Total Distance:</strong> {summary.totalDistance} km
-          </p>
-          <p>
-            <strong>Total Time:</strong> {summary.totalTime} minutes
-          </p>
-        </div>
-        )
+              <div>
+                {segmentDetails.map((segment, index) => (
+                  <div key={index}>
+                    <h4>
+                      From {segment.from} to {segment.to}
+                    </h4>
+                    <p>
+                      <strong>Distance:</strong> {segment.distance} km
+                    </p>
+                    <p>
+                      <strong>Time:</strong> {segment.time} minutes
+                    </p>
+                    <p>
+                      <strong>Waiting Time:</strong> {segment.waitingTime}{" "}
+                      minutes
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div id="arrivalTableContainer">
+              <h2>Schedule Table</h2>
+              <table id="arrivalTable">
+                <thead>
+                  <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Distance</th>
+                    <th>Estimated Departure Time</th>
+                    <th>Estimated Arrival Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {arrivalTable.map((row, index) => (
+                    <tr key={index}>
+                      <td>{row.from}</td>
+                      <td>{row.to}</td>
+                      <td>{row.distance} km</td>
+                      <td>{row.departure}</td>
+                      <td>{row.arrival}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div id="summaryDiv">
+              <h3>Overall Summary</h3>
+              <p>
+                <strong>Total Distance:</strong> {summary.totalDistance} km
+              </p>
+              <p>
+                <strong>Total Time:</strong> {summary.totalTime} minutes
+              </p>
+            </div>
+          </>
+        )}
       </div>
-    </div>
-  );
-};
-
-const bookmarks = ({ bookmarkPlaces }) => {
-  return (
-    <div>
-      <h1>Bookmarks</h1>
     </div>
   );
 };
