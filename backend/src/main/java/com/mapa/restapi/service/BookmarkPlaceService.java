@@ -2,9 +2,11 @@ package com.mapa.restapi.service;
 
 import com.mapa.restapi.dto.TouristAttractionDTO;
 import com.mapa.restapi.model.BookmarkedPlace;
+import com.mapa.restapi.model.Destination;
 import com.mapa.restapi.model.TouristAttraction;
 import com.mapa.restapi.model.User;
 import com.mapa.restapi.repo.BookmarkedPlaceRepo;
+import com.mapa.restapi.repo.DestinationRepo;
 import com.mapa.restapi.repo.TouristAttractionRepo;
 import com.mapa.restapi.repo.UserRepo;
 import jakarta.transaction.Transactional;
@@ -30,6 +32,9 @@ public class BookmarkPlaceService {
 
     @Autowired
     private TouristAttractionService touristAttractionService;
+
+    @Autowired
+    private DestinationRepo destinationRepo;
 
 
     public List<BookmarkedPlace> findBookMarks(long userID) {
@@ -74,7 +79,11 @@ public class BookmarkPlaceService {
                     .attraction_id(existAttraction)
                     .date(date).
                     build();
-
+        Destination destination = Destination.builder()
+                .destinationName(attraction.getName())
+                .longitude(attraction.getLongitude())
+                .latitude(attraction.getLatitude()).build();
+        destinationRepo.save(destination);
 
         bookmarkedPlaceRepo.save(bookmarkedPlace);
 

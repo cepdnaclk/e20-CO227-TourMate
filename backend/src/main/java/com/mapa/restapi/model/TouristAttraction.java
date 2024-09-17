@@ -23,8 +23,8 @@ public class TouristAttraction {
     private String name;
     private String city;
     private String imgUrl;
-    private String latitude;
-    private String longitude;
+    private double latitude;
+    private double longitude;
     private String rating;
     private String web_url;
     private String phone;

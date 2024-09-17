@@ -123,9 +123,23 @@ const SchedulePlan = () => {
   };
 
   //BookmarkCard function
-  const handleBookmarkClick = (bookmark, index) => {
-    // setStops([...stops], bookmark.name);
-    // console.log({ stops });
+  const handleBookmarkClick = (bookmark) => {
+    setStops((prevStops) => {
+      // Create a new array with the bookmark name appended to the end
+      const newStops = [...prevStops];
+
+      // Ensure there are no trailing empty strings before appending
+      if (newStops.length > 0 && newStops[newStops.length - 1] === "") {
+        newStops.pop();
+      }
+
+      // Append the bookmark name to the stops array
+      newStops.push(bookmark.name, ""); // Adding an empty string to the end for the next stop
+
+      return newStops;
+    });
+
+    console.log({ stops });
   };
 
   const handleStopInput = (index, value) => {

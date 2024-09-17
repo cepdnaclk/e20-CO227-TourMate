@@ -66,7 +66,7 @@ export default function List({
       className="container"
       style={{ position: "relative", height: "80vh", overflowY: "auto" }}
     >
-      <Typography variant="h6">Restaurant, Hotels & Attractions</Typography>
+      <Typography variant="h6">Restaurant & Attractions</Typography>
       {isLoading ? (
         <div className="loading">
           <CircularProgress size="5rem" />
