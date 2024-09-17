@@ -17,7 +17,7 @@ PK : id (Auto Increment)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"userPlan", "forgotPassword", "bookmarkedPlaces"})
+@ToString(exclude = { "forgotPassword"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

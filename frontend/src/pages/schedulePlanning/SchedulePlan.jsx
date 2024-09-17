@@ -8,10 +8,13 @@ import { Box, Button, Rating, Typography, Divider, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
   CheckCircle,
-  RadioButtonUnchecked,
   ArrowBackIos,
   Place,
+  Restaurant,
+  RestaurantRounded,
 } from "@mui/icons-material";
+import { getPlaceData } from "../../api";
+import SmallHotelCard from "../../components/SmallHotelCard/SmallHotelCard";
 
 const SchedulePlan = () => {
   const [start, setStart] = useState("");
@@ -25,6 +28,7 @@ const SchedulePlan = () => {
   const [summary, setSummary] = useState("");
   const mapRef = useRef(null);
   const routingControlRef = useRef(null);
+  const [mealRestaurants, setMealRestaurants] = useState([]);
 
   const token = localStorage.getItem("token");
 
@@ -34,10 +38,15 @@ const SchedulePlan = () => {
   const [count, setCount] = useState(0); //Count to select which part to render
   const navigate = useNavigate();
 
+  const [dailyStartTime, setDailyStartTime] = useState("07:00");
+  const [dailyEndTime, setDailyEndTime] = useState("20:00");
+
+  //Navigate to Bookmark page
   const handleManageBookmarksClick = () => {
     navigate("/add-bookmarks");
   };
 
+  //Fetch Bookmark from database
   useEffect(() => {
     const fetchBookmarkPlaces = async () => {
       try {
@@ -202,10 +211,24 @@ const SchedulePlan = () => {
     }
   };
 
+  // Function to extract time in hours from the user's input
+  const getHoursFromTime = (timeStr) => {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    return hours + minutes / 60;
+  };
+
   const findRoute = () => {
     const stopsToFetch = stops.filter((stop) => stop.trim() !== "");
     const locations = [start, ...stopsToFetch, destination];
     setCount(count + 1); //Count to render which part
+
+    // Get the daily start and end times from the user input
+    const dailyStartTimeInput = document.getElementById("dailyStartTime").value;
+    const dailyEndTimeInput = document.getElementById("dailyEndTime").value;
+
+    // Convert the times to hours
+    const dailyStartTime = getHoursFromTime(dailyStartTimeInput);
+    const dailyEndTime = getHoursFromTime(dailyEndTimeInput);
 
     const locationPromises = locations.map((loc) =>
       fetch(
@@ -246,7 +269,9 @@ const SchedulePlan = () => {
         calculateContinuousRoute(
           finalWaypoints,
           waitingTimes,
-          new Date(startDateTime)
+          new Date(startDateTime),
+          dailyStartTime,
+          dailyEndTime
         );
       })
       .catch((error) => console.error("Error fetching geocoding data:", error));
@@ -255,7 +280,9 @@ const SchedulePlan = () => {
   const calculateContinuousRoute = (
     waypoints,
     waitingTimes,
-    startDateTimeValue
+    startDateTimeValue,
+    dailyStartTime,
+    dailyEndTime
   ) => {
     // Remove any previous routing controls from the map
     if (routingControlRef.current) {
@@ -314,7 +341,9 @@ const SchedulePlan = () => {
           finalWaitingTimes,
           totalTravelTime,
           totalDistance,
-          startDateTimeValue
+          startDateTimeValue,
+          dailyStartTime,
+          dailyEndTime
         );
       })
       .on("routingerror", (error) => {
@@ -344,21 +373,20 @@ const SchedulePlan = () => {
     finalWaitingTimes,
     totalTravelTime,
     totalDistance,
-    startDateTimeValue
+    startDateTimeValue,
+    dailyStartTime,
+    dailyEndTime
   ) => {
     let currentDateTime = new Date(startDateTimeValue);
-    let currentDayTime =
-      currentDateTime.getHours() + currentDateTime.getMinutes() / 60;
-    const dailyStartTime = 7;
-    const dailyEndTime = 20;
 
     setSegmentDetails([]); // Clear previous details
     setArrivalTable([]); // Clear previous table entries
     setSummary(""); // Clear previous summary
+    setMealRestaurants([]); // Clear previous meal restaurants
 
     const overallSummary = {
       totalDistance: totalDistance.toFixed(2),
-      totalTime: (totalTravelTime / 60).toFixed(2), // Convert time to minutes
+      totalTime: (totalTravelTime / 60).toFixed(2), // Convert time to hours
     };
     setSummary(overallSummary); // Set the summary
 
@@ -374,28 +402,60 @@ const SchedulePlan = () => {
         const segmentTravelTime =
           (totalTravelTime / totalDistance) * segmentDistance;
 
-        const departureTime = new Date(currentDateTime);
+        let departureTime = new Date(currentDateTime);
 
+        // Calculate end time for the current segment
         accumulatedTime += segmentTravelTime;
+
         if (waitingTime > 0) {
-          accumulatedTime += waitingTime * 60; // Convert minutes to seconds
+          accumulatedTime += waitingTime * 60; // Convert waiting time to seconds
         }
 
-        let segmentEndHour = currentDayTime + segmentTravelTime / 3600;
+        // Check if the segment ends past 8:00 PM
+        let segmentEndHour =
+          currentDateTime.getHours() + segmentTravelTime / 3600;
 
         if (segmentEndHour > dailyEndTime) {
           currentDateTime.setDate(currentDateTime.getDate() + 1); // Move to the next day
-          currentDateTime.setHours(dailyStartTime, 0, 0); // Set to start time (7:00 AM)
-          currentDayTime = dailyStartTime;
-          segmentEndHour = dailyStartTime + segmentTravelTime / 3600; // Recalculate
+          currentDateTime.setHours(dailyStartTime, 0, 0);
+          departureTime = new Date(currentDateTime); // Set departure for next segment
+          // Now add the travel time again after setting the start time for the next day
+          currentDateTime.setSeconds(
+            currentDateTime.getSeconds() + segmentTravelTime + waitingTime * 60
+          );
+        } else {
+          // Add the travel time to the current time if within the same day
+          currentDateTime.setSeconds(
+            currentDateTime.getSeconds() + segmentTravelTime + waitingTime * 60
+          );
         }
 
-        currentDayTime += segmentTravelTime / 3600;
-        currentDateTime.setSeconds(
-          currentDateTime.getSeconds() + segmentTravelTime + waitingTime * 60
-        );
         const arrivalTime = new Date(currentDateTime);
 
+        // Get nearby towns during meal times
+        const nearbyTownsDuringMeal = getNearbyTownsForMealTime(
+          [from, to],
+          departureTime
+        );
+
+        if (nearbyTownsDuringMeal.meal !== "none") {
+          fetchRestaurantsForMealTime(
+            nearbyTownsDuringMeal.nearbyTowns,
+            nearbyTownsDuringMeal.meal
+          );
+          console.log(
+            `Nearby towns for ${nearbyTownsDuringMeal.meal}:`,
+            nearbyTownsDuringMeal.nearbyTowns
+          );
+
+          // Display the towns or handle them according to your needs (e.g., show on map)
+          displayTowns(
+            nearbyTownsDuringMeal.nearbyTowns,
+            `Nearby ${nearbyTownsDuringMeal.meal} Towns`
+          );
+        }
+
+        // Format the times to be displayed in the table
         const formattedDepartureTime = departureTime.toLocaleString("en-GB", {
           day: "2-digit",
           month: "long",
@@ -609,7 +669,7 @@ const SchedulePlan = () => {
   const getNearbyTowns = (waypoints) => {
     return Object.keys(townBoundingBoxes).filter((town) =>
       waypoints.some(
-        (waypoint) => isWithinBounds(waypoint, townBoundingBoxes[town], 0.05) // Adjust buffer if needed
+        (waypoint) => isWithinBounds(waypoint, townBoundingBoxes[town], 0.005) // Adjust buffer if needed
       )
     );
   };
@@ -631,9 +691,107 @@ const SchedulePlan = () => {
     }
   };
 
+  // Define time ranges for meals in hours (24-hour format)
+  const mealTimes = {
+    breakfast: { start: 7, end: 8 }, // 7:00 AM to 8:00 AM
+    lunch: { start: 12, end: 14 }, // 12:00 PM to 1:00 PM
+    dinner: { start: 19, end: 21 }, // 7:00 PM to 8:00 PM
+  };
+
+  // Function to determine if the current time falls within a meal time range
+  const isWithinMealTime = (currentHour, mealTimeRange) => {
+    return (
+      currentHour >= mealTimeRange.start && currentHour <= mealTimeRange.end
+    );
+  };
+
+  // Updated function to fetch nearby towns for specific meal times
+  const getNearbyTownsForMealTime = (waypoints, currentDateTime) => {
+    const nearbyTowns = [];
+
+    // Check current time in hours
+    const currentHour = currentDateTime.getHours();
+
+    // Get nearby towns
+    const nearbyTownsForWaypoints = getNearbyTowns(waypoints);
+
+    // Check if the current time falls within any meal time range
+    if (isWithinMealTime(currentHour, mealTimes.breakfast)) {
+      console.log("It's breakfast time!");
+      return {
+        meal: "breakfast",
+        nearbyTowns: nearbyTownsForWaypoints, // Towns nearby during breakfast
+      };
+    } else if (isWithinMealTime(currentHour, mealTimes.lunch)) {
+      console.log("It's lunch time!");
+      return {
+        meal: "lunch",
+        nearbyTowns: nearbyTownsForWaypoints, // Towns nearby during lunch
+      };
+    } else if (isWithinMealTime(currentHour, mealTimes.dinner)) {
+      console.log("It's dinner time!");
+      return {
+        meal: "dinner",
+        nearbyTowns: nearbyTownsForWaypoints, // Towns nearby during dinner
+      };
+    }
+
+    return { meal: "none", nearbyTowns: [] }; // No meal time
+  };
+
+  const fetchRestaurantsForMealTime = (towns, meal) => {
+    const bound = getBounds(towns[0]);
+
+    if (bound) {
+      const sw = { lat: bound.south, lng: bound.west };
+      const ne = { lat: bound.north, lng: bound.east };
+
+      getPlaceData(sw, ne, "restaurants")
+        .then((restaurantsData) => {
+          // Filter restaurants based on rating and closure status
+          const filteredRestaurant = restaurantsData.filter(
+            (restaurant) =>
+              restaurant.rating >= 3 && restaurant.is_closed === false
+          );
+
+          console.log(restaurantsData);
+
+          // Use prevState to avoid adding duplicate meals
+          setMealRestaurants((prev) => {
+            const existingMeal = prev.find((item) => item.meal === meal);
+
+            if (existingMeal) {
+              console.log(`Meal "${meal}" already exists, skipping update.`);
+              return prev; // Return the same state if the meal exists
+            }
+
+            console.log(`Adding meal "${meal}" with restaurants.`);
+            return [...prev, { meal, restaurants: filteredRestaurant }];
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching restaurant data:", error);
+        });
+    }
+  };
+
+  // Helper function to get bounds for a given town
+  function getBounds(town) {
+    const bounds = townBoundingBoxes[town];
+    if (bounds) {
+      return bounds;
+    } else {
+      console.log(`No bounds found for ${town}`);
+      return null;
+    }
+  }
+
   return (
     <div>
-      <h1 className="Schedule-Header">Schedule Planner</h1>
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <h1 className="Schedule-Header">Schedule Result</h1>
+      </Box>
+
       <div className="container">
         {count === 0 ? (
           //Getting Stops and Bookmark places for schedule
@@ -696,6 +854,35 @@ const SchedulePlan = () => {
                 />{" "}
                 Use Destination as Start Location
               </label>
+            </div>
+            {/* New inputs for daily start and end time */}
+            <div className="time-input-container">
+              <div>
+                <label htmlFor="dailyStartTime" className="label">
+                  Daily Start Time:
+                </label>
+                <input
+                  type="time"
+                  id="dailyStartTime"
+                  value={dailyStartTime}
+                  onChange={(e) => setDailyStartTime(e.target.value)}
+                  className="time-input"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="dailyEndTime" className="label">
+                  Daily End Time:
+                </label>
+                <input
+                  type="time"
+                  id="dailyEndTime"
+                  value={dailyEndTime}
+                  onChange={(e) => setDailyEndTime(e.target.value)}
+                  className="time-input"
+                  required
+                />
+              </div>
             </div>
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
               <Typography variant="h5">Your Bookmarks:</Typography>
@@ -824,7 +1011,11 @@ const SchedulePlan = () => {
         ) : (
           //Schedule Display segment with route map
           <>
-            <Grid container spacing={3} sx={{ height: "50%" }}>
+            <Grid
+              container
+              spacing={3}
+              sx={{ height: "50%", minHeight: "500px", marginBottom: "50px" }}
+            >
               <Grid item xs={12} md={4} sx={{ overflow: "auto" }}>
                 {arrivalTable.map((row, index) => (
                   <Box
@@ -838,9 +1029,9 @@ const SchedulePlan = () => {
                     <Place />
                     <Typography variant="h5">{row.from}</Typography>
                     <Typography variant="h6" sx={{ color: "grey" }}>
-                      {row.arrival}
+                      {row.departure}
                     </Typography>
-                    {index < arrivalTable.length - 1 && (
+                    {index < arrivalTable.length && (
                       <Divider
                         orientation="vertical"
                         sx={{
@@ -853,21 +1044,89 @@ const SchedulePlan = () => {
                     )}
                   </Box>
                 ))}
+                {/* Render the last element separately */}
+                {arrivalTable.length > 0 && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      marginTop: 2, // Adjust spacing as needed
+                    }}
+                  >
+                    <Place />
+                    <Typography variant="h5">
+                      {arrivalTable[arrivalTable.length - 1].to}
+                    </Typography>
+                    <Typography variant="h6" sx={{ color: "grey" }}>
+                      {arrivalTable[arrivalTable.length - 1].arrival}
+                    </Typography>
+                  </Box>
+                )}
               </Grid>
               <Grid item xs={12} md={8}>
                 <div id="map" style={{ height: "100%" }}></div>
               </Grid>
             </Grid>
-            <div id="segmentDetails">
+
+            <div id="arrivalTableContainer">
+              <h2>Schedule Table</h2>
+              <table id="arrivalTable">
+                <thead>
+                  <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Distance</th>
+                    <th>Estimated Departure Time</th>
+                    <th>Estimated Arrival Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {arrivalTable.map((row, index) => (
+                    <tr key={index}>
+                      <td>{row.from}</td>
+                      <td>{row.to}</td>
+                      <td>{row.distance} km</td>
+                      <td>{row.departure}</td>
+                      <td>{row.arrival}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Box sx={{ marginTop: "50px" }}>
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <Typography variant="h5" sx={{ marginRight: "5px" }}>
+                  Pick Your Restaurant{" "}
+                </Typography>
+                <RestaurantRounded />
+              </Box>
+              <SmallHotelCard mealRestaurants={mealRestaurants} />
+            </Box>
+
+            <Button onClick={() => setCount(0)} variant="outlined">
+              <ArrowBackIos />
+              Back
+            </Button>
+            {/* <div id="summaryDiv">
+              <h3>Overall Summary</h3>
+              <p>
+                <strong>Total Distance:</strong> {summary.totalDistance} km
+              </p>
+              <p>
+                <strong>Total Time:</strong> {summary.totalTime} minutes
+              </p>
+            </div> */}
+            {/* <div id="segmentDetails">
               <h2>Segment Details</h2>
-              {/* <div className="towns">
+              <div className="towns">
             <h4>Passing Towns</h4>
             {passingTowns.length > 0 ? (
               <p>{passingTowns.join(", ")}</p>
             ) : (
               <p>No passing towns found.</p>
             )}
-          </div> */}
+          </div>
 
               <div className="towns">
                 <h4>Nearby Towns</h4>
@@ -896,46 +1155,7 @@ const SchedulePlan = () => {
                   </div>
                 ))}
               </div>
-            </div>
-            <div id="arrivalTableContainer">
-              <h2>Schedule Table</h2>
-              <table id="arrivalTable">
-                <thead>
-                  <tr>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Distance</th>
-                    <th>Estimated Departure Time</th>
-                    <th>Estimated Arrival Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {arrivalTable.map((row, index) => (
-                    <tr key={index}>
-                      <td>{row.from}</td>
-                      <td>{row.to}</td>
-                      <td>{row.distance} km</td>
-                      <td>{row.departure}</td>
-                      <td>{row.arrival}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div id="summaryDiv">
-              <h3>Overall Summary</h3>
-              <p>
-                <strong>Total Distance:</strong> {summary.totalDistance} km
-              </p>
-              <p>
-                <strong>Total Time:</strong> {summary.totalTime} minutes
-              </p>
-            </div>
-            <Button onClick={() => setCount(0)} variant="outlined">
-              <ArrowBackIos />
-              Back
-            </Button>
+            </div> */}
           </>
         )}
       </div>
