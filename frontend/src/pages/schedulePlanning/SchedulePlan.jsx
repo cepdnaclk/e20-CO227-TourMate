@@ -4,8 +4,14 @@ import "leaflet-routing-machine";
 import "leaflet/dist/leaflet.css";
 import "./SchedulePlan.css";
 import townBoundingBoxes from "./TownBoundingBox";
-import { Box, Button, Rating, Typography } from "@mui/material";
+import { Box, Button, Rating, Typography, Divider, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import {
+  CheckCircle,
+  RadioButtonUnchecked,
+  ArrowBackIos,
+  Place,
+} from "@mui/icons-material";
 
 const SchedulePlan = () => {
   const [start, setStart] = useState("");
@@ -80,6 +86,7 @@ const SchedulePlan = () => {
     });
   }, [stops]);
 
+  //Map rendering
   useEffect(() => {
     //If count is 1 (When Schedule button clicked) fetch Map
     if (count === 1) {
@@ -125,21 +132,29 @@ const SchedulePlan = () => {
   //BookmarkCard function
   const handleBookmarkClick = (bookmark) => {
     setStops((prevStops) => {
-      // Create a new array with the bookmark name appended to the end
-      const newStops = [...prevStops];
+      let newStops = [...prevStops];
 
-      // Ensure there are no trailing empty strings before appending
+      // Ensure there are no trailing empty strings before making any changes
       if (newStops.length > 0 && newStops[newStops.length - 1] === "") {
         newStops.pop();
       }
 
-      // Append the bookmark name to the stops array
-      newStops.push(bookmark.name, ""); // Adding an empty string to the end for the next stop
+      // Check if the bookmark is already in the stops array
+      const bookmarkIndex = newStops.indexOf(bookmark.name);
+
+      if (bookmarkIndex !== -1) {
+        // If the bookmark exists, remove it
+        newStops.splice(bookmarkIndex, 1);
+      } else {
+        // If the bookmark doesn't exist, add it to the stops
+        newStops.push(bookmark.name);
+      }
+
+      // Add an empty string for the next stop input
+      newStops.push("");
 
       return newStops;
     });
-
-    console.log({ stops });
   };
 
   const handleStopInput = (index, value) => {
@@ -190,7 +205,6 @@ const SchedulePlan = () => {
   const findRoute = () => {
     const stopsToFetch = stops.filter((stop) => stop.trim() !== "");
     const locations = [start, ...stopsToFetch, destination];
-    console.log("Stops ", { locations });
     setCount(count + 1); //Count to render which part
 
     const locationPromises = locations.map((loc) =>
@@ -689,6 +703,11 @@ const SchedulePlan = () => {
                 Manage Bookmarks
               </Button>
             </Box>
+            {bookmarkPlaces.length === 0 && (
+              <Typography variant="h5" sx={{ margin: "10px", color: "red" }}>
+                No bookmarks found.Click Manage Bookmarks to add Some
+              </Typography>
+            )}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
               {bookmarkPlaces.length > 0 &&
                 bookmarkPlaces.map((bookmark, index) => (
@@ -698,33 +717,50 @@ const SchedulePlan = () => {
                     onClick={() => handleBookmarkClick(bookmark, index)}
                   >
                     <img
-                      src={bookmark.imgUrl}
+                      src={
+                        bookmark.imgUrl
+                          ? bookmark.imgUrl
+                          : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
+                      }
                       alt={bookmark.name}
                       className="bookmark-image"
                     />
                     <div className="bookmark-details">
-                      <Box>
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
                         <h4>{bookmark.name}</h4>
-                        <Rating
-                          name={`bookmark-rating-${index}`}
-                          value={bookmark.rating}
-                          precision={0.5} // Allows half-star increments
-                          readOnly
-                          size="small"
-                        />
                       </Box>
+                      <Rating
+                        name={`bookmark-rating-${index}`}
+                        value={bookmark.rating}
+                        precision={0.5} // Allows half-star increments
+                        readOnly
+                        size="small"
+                      />
                       <Box
                         sx={{
                           display: "flex",
                           justifyContent: "center",
                         }}
                       >
-                        {/* <LocationOn fontSize="small" /> */}
                         <Typography sx={{ ml: 0.5 }}>
                           {bookmark.city}
                         </Typography>
                       </Box>
                     </div>
+                    <Box sx={{ position: "absolute", top: -3, right: -3 }}>
+                      {stops.includes(bookmark.name) ? (
+                        <CheckCircle
+                          style={{ color: "red" }}
+                          fontSize="large"
+                        />
+                      ) : (
+                        <></>
+                      )}
+                    </Box>
                   </div>
                 ))}
             </Box>
@@ -745,36 +781,83 @@ const SchedulePlan = () => {
                   className="waiting-time"
                   style={{ display: stop ? "block" : "none" }}
                 >
-                  <label>Waiting Time:</label>
+                  <label style={{ marginRight: 10 }}>Waiting Time:</label>
                   <input
                     type="radio"
                     name={`waitingTime${index + 1}`}
                     value="15"
+                    className="radio"
                   />{" "}
                   15 min
                   <input
                     type="radio"
                     name={`waitingTime${index + 1}`}
                     value="30"
+                    className="radio"
                   />{" "}
                   30 min
                   <input
                     type="radio"
                     name={`waitingTime${index + 1}`}
                     value="60"
+                    className="radio"
                   />{" "}
                   1 hour
+                  <input
+                    type="radio"
+                    name={`waitingTime${index + 1}`}
+                    value="120"
+                    className="radio"
+                  />{" "}
+                  2 hour
                 </div>
               </div>
             ))}
-            <button id="findRoute" onClick={findRoute}>
-              Schedule
+            <button
+              id="findRoute"
+              onClick={findRoute}
+              style={{ marginTop: 20 }}
+            >
+              Generate Schedule
             </button>
           </>
         ) : (
           //Schedule Display segment with route map
           <>
-            <div id="map" style={{ height: "400px" }}></div>
+            <Grid container spacing={3} sx={{ height: "50%" }}>
+              <Grid item xs={12} md={4} sx={{ overflow: "auto" }}>
+                {arrivalTable.map((row, index) => (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                    key={index}
+                  >
+                    <Place />
+                    <Typography variant="h5">{row.from}</Typography>
+                    <Typography variant="h6" sx={{ color: "grey" }}>
+                      {row.arrival}
+                    </Typography>
+                    {index < arrivalTable.length - 1 && (
+                      <Divider
+                        orientation="vertical"
+                        sx={{
+                          height: "40px", // Adjust the height as needed
+                          width: "2px", // Adjust the thickness of the line
+                          backgroundColor: "grey",
+                          marginY: 1, // Add some space between items
+                        }}
+                      />
+                    )}
+                  </Box>
+                ))}
+              </Grid>
+              <Grid item xs={12} md={8}>
+                <div id="map" style={{ height: "100%" }}></div>
+              </Grid>
+            </Grid>
             <div id="segmentDetails">
               <h2>Segment Details</h2>
               {/* <div className="towns">
@@ -839,6 +922,7 @@ const SchedulePlan = () => {
                 </tbody>
               </table>
             </div>
+
             <div id="summaryDiv">
               <h3>Overall Summary</h3>
               <p>
@@ -848,6 +932,10 @@ const SchedulePlan = () => {
                 <strong>Total Time:</strong> {summary.totalTime} minutes
               </p>
             </div>
+            <Button onClick={() => setCount(0)} variant="outlined">
+              <ArrowBackIos />
+              Back
+            </Button>
           </>
         )}
       </div>

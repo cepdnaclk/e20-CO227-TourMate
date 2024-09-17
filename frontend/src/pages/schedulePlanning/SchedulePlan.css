@@ -153,6 +153,7 @@ table tr:nth-child(even) td {
   padding: 10px;
   width: 150px;
   margin: 10px;
+  position: relative;
 }
 .bookmark-card:hover {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -179,4 +180,8 @@ table tr:nth-child(even) td {
   margin: 0;
   font-size: 0.9rem;
   color: #666;
+}
+
+.radio:hover {
+  cursor: pointer;
 }

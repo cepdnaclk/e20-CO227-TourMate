@@ -44,6 +44,9 @@ export default function AttractionCard({ place, bookmarked }) {
         },
         body: JSON.stringify({
           name: place.name,
+          description: place.description,
+          latitude: Number(place.latitude),
+          longitude: Number(place.longitude),
         }),
       });
 

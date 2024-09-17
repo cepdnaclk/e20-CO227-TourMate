@@ -14,13 +14,14 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class Destination {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "destination_name")
+    @Column(name = "destination_name",unique = true)
     private String destinationName;
 
     @Column(name = "description", length = 1000)
