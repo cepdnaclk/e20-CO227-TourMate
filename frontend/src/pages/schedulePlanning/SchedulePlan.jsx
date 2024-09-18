@@ -15,6 +15,7 @@ import {
 } from "@mui/icons-material";
 import { getPlaceData } from "../../api";
 import SmallHotelCard from "../../components/SmallHotelCard/SmallHotelCard";
+import Navbar2 from "../../components/Navbar/Navbar2";
 
 const SchedulePlan = () => {
   const [start, setStart] = useState("");
@@ -187,8 +188,10 @@ const SchedulePlan = () => {
   // Handle waiting time input for dynamic stops
   const handleWaitingTimeInput = (index, value) => {
     const newWaitingTimes = [...waitingTimes];
-    newWaitingTimes[index] = value;
+    newWaitingTimes[index] = parseFloat(value); // Make sure it's a number
     setWaitingTimes(newWaitingTimes);
+
+    console.log("Updated Waiting Times:", newWaitingTimes);
   };
 
   // Handle reverse route toggle (start as destination)
@@ -264,6 +267,8 @@ const SchedulePlan = () => {
         // Display the towns
         displayTowns(passingTowns, "Passing Towns");
         displayTowns(nearbyTowns, "Nearby Towns");
+
+        console.log("Waiting Times Before Route Calculation:", waitingTimes);
 
         // Calculate the route based on the fetched locations and other parameters
         calculateContinuousRoute(
@@ -473,16 +478,21 @@ const SchedulePlan = () => {
         });
 
         // Add segment details
-        setSegmentDetails((prevDetails) => [
-          ...prevDetails,
-          {
-            from: from.name,
-            to: to.name,
-            distance: segmentDistance.toFixed(2),
-            time: (segmentTravelTime / 60).toFixed(2),
-            waitingTime,
-          },
-        ]);
+        setSegmentDetails((prevDetails) => {
+          const totalHours = Math.floor(segmentTravelTime / 3600); // Get the full hours
+          const totalMinutes = Math.floor((segmentTravelTime % 3600) / 60); // Get the remaining minutes
+
+          return [
+            ...prevDetails,
+            {
+              from: from.name,
+              to: to.name,
+              distance: segmentDistance.toFixed(2), // Keep distance as is, with 2 decimal places
+              time: `${totalHours}h ${totalMinutes}`, // Format time as "Xh Ymin"
+              waitingTime,
+            },
+          ];
+        });
 
         // Add arrival table data
         setArrivalTable((prevTable) => [
@@ -642,18 +652,40 @@ const SchedulePlan = () => {
     return orderedStopsWithTimes;
   };
 
+  // Function to dynamically calculate the multiplier based on straight-line distance
+  const getRoadDistanceMultiplier = (distance) => {
+    if (distance <= 50) {
+      return 1.3; // For short distances, a lower multiplier
+    } else if (distance > 50 && distance <= 120) {
+      return 1.4; // For medium distances, moderate multiplier
+    } else {
+      return 1.65; // For long distances, a higher multiplier
+    }
+  };
+
+  // Haversine formula to calculate straight-line distance
   const distanceBetweenCoords = (coord1, coord2) => {
     const R = 6371; // Radius of the Earth in kilometers
     const dLat = ((coord2.lat - coord1.lat) * Math.PI) / 180;
     const dLng = ((coord2.lon - coord1.lon) * Math.PI) / 180;
+
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((coord1.lat * Math.PI) / 180) *
         Math.cos((coord2.lat * Math.PI) / 180) *
         Math.sin(dLng / 2) *
         Math.sin(dLng / 2);
+
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+
+    const straightLineDistance = R * c; // Straight-line distance in kilometers
+
+    // Get the appropriate road distance multiplier based on the straight-line distance
+    const roadDistanceMultiplier =
+      getRoadDistanceMultiplier(straightLineDistance);
+
+    // Return the adjusted road distance
+    return straightLineDistance * roadDistanceMultiplier;
   };
 
   const getTownsAlongRoute = (waypoints) => {
@@ -669,7 +701,7 @@ const SchedulePlan = () => {
   const getNearbyTowns = (waypoints) => {
     return Object.keys(townBoundingBoxes).filter((town) =>
       waypoints.some(
-        (waypoint) => isWithinBounds(waypoint, townBoundingBoxes[town], 0.005) // Adjust buffer if needed
+        (waypoint) => isWithinBounds(waypoint, townBoundingBoxes[town], 0.05) // Adjust buffer if needed
       )
     );
   };
@@ -694,8 +726,8 @@ const SchedulePlan = () => {
   // Define time ranges for meals in hours (24-hour format)
   const mealTimes = {
     breakfast: { start: 7, end: 8 }, // 7:00 AM to 8:00 AM
-    lunch: { start: 12, end: 14 }, // 12:00 PM to 1:00 PM
-    dinner: { start: 19, end: 21 }, // 7:00 PM to 8:00 PM
+    lunch: { start: 12, end: 14 }, // 12:00 PM to 2:00 PM
+    dinner: { start: 18, end: 20 }, // 6:00 PM to 8:00 PM
   };
 
   // Function to determine if the current time falls within a meal time range
@@ -707,8 +739,6 @@ const SchedulePlan = () => {
 
   // Updated function to fetch nearby towns for specific meal times
   const getNearbyTownsForMealTime = (waypoints, currentDateTime) => {
-    const nearbyTowns = [];
-
     // Check current time in hours
     const currentHour = currentDateTime.getHours();
 
@@ -739,6 +769,14 @@ const SchedulePlan = () => {
     return { meal: "none", nearbyTowns: [] }; // No meal time
   };
 
+  // Formatting time in 'hh:mm AM/PM' format
+  const formatTime = (timeIn24h) => {
+    const [hours, minutes] = timeIn24h.split(":").map(Number);
+    const period = hours >= 12 ? "PM" : "AM";
+    const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+    return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+  };
+
   const fetchRestaurantsForMealTime = (towns, meal) => {
     const bound = getBounds(towns[0]);
 
@@ -758,12 +796,12 @@ const SchedulePlan = () => {
 
           // Use prevState to avoid adding duplicate meals
           setMealRestaurants((prev) => {
-            const existingMeal = prev.find((item) => item.meal === meal);
+            // const existingMeal = prev.find((item) => item.meal === meal);
 
-            if (existingMeal) {
-              console.log(`Meal "${meal}" already exists, skipping update.`);
-              return prev; // Return the same state if the meal exists
-            }
+            // if (existingMeal) {
+            //   console.log(`Meal "${meal}" already exists, skipping update.`);
+            //   return prev; // Return the same state if the meal exists
+            // }
 
             console.log(`Adding meal "${meal}" with restaurants.`);
             return [...prev, { meal, restaurants: filteredRestaurant }];
@@ -786,380 +824,409 @@ const SchedulePlan = () => {
     }
   }
 
-  return (
-    <div>
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <h1 className="Schedule-Header">Schedule Result</h1>
-      </Box>
+  const handleEndTimeChange = (event) => {
+    if (event.target.value < dailyStartTime) {
+      window.alert("End time must be after start time");
+      return;
+    }
+    setDailyEndTime(event.target.value);
+  };
 
-      <div className="container">
-        {count === 0 ? (
-          //Getting Stops and Bookmark places for schedule
-          <>
-            <div className="input-container">
-              <div>
-                <label htmlFor="start" className="label">
-                  Start Location:
-                </label>
-                <input
-                  type="text"
-                  id="start"
-                  value={start}
-                  onChange={(e) => setStart(e.target.value)}
-                  list="startSuggestions"
-                  onInput={(e) => handleLocationInput("start", e.target.value)}
-                  className="location-input"
-                />
-                <datalist id="startSuggestions"></datalist>
-              </div>
-              <div>
-                <label htmlFor="startDateTime" className="label">
-                  Journey Start Time & Date:
-                </label>
-                <input
-                  type="datetime-local"
-                  id="startDateTime"
-                  value={startDateTime}
-                  onChange={(e) => setStartDateTime(e.target.value)}
-                  className="date-input"
-                  min={new Date().toISOString().split("T")[0] + "T00:00"}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="destination" className="label">
-                  Destination:
-                </label>
-                <input
-                  type="text"
-                  id="destination"
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                  list="destinationSuggestions"
-                  onInput={(e) =>
-                    handleLocationInput("destination", e.target.value)
-                  }
-                  className="location-input"
-                />
-                <datalist id="destinationSuggestions"></datalist>
-              </div>
-            </div>
-            <div className="checkbox-container">
-              <label>
-                <input
-                  type="checkbox"
-                  id="reverseRoute"
-                  checked={reverseRoute}
-                  onChange={handleReverseRouteChange}
-                />{" "}
-                Use Destination as Start Location
-              </label>
-            </div>
-            {/* New inputs for daily start and end time */}
-            <div className="time-input-container">
-              <div>
-                <label htmlFor="dailyStartTime" className="label">
-                  Daily Start Time:
-                </label>
-                <input
-                  type="time"
-                  id="dailyStartTime"
-                  value={dailyStartTime}
-                  onChange={(e) => setDailyStartTime(e.target.value)}
-                  className="time-input"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="dailyEndTime" className="label">
-                  Daily End Time:
-                </label>
-                <input
-                  type="time"
-                  id="dailyEndTime"
-                  value={dailyEndTime}
-                  onChange={(e) => setDailyEndTime(e.target.value)}
-                  className="time-input"
-                  required
-                />
-              </div>
-            </div>
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Typography variant="h5">Your Bookmarks:</Typography>
-              <Button variant="contained" onClick={handleManageBookmarksClick}>
-                Manage Bookmarks
-              </Button>
-            </Box>
-            {bookmarkPlaces.length === 0 && (
-              <Typography variant="h5" sx={{ margin: "10px", color: "red" }}>
-                No bookmarks found.Click Manage Bookmarks to add Some
-              </Typography>
-            )}
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-              {bookmarkPlaces.length > 0 &&
-                bookmarkPlaces.map((bookmark, index) => (
-                  <div
-                    key={index}
-                    className="bookmark-card"
-                    onClick={() => handleBookmarkClick(bookmark, index)}
-                  >
-                    <img
-                      src={
-                        bookmark.imgUrl
-                          ? bookmark.imgUrl
-                          : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
-                      }
-                      alt={bookmark.name}
-                      className="bookmark-image"
-                    />
-                    <div className="bookmark-details">
-                      <Box
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="center"
-                      >
-                        <h4>{bookmark.name}</h4>
-                      </Box>
-                      <Rating
-                        name={`bookmark-rating-${index}`}
-                        value={bookmark.rating}
-                        precision={0.5} // Allows half-star increments
-                        readOnly
-                        size="small"
-                      />
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Typography sx={{ ml: 0.5 }}>
-                          {bookmark.city}
-                        </Typography>
-                      </Box>
-                    </div>
-                    <Box sx={{ position: "absolute", top: -3, right: -3 }}>
-                      {stops.includes(bookmark.name) ? (
-                        <CheckCircle
-                          style={{ color: "red" }}
-                          fontSize="large"
-                        />
-                      ) : (
-                        <></>
-                      )}
-                    </Box>
-                  </div>
-                ))}
-            </Box>
-            {stops.map((stop, index) => (
-              <div key={index}>
-                <label htmlFor={`stop${index + 1}`}>Stop {index + 1}:</label>
-                <input
-                  type="text"
-                  id={`stop${index + 1}`}
-                  value={stop || ""}
-                  onInput={(e) => handleStopInput(index, e.target.value)}
-                  list={`stop${index + 1}Suggestions`}
-                  placeholder="Enter stop location"
-                  className="stop-input"
-                />
-                <datalist id={`stop${index + 1}Suggestions`}></datalist>
-                <div
-                  className="waiting-time"
-                  style={{ display: stop ? "block" : "none" }}
-                >
-                  <label style={{ marginRight: 10 }}>Waiting Time:</label>
+  return (
+    <>
+      <Navbar2 />
+      <div>
+        <Box
+          sx={{ display: "flex", justifyContent: "center", marginTop: "120px" }}
+        >
+          <h1 className="Schedule-Header">Schedule Plan</h1>
+        </Box>
+
+        <div className="container">
+          {count === 0 ? (
+            //Getting Stops and Bookmark places for schedule
+            <>
+              <div className="input-container">
+                <div>
+                  <label htmlFor="start" className="label">
+                    Start Location:
+                  </label>
                   <input
-                    type="radio"
-                    name={`waitingTime${index + 1}`}
-                    value="15"
-                    className="radio"
-                  />{" "}
-                  15 min
+                    type="text"
+                    id="start"
+                    value={start}
+                    onChange={(e) => setStart(e.target.value)}
+                    list="startSuggestions"
+                    onInput={(e) =>
+                      handleLocationInput("start", e.target.value)
+                    }
+                    className="location-input"
+                  />
+                  <datalist id="startSuggestions"></datalist>
+                </div>
+                <div>
+                  <label htmlFor="startDateTime" className="label">
+                    Journey Start Time & Date:
+                  </label>
                   <input
-                    type="radio"
-                    name={`waitingTime${index + 1}`}
-                    value="30"
-                    className="radio"
-                  />{" "}
-                  30 min
+                    type="datetime-local"
+                    id="startDateTime"
+                    value={startDateTime}
+                    onChange={(e) => setStartDateTime(e.target.value)}
+                    className="date-input"
+                    min={new Date().toISOString().split("T")[0] + "T00:00"}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="destination" className="label">
+                    Destination:
+                  </label>
                   <input
-                    type="radio"
-                    name={`waitingTime${index + 1}`}
-                    value="60"
-                    className="radio"
-                  />{" "}
-                  1 hour
-                  <input
-                    type="radio"
-                    name={`waitingTime${index + 1}`}
-                    value="120"
-                    className="radio"
-                  />{" "}
-                  2 hour
+                    type="text"
+                    id="destination"
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    list="destinationSuggestions"
+                    onInput={(e) =>
+                      handleLocationInput("destination", e.target.value)
+                    }
+                    className="location-input"
+                  />
+                  <datalist id="destinationSuggestions"></datalist>
                 </div>
               </div>
-            ))}
-            <button
-              id="findRoute"
-              onClick={findRoute}
-              style={{ marginTop: 20 }}
-            >
-              Generate Schedule
-            </button>
-          </>
-        ) : (
-          //Schedule Display segment with route map
-          <>
-            <Grid
-              container
-              spacing={3}
-              sx={{ height: "50%", minHeight: "500px", marginBottom: "50px" }}
-            >
-              <Grid item xs={12} md={4} sx={{ overflow: "auto" }}>
-                {arrivalTable.map((row, index) => (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                    }}
-                    key={index}
-                  >
-                    <Place />
-                    <Typography variant="h5">{row.from}</Typography>
-                    <Typography variant="h6" sx={{ color: "grey" }}>
-                      {row.departure}
-                    </Typography>
-                    {index < arrivalTable.length && (
-                      <Divider
-                        orientation="vertical"
-                        sx={{
-                          height: "40px", // Adjust the height as needed
-                          width: "2px", // Adjust the thickness of the line
-                          backgroundColor: "grey",
-                          marginY: 1, // Add some space between items
-                        }}
-                      />
-                    )}
-                  </Box>
-                ))}
-                {/* Render the last element separately */}
-                {arrivalTable.length > 0 && (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      marginTop: 2, // Adjust spacing as needed
-                    }}
-                  >
-                    <Place />
-                    <Typography variant="h5">
-                      {arrivalTable[arrivalTable.length - 1].to}
-                    </Typography>
-                    <Typography variant="h6" sx={{ color: "grey" }}>
-                      {arrivalTable[arrivalTable.length - 1].arrival}
-                    </Typography>
-                  </Box>
-                )}
-              </Grid>
-              <Grid item xs={12} md={8}>
-                <div id="map" style={{ height: "100%" }}></div>
-              </Grid>
-            </Grid>
-
-            <div id="arrivalTableContainer">
-              <h2>Schedule Table</h2>
-              <table id="arrivalTable">
-                <thead>
-                  <tr>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Distance</th>
-                    <th>Estimated Departure Time</th>
-                    <th>Estimated Arrival Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {arrivalTable.map((row, index) => (
-                    <tr key={index}>
-                      <td>{row.from}</td>
-                      <td>{row.to}</td>
-                      <td>{row.distance} km</td>
-                      <td>{row.departure}</td>
-                      <td>{row.arrival}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <Box sx={{ marginTop: "50px" }}>
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <Typography variant="h5" sx={{ marginRight: "5px" }}>
-                  Pick Your Restaurant{" "}
-                </Typography>
-                <RestaurantRounded />
+              <div className="checkbox-container">
+                <label>
+                  <input
+                    type="checkbox"
+                    id="reverseRoute"
+                    checked={reverseRoute}
+                    onChange={handleReverseRouteChange}
+                  />{" "}
+                  Use Destination as Start Location
+                </label>
+              </div>
+              {/* New inputs for daily start and end time */}
+              <div className="time-input-container" style={{ display: "flex" }}>
+                <div style={{ marginRight: "10px", marginBottom: "20px" }}>
+                  <label htmlFor="dailyStartTime" className="label">
+                    Daily Start Time:
+                  </label>
+                  <input
+                    type="time"
+                    id="dailyStartTime"
+                    value={dailyStartTime}
+                    onChange={(e) => setDailyStartTime(e.target.value)}
+                    className="time-input"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="dailyEndTime" className="label">
+                    Daily End Time:
+                  </label>
+                  <input
+                    type="time"
+                    id="dailyEndTime"
+                    value={dailyEndTime}
+                    onChange={handleEndTimeChange}
+                    className="time-input"
+                    required
+                  />
+                </div>
+              </div>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Typography variant="h5">Your Bookmarks:</Typography>
+                <Button
+                  variant="contained"
+                  onClick={handleManageBookmarksClick}
+                >
+                  Manage Bookmarks
+                </Button>
               </Box>
-              <SmallHotelCard mealRestaurants={mealRestaurants} />
-            </Box>
-
-            <Button onClick={() => setCount(0)} variant="outlined">
-              <ArrowBackIos />
-              Back
-            </Button>
-            {/* <div id="summaryDiv">
-              <h3>Overall Summary</h3>
-              <p>
-                <strong>Total Distance:</strong> {summary.totalDistance} km
-              </p>
-              <p>
-                <strong>Total Time:</strong> {summary.totalTime} minutes
-              </p>
-            </div> */}
-            {/* <div id="segmentDetails">
-              <h2>Segment Details</h2>
-              <div className="towns">
-            <h4>Passing Towns</h4>
-            {passingTowns.length > 0 ? (
-              <p>{passingTowns.join(", ")}</p>
-            ) : (
-              <p>No passing towns found.</p>
-            )}
-          </div>
-
-              <div className="towns">
-                <h4>Nearby Towns</h4>
-                {nearbyTowns.length > 0 ? (
-                  <p>{nearbyTowns.join(", ")}</p>
-                ) : (
-                  <p>No nearby towns found.</p>
-                )}
-              </div>
-              <div>
-                {segmentDetails.map((segment, index) => (
-                  <div key={index}>
-                    <h4>
-                      From {segment.from} to {segment.to}
-                    </h4>
-                    <p>
-                      <strong>Distance:</strong> {segment.distance} km
-                    </p>
-                    <p>
-                      <strong>Time:</strong> {segment.time} minutes
-                    </p>
-                    <p>
-                      <strong>Waiting Time:</strong> {segment.waitingTime}{" "}
-                      minutes
-                    </p>
+              {bookmarkPlaces.length === 0 && (
+                <Typography variant="h5" sx={{ margin: "10px", color: "red" }}>
+                  No bookmarks found.Click Manage Bookmarks to add Some
+                </Typography>
+              )}
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                {bookmarkPlaces.length > 0 &&
+                  bookmarkPlaces.map((bookmark, index) => (
+                    <div
+                      key={index}
+                      className="bookmark-card"
+                      onClick={() => handleBookmarkClick(bookmark, index)}
+                    >
+                      <img
+                        src={
+                          bookmark.imgUrl
+                            ? bookmark.imgUrl
+                            : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
+                        }
+                        alt={bookmark.name}
+                        className="bookmark-image"
+                      />
+                      <div className="bookmark-details">
+                        <Box
+                          display="flex"
+                          justifyContent="space-between"
+                          alignItems="center"
+                        >
+                          <h4>{bookmark.name}</h4>
+                        </Box>
+                        <Rating
+                          name={`bookmark-rating-${index}`}
+                          value={bookmark.rating}
+                          precision={0.5} // Allows half-star increments
+                          readOnly
+                          size="small"
+                        />
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Typography sx={{ ml: 0.5 }}>
+                            {bookmark.city}
+                          </Typography>
+                        </Box>
+                      </div>
+                      <Box sx={{ position: "absolute", top: -3, right: -3 }}>
+                        {stops.includes(bookmark.name) ? (
+                          <CheckCircle
+                            style={{ color: "red" }}
+                            fontSize="large"
+                          />
+                        ) : (
+                          <></>
+                        )}
+                      </Box>
+                    </div>
+                  ))}
+              </Box>
+              {stops.map((stop, index) => (
+                <div key={index}>
+                  <label htmlFor={`stop${index + 1}`}>Stop {index + 1}:</label>
+                  <input
+                    type="text"
+                    id={`stop${index + 1}`}
+                    value={stop || ""}
+                    onInput={(e) => handleStopInput(index, e.target.value)}
+                    list={`stop${index + 1}Suggestions`}
+                    placeholder="Enter stop location"
+                    className="stop-input"
+                  />
+                  <datalist id={`stop${index + 1}Suggestions`}></datalist>
+                  <div
+                    className="waiting-time"
+                    style={{ display: stop ? "block" : "none" }}
+                  >
+                    <label style={{ marginRight: 10 }}>Waiting Time:</label>
+                    <input
+                      type="radio"
+                      name={`waitingTime${index + 1}`}
+                      value="15"
+                      className="radio"
+                      onChange={(e) =>
+                        handleWaitingTimeInput(index, e.target.value)
+                      } // Add onChange handler
+                      checked={waitingTimes[index] === 15} // Add checked condition
+                    />{" "}
+                    15 min
+                    <input
+                      type="radio"
+                      name={`waitingTime${index + 1}`}
+                      value="30"
+                      className="radio"
+                      onChange={(e) =>
+                        handleWaitingTimeInput(index, e.target.value)
+                      } // Add onChange handler
+                      checked={waitingTimes[index] === 30} // Add checked condition
+                    />{" "}
+                    30 min
+                    <input
+                      type="radio"
+                      name={`waitingTime${index + 1}`}
+                      value="60"
+                      className="radio"
+                      onChange={(e) =>
+                        handleWaitingTimeInput(index, e.target.value)
+                      } // Add onChange handler
+                      checked={waitingTimes[index] === 60} // Add checked condition
+                    />{" "}
+                    1 hour
+                    <input
+                      type="radio"
+                      name={`waitingTime${index + 1}`}
+                      value="120"
+                      className="radio"
+                      onChange={(e) =>
+                        handleWaitingTimeInput(index, e.target.value)
+                      } // Add onChange handler
+                      checked={waitingTimes[index] === 120} // Add checked condition
+                    />{" "}
+                    2 hours
                   </div>
-                ))}
+                </div>
+              ))}
+
+              <button
+                id="findRoute"
+                onClick={findRoute}
+                style={{ marginTop: 20 }}
+              >
+                Generate Schedule
+              </button>
+            </>
+          ) : (
+            //Schedule Display segment with route map
+            <>
+              <Grid
+                container
+                spacing={3}
+                sx={{ height: "50%", minHeight: "500px", marginBottom: "50px" }}
+              >
+                <Grid item xs={12} md={4} sx={{ overflow: "auto" }}>
+                  {arrivalTable.map((row, index) => (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                      key={index}
+                    >
+                      <Place />
+                      <Typography variant="h5">{row.from}</Typography>
+                      <Typography variant="h6" sx={{ color: "grey" }}>
+                        {row.departure}
+                      </Typography>
+                      {index < arrivalTable.length && (
+                        <Divider
+                          orientation="vertical"
+                          sx={{
+                            height: "40px", // Adjust the height as needed
+                            width: "2px", // Adjust the thickness of the line
+                            backgroundColor: "grey",
+                            marginY: 1, // Add some space between items
+                          }}
+                        />
+                      )}
+                    </Box>
+                  ))}
+                  {/* Render the last element separately */}
+                  {arrivalTable.length > 0 && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        marginTop: 2, // Adjust spacing as needed
+                      }}
+                    >
+                      <Place />
+                      <Typography variant="h5">
+                        {arrivalTable[arrivalTable.length - 1].to}
+                      </Typography>
+                      <Typography variant="h6" sx={{ color: "grey" }}>
+                        {arrivalTable[arrivalTable.length - 1].arrival}
+                      </Typography>
+                    </Box>
+                  )}
+                </Grid>
+                <Grid item xs={12} md={8}>
+                  <div id="map" style={{ height: "100%" }}></div>
+                </Grid>
+              </Grid>
+
+              <div id="segmentDetails">
+                <h2>Segment Details</h2>
+                <div>
+                  {segmentDetails.map((segment, index) => (
+                    <div key={index} className="segment-container">
+                      <h4>
+                        From {segment.from} to {segment.to}
+                      </h4>
+                      <p>
+                        <strong>Distance:</strong> {segment.distance} km
+                      </p>
+                      <p>
+                        <strong>Time:</strong> {segment.time} minutes
+                      </p>
+                      <p>
+                        <strong>Waiting Time:</strong> {segment.waitingTime}{" "}
+                        minutes
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div> */}
-          </>
-        )}
+
+              <div id="arrivalTableContainer">
+                <h2>Schedule Table</h2>
+                <table id="arrivalTable">
+                  <thead>
+                    <tr>
+                      <th>From</th>
+                      <th>To</th>
+                      <th>Distance</th>
+                      <th>Estimated Departure Time</th>
+                      <th>Estimated Arrival Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {arrivalTable.map((row, index) => (
+                      <tr key={index}>
+                        <td>{row.from}</td>
+                        <td>{row.to}</td>
+                        <td>{row.distance} km</td>
+                        <td>{row.departure}</td>
+                        <td>{row.arrival}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <Box sx={{ marginTop: "50px" }}>
+                <Box sx={{ display: "flex", justifyContent: "center" }}>
+                  <Typography variant="h5" sx={{ marginRight: "5px" }}>
+                    Pick Your Restaurant{" "}
+                  </Typography>
+                  <RestaurantRounded />
+                </Box>
+                <SmallHotelCard mealRestaurants={mealRestaurants} />
+              </Box>
+
+              <div id="summaryDiv">
+                <h3>Overall Summary</h3>
+
+                <h3>Travel Assumptions</h3>
+                <p>
+                  <strong>Allowed Travel Hours:</strong>{" "}
+                  {`${formatTime(dailyStartTime)} to ${formatTime(
+                    dailyEndTime
+                  )}`}
+                </p>
+                <p>
+                  <strong>
+                    If travel time exceeds the allowed time, the remaining
+                    journey will resume at {formatTime(dailyStartTime)} the next
+                    day.
+                  </strong>
+                </p>
+              </div>
+
+              <Button onClick={() => setCount(0)} variant="outlined">
+                <ArrowBackIos />
+                Back
+              </Button>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

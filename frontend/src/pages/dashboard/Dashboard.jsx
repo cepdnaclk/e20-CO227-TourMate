@@ -1,11 +1,11 @@
 import React from "react";
-import "./Home.css";
-import Navbar from "../../components/Navbar/Navbar";
+import "./Dashboard.css";
+import Navbar from "../../components/Navbar/Navbar2";
 import Footer from "../../components/Footer/Footer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMapMarkedAlt,
-  faUtensils,
+  faBookmark,
   faHotel,
 } from "@fortawesome/free-solid-svg-icons";
 import GlobeExchange from "../../assets/Home/GlobeExchange.png";
@@ -13,6 +13,7 @@ import RouteFinder from "../../assets/Home/RouteFinder.png";
 import SafeLink from "../../assets/Home/SafeLink.png";
 import WeatherGuide from "../../assets/Home/WeatherGuide.png";
 import { useNavigate, Link } from "react-router-dom";
+import SearchPlace from "../SearchPlace";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -39,38 +40,42 @@ export default function Home() {
             Personalize Your <br />
             Travel Schedule
           </h1>
-          <p className="title-paragraph">
-            Welcome to Tour Mate, your ultimate travel planning companion!
-            Whether you're embarking on a solo adventure or <br />
-            planning a family trip, Tour Mate is here to help you create
-            personalized travel schedules with ease. Start by <br />
-            entering your starting point and destination, and let us take care
-            of the rest.
-          </p>
-
+          {/* <p className='title-paragraph'>Welcome to Tour Mate, your ultimate travel planning companion! Whether you're embarking on a solo adventure or <br/>
+                    planning a family trip, Tour Mate is here to help you create personalized travel schedules with ease. Start by <br/>
+                    entering your starting point and destination, and let us take care of the rest.</p>
+                     */}
           {/* ---------------Three Columns Section------------------- */}
           <div className="home-container-columns">
             <div className="home-column">
-              <FontAwesomeIcon icon={faMapMarkedAlt} size="3x" />
-              <h3>Personalized Tour Planing</h3>
+              <Link to="/schedule-plan">
+                <button className="main-btn">
+                  <FontAwesomeIcon icon={faMapMarkedAlt} size="3x" />
+                  <h3>Create Schedule</h3>
+                </button>
+              </Link>
             </div>
             <div className="home-column">
-              <FontAwesomeIcon icon={faUtensils} size="3x" />
-              <h3>Find Restaurants</h3>
+              <Link to="/add-bookmarks">
+                <button className="main-btn">
+                  <FontAwesomeIcon icon={faBookmark} size="3x" />
+                  <h3>Add Bookmarks</h3>
+                </button>
+              </Link>
             </div>
             <div className="home-column">
-              <FontAwesomeIcon icon={faHotel} size="3x" />
-              <h3>Find Hotels</h3>
+              <Link to="/find-places">
+                <button className="main-btn">
+                  <FontAwesomeIcon icon={faHotel} size="3x" />
+                  <h3>Find Places</h3>
+                </button>
+              </Link>
             </div>
-          </div>
-          <div className="login-paragraph">
-            <p>Welcome back, Traveler! Ready to continue your journey?</p>
-            <Link to="/login">
-              <button className="login-button">Log IN</button>
-            </Link>
           </div>
         </header>
       </div>
+      {/* <div className="places-container">
+        <SearchPlace />
+      </div> */}
 
       <div className="places-container">
         <div className="explore-container-columns">

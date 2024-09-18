@@ -12,16 +12,18 @@ import {
   Popover,
   Checkbox,
   FormControlLabel,
+  Tooltip,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import PlaceSuggest from "../../components/PlaceSuggest/PlaceSuggest";
 import { getHotelData } from "../../api";
-import HotelCard from "../../components/SearchHeader/HotelCard/HotelCard";
+import HotelCard from "../../components/HotelCard/HotelCard";
 import { useCallback } from "react";
 import { debounce } from "lodash";
 import { fetchExchangeRate } from "../../api";
-import { KeyboardArrowDown } from "@mui/icons-material";
+import { HotelRounded, KeyboardArrowDown } from "@mui/icons-material";
 import "./Hotel.css";
+import Navbar from "../../components/Navbar/Navbar2";
 
 export default function HotelPage() {
   const today = new Date().toISOString().split("T")[0];
@@ -183,6 +185,7 @@ export default function HotelPage() {
   }, [score, priceRange, hotels, exchangeRate, prePayChecked, cancelChecked]);
   return (
     <>
+      <Navbar />
       <Box
         display="flex"
         alignItems="center"
@@ -191,7 +194,7 @@ export default function HotelPage() {
         sx={{
           height: "50px",
           position: "sticky",
-          top: 0,
+          top: "100px",
           left: 0,
           width: "100%",
           zIndex: 1000,
@@ -199,30 +202,33 @@ export default function HotelPage() {
         }}
       >
         <PlaceSuggest setCoordinates={setCoordinates}></PlaceSuggest>
-        <div>
-          {/* <label for="checkIn">Check-In Date:</label> */}
-          <input
-            type="date"
-            id="checkIn"
-            name="checkIn"
-            onChange={(e) => setCheckInDate(e.target.value)}
-            value={checkInDate}
-            min={today}
-            placeholder="check-in"
-          />
-        </div>
-
-        <div>
-          {/* <label for="checkout">Check-Out Date:</label> */}
-          <input
-            type="date"
-            id="checkout"
-            name="checkout"
-            onChange={(e) => setCheckOutDate(e.target.value)}
-            min={checkInDate || today}
-            placeholder="check-out"
-          />
-        </div>
+        <Tooltip title="Check-in Date">
+          <div>
+            {/* <label for="checkIn">Check-In Date:</label> */}
+            <input
+              type="date"
+              id="checkIn"
+              name="checkIn"
+              onChange={(e) => setCheckInDate(e.target.value)}
+              value={checkInDate}
+              min={today}
+              placeholder="check-in"
+            />
+          </div>
+        </Tooltip>
+        <Tooltip title="Check-out Date">
+          <div>
+            {/* <label for="checkout">Check-Out Date:</label> */}
+            <input
+              type="date"
+              id="checkout"
+              name="checkout"
+              onChange={(e) => setCheckOutDate(e.target.value)}
+              min={checkInDate || today}
+              placeholder="check-out"
+            />
+          </div>
+        </Tooltip>
         <div>
           {/* Single Dropdown Button */}
           <Button
@@ -313,6 +319,23 @@ export default function HotelPage() {
         </Button>
       </Box>
       <>
+        {hotels.length === 0 && !isLoading && (
+          <div
+            className="no-results"
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "50vh",
+            }}
+          >
+            <h1 style={{ color: "grey", marginRight: "20px" }}>
+              Find hotels for your trip
+            </h1>
+            <HotelRounded fontSize="large" />
+          </div>
+        )}
         {isLoading ? (
           <div className="loading">
             <CircularProgress size="5rem" />
@@ -330,8 +353,8 @@ export default function HotelPage() {
                 md={4}
                 sx={{
                   position: "fixed",
-                  top: "100px",
-                  left: "15vh",
+                  top: "200px",
+                  left: "20vh",
                   width: "30%", // Sidebar width
                   height: "100vh", // Full viewport height
                   padding: "10px",

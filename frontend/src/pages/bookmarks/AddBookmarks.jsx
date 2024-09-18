@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Card from "../../components/PlaceCard/Card";
 import "./AddBookmarks.css";
 import { Box, FormControlLabel, FormGroup, Checkbox } from "@mui/material";
+import Navbar2 from "../../components/Navbar/Navbar2";
+import Footer from "../../components/Footer/Footer";
 
 export default function AddBookmarks() {
   const [attractions, setAttractions] = useState([]);
@@ -150,69 +152,76 @@ export default function AddBookmarks() {
   }
 
   return (
-    <div className="container">
-      <h1 className="header-bookmark">Tourist Attractions</h1>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          margin: "5px",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="search by city or names"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-      </Box>
-      <Box
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
-      >
-        <FormGroup
+    <>
+      <Navbar2 />
+      <div className="container" style={{ marginTop: "100px" }}>
+        <h1 className="header-bookmark">Tourist Attractions</h1>
+        <Box
           sx={{
             display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
+            justifyContent: "center",
+            alignItems: "center",
+            margin: "5px",
           }}
         >
-          {types.map((type, index) => (
-            <FormControlLabel
-              key={index}
-              control={
-                <Checkbox
-                  name={type}
-                  checked={selectedTypes.includes(type)}
-                  onChange={handleTypeChange}
-                />
-              }
-              label={type.charAt(0).toUpperCase() + type.slice(1)} // Capitalize first letter
-            />
-          ))}
-        </FormGroup>
-      </Box>
+          <input
+            type="text"
+            placeholder="search by city or names"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <FormGroup
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "wrap",
+            }}
+          >
+            {types.map((type, index) => (
+              <FormControlLabel
+                key={index}
+                control={
+                  <Checkbox
+                    name={type}
+                    checked={selectedTypes.includes(type)}
+                    onChange={handleTypeChange}
+                  />
+                }
+                label={type.charAt(0).toUpperCase() + type.slice(1)} // Capitalize first letter
+              />
+            ))}
+          </FormGroup>
+        </Box>
 
-      <Box
-        display="flex"
-        sx={{
-          flexWrap: "wrap",
-          gap: 2,
-          justifyContent: "center",
-          padding: 2,
-          maxWidth: "100%",
-        }}
-      >
-        {(filteredPlaces.length > 0 ? filteredPlaces : attractions).map(
-          (attraction, _) => (
-            <Card
-              place={attraction}
-              bookmarked={bookmarks.includes(attraction.apiLocationId)}
-            />
-          )
-        )}
-      </Box>
-    </div>
+        <Box
+          display="flex"
+          sx={{
+            flexWrap: "wrap",
+            gap: 2,
+            justifyContent: "center",
+            padding: 2,
+            maxWidth: "100%",
+          }}
+        >
+          {(filteredPlaces.length > 0 ? filteredPlaces : attractions).map(
+            (attraction, _) => (
+              <Card
+                place={attraction}
+                bookmarked={bookmarks.includes(attraction.apiLocationId)}
+              />
+            )
+          )}
+        </Box>
+      </div>
+    </>
   );
 }

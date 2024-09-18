@@ -6,11 +6,7 @@ import Plan from "./pages/plan/Plan";
 import RoutePage from "./pages/RoutePage";
 import SearchPlace from "./pages/SearchPlace";
 import AddBookmarks from "./pages/bookmarks/AddBookmarks";
-import PlanPage from "./pages/PlanPage";
-import Navbar from "./components/Navbar";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard/Dashboard";
 import CurrencyConverter from "./pages/CurrencyConverter";
 import EmergencyConnector from "./pages/EmergencyConnector";
 import Weather from "./pages/Weather";
@@ -22,8 +18,11 @@ import { Box, Container } from "@mui/material";
 import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
 import SchedulePlan from "./pages/schedulePlanning/SchedulePlan";
+import { useAuth } from "./utils/AuthContext";
+import Footer from "./components/Footer/Footer";
 
 const App = () => {
+  const { isAuthenticated } = useAuth();
   return (
     <AuthProvider>
       <Router>
@@ -35,7 +34,6 @@ const App = () => {
             alignItems: "center",
           }}
         >
-          <Header />
           <Container
             component="main"
             sx={{
@@ -49,16 +47,20 @@ const App = () => {
             <div>
               <Routes>
                 <Route element={<ProtectedRoutes />}>
-                  {/* Add other protected routes here if needed */}
+                  {/* Add other protected routes here if needed */}=
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/add-bookmarks" element={<AddBookmarks />} />
-                  <Route path="/find-hotel" element={<HotelPage />} />
-                  <Route path="/find-restaurant" element={<SearchPlace />} />
                   <Route path="/create-plan" element={<Plan />} />
+                  <Route path="/find-hotel" element={<HotelPage />} />
+                  <Route path="/find-places" element={<SearchPlace />} />
+                  <Route path="/find-restaurants" element={<SearchPlace />} />
                   <Route path="/schedule-plan" element={<SchedulePlan />} />
                 </Route>
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/" element={<Home />} />
+                <Route
+                  path="/"
+                  element={isAuthenticated ? <Dashboard /> : <Home />}
+                />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/find-route" element={<RoutePage />} />
@@ -72,9 +74,9 @@ const App = () => {
                 />
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/navbar" element={<Navbar />} />
               </Routes>
             </div>
+            <Footer />
           </Container>
         </Box>
       </Router>
