@@ -26,7 +26,9 @@ const RestaurantDisplay = ({ mealRestaurants }) => {
       {mealRestaurants.map((item, index) => (
         <Box key={index} mb={2}>
           {/* Display meal type */}
-          <Typography variant="h6">Meal: {item.meal}</Typography>
+          <Typography variant="h6">
+            Meal: {item.meal} {item.arrivalTime.toLocaleDateString()}
+          </Typography>
 
           {/* Display restaurant cards */}
           <Box display="flex" flexWrap="wrap" gap={2} mt={2}>

@@ -446,7 +446,8 @@ const SchedulePlan = () => {
         if (nearbyTownsDuringMeal.meal !== "none") {
           fetchRestaurantsForMealTime(
             nearbyTownsDuringMeal.nearbyTowns,
-            nearbyTownsDuringMeal.meal
+            nearbyTownsDuringMeal.meal,
+            arrivalTime
           );
           console.log(
             `Nearby towns for ${nearbyTownsDuringMeal.meal}:`,
@@ -777,7 +778,8 @@ const SchedulePlan = () => {
     return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
   };
 
-  const fetchRestaurantsForMealTime = (towns, meal) => {
+  //Fetch restaurants for specific meal time
+  const fetchRestaurantsForMealTime = (towns, meal, arrivalTime) => {
     const bound = getBounds(towns[0]);
 
     if (bound) {
@@ -794,17 +796,45 @@ const SchedulePlan = () => {
 
           console.log(restaurantsData);
 
-          // Use prevState to avoid adding duplicate meals
+          // Extract only the date part from arrivalTime
+          const arrivalDate = new Date(
+            arrivalTime.getFullYear(),
+            arrivalTime.getMonth(),
+            arrivalTime.getDate()
+          );
+
+          // Use prevState to avoid adding duplicate meals for the same date
           setMealRestaurants((prev) => {
-            // const existingMeal = prev.find((item) => item.meal === meal);
+            const existingMeal = prev.find((item) => {
+              const itemArrivalDate = new Date(
+                item.arrivalTime.getFullYear(),
+                item.arrivalTime.getMonth(),
+                item.arrivalTime.getDate()
+              );
+              return (
+                item.meal === meal &&
+                itemArrivalDate.getTime() === arrivalDate.getTime()
+              );
+            });
 
-            // if (existingMeal) {
-            //   console.log(`Meal "${meal}" already exists, skipping update.`);
-            //   return prev; // Return the same state if the meal exists
-            // }
+            if (existingMeal) {
+              console.log(
+                `Meal "${meal}" for the date "${arrivalDate}" already exists, skipping update.`
+              );
+              return prev; // Return the same state if the meal for the same date exists
+            }
 
-            console.log(`Adding meal "${meal}" with restaurants.`);
-            return [...prev, { meal, restaurants: filteredRestaurant }];
+            console.log(
+              `Adding meal "${meal}" with restaurants and arrival date.`
+            );
+            return [
+              ...prev,
+              {
+                meal,
+                restaurants: filteredRestaurant,
+                arrivalTime: arrivalDate,
+              },
+            ];
           });
         })
         .catch((error) => {
@@ -1088,7 +1118,12 @@ const SchedulePlan = () => {
                 spacing={3}
                 sx={{ height: "50%", minHeight: "500px", marginBottom: "50px" }}
               >
-                <Grid item xs={12} md={4} sx={{ overflow: "auto" }}>
+                <Grid
+                  item
+                  xs={12}
+                  md={4}
+                  sx={{ maxHeight: "500px", overflow: "auto" }}
+                >
                   {arrivalTable.map((row, index) => (
                     <Box
                       sx={{
