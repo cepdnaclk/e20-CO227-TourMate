@@ -99,7 +99,7 @@ public class BookmarkPlaceService {
     }
 
     @Transactional
-    public List<Long> getBookmarks(String email) {
+    public List<Long> getBookmarksId(String email) {
         User user = userRepo.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         List<BookmarkedPlace> bookmarks = bookmarkedPlaceRepo.findByUserID(user.getUserid()).orElse(null);
         if (bookmarks.isEmpty()) {
@@ -116,6 +116,7 @@ public class BookmarkPlaceService {
 
     }
 
+    @Transactional
     public List<TouristAttractionDTO> getBookmarksPlaces(String email) {
         // Find the user by email, or throw an exception if the user is not found
         User user = userRepo.findByEmail(email)

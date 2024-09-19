@@ -85,7 +85,7 @@ class BookmarkPlaceServiceTest {
     @Test
     void getBookmarkTest(){
 
-        System.out.println(bookmarkPlaceService.getBookmarks("test@test.com"));
+        System.out.println(bookmarkPlaceService.getBookmarksId("test@test.com"));
     }
 
     @Test

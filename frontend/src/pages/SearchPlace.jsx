@@ -57,6 +57,7 @@ function SearchPlace() {
     return latDiff > threshold || lngDiff > threshold;
   };
 
+  // Get current location
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       ({ coords: { latitude, longitude } }) => {

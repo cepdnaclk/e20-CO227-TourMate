@@ -24,7 +24,7 @@ export default function Logtest() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false); // State for "Remember me" checkbox
   const navigate = useNavigate(); // For navigation after successful login
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Load remember me state from localStorage on component mount
   useEffect(() => {
@@ -71,11 +71,11 @@ export default function Logtest() {
         // Login failed, handle error (e.g., show error message)
         console.error("Login failed with status:", response.status);
 
-        setErrorMessage('Incorrect email or password. Please try again.');
+        setErrorMessage("Incorrect email or password. Please try again.");
       }
     } catch (error) {
       console.error("Error during login:", error);
-      setErrorMessage('An error occurred during login. Please try again.');
+      setErrorMessage("An error occurred during login. Please try again.");
     }
   };
 
@@ -103,7 +103,7 @@ export default function Logtest() {
               <Avatar style={avatarStyle}>
                 <LockOutlinedIcon />
               </Avatar>
-              <h2>Sign in</h2>
+              <h2>Log in</h2>
             </Grid>
             <TextField
               label="Email"
@@ -138,14 +138,17 @@ export default function Logtest() {
               }}
             />
             <FormControlLabel
-              control={<Checkbox 
-                name="checkedB" 
-                color="primary" 
-                checked={rememberMe}
-                onChange={handleRememberMe}/>}
+              control={
+                <Checkbox
+                  name="checkedB"
+                  color="primary"
+                  checked={rememberMe}
+                  onChange={handleRememberMe}
+                />
+              }
               label="Remember me"
             />
-            {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+            {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
             <Button
               type="submit"
               color="primary"
@@ -153,7 +156,7 @@ export default function Logtest() {
               style={btstyle}
               fullWidth
             >
-              Sign in
+              Log in
             </Button>
             <Typography>
               <Link href="ForgotPassword" variant="plain">

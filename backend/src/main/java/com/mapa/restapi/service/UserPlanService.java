@@ -50,10 +50,9 @@ public class UserPlanService {
 
     // Method to remove a plan from the schedule
     public void removePlanByUserID(User user) {
-        System.out.println("Deleting plan...");
         userPlanRepo.deleteByUserId(user.getUserid());
-        System.out.println("Deleted");
     }
+
 //
 //    // Method to get a plan by ID
 //    public UserPlan getPlanByID(int planID) {

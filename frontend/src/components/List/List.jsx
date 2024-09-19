@@ -39,13 +39,16 @@ export default function List({
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
-        const response = await fetch("http://localhost:1200/getbookmarks", {
-          method: "get",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        const response = await fetch(
+          "http://localhost:1200/api/user/getbookmarks",
+          {
+            method: "get",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();

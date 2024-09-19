@@ -123,6 +123,7 @@ export default function HotelPage() {
     return bounds;
   };
 
+  // Handle search and fetch Hotels
   const handleSearch = () => {
     setIsLoading(true);
     const bounds = createBound(coordinates);
@@ -135,7 +136,9 @@ export default function HotelPage() {
       adults,
       children
     ).then((data) => {
-      console.log(data);
+      if (data === undefined) {
+        setHotels([]);
+      }
       setHotels(data);
       setFilteredHotels([]);
       getNumOfNights();
@@ -144,8 +147,9 @@ export default function HotelPage() {
     });
   };
 
+  // Set price range
   useEffect(() => {
-    if (hotels.length > 0) {
+    if (hotels && hotels.length > 0) {
       const prices = hotels.map((hotel) =>
         (
           hotel.priceDisplayInfo.displayPrice.amountPerStay.amountUnformatted *
@@ -162,6 +166,7 @@ export default function HotelPage() {
     }
   }, [hotels, exchangeRate]);
 
+  // Filter hotels
   useEffect(() => {
     const filterHotels = hotels.filter((hotel) => {
       const hotelScore = hotel.basicPropertyData.reviews.totalScore;
@@ -213,6 +218,7 @@ export default function HotelPage() {
               value={checkInDate}
               min={today}
               placeholder="check-in"
+              required
             />
           </div>
         </Tooltip>
@@ -226,6 +232,7 @@ export default function HotelPage() {
               onChange={(e) => setCheckOutDate(e.target.value)}
               min={checkInDate || today}
               placeholder="check-out"
+              required
             />
           </div>
         </Tooltip>
@@ -428,6 +435,7 @@ export default function HotelPage() {
                   />
                 </FormControl>
               </Grid>
+
               <Grid
                 item
                 xs={10}

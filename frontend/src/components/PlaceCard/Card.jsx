@@ -23,18 +23,19 @@ import {
 export default function AttractionCard({ place, bookmarked }) {
   const [Bookmark, setBookmark] = useState(false);
 
+  // Check if place is bookmarked
   useEffect(() => {
     if (bookmarked) {
       setBookmark(true);
     }
-  }, [place]);
+  }, [place, bookmarked]);
 
   const isDesktop = useMediaQuery("(min-width:600px)");
   const handleBookmark = async () => {
     try {
       const url = Bookmark
-        ? "http://localhost:1200/removebookmark"
-        : "http://localhost:1200/addbookmarks";
+        ? "http://localhost:1200/api/user/removebookmark"
+        : "http://localhost:1200/api/user/addbookmarks";
 
       const response = await fetch(url, {
         method: "POST",

@@ -69,7 +69,7 @@ public class WebSecurityConfig {
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler)) //Auth Entry Point
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //Session Management - Stateless
             .authorizeHttpRequests(auth ->
-                auth.requestMatchers("/signup","/auth/login","/forgotPassword/**").permitAll() //Allow these parts to be accessed without authentication
+                auth.requestMatchers("/auth/**","/forgotPassword/**").permitAll() //Allow these parts to be accessed without authentication
                     .anyRequest().authenticated() //Every other path is authenticated
             );
 

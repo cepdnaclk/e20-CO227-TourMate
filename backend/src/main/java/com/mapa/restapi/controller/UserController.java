@@ -18,11 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins="*")  //allow for all the ports
+@CrossOrigin(origins="*")//allow for all the ports
+@RequestMapping("/api/user")
 public class UserController {
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private BookmarkPlaceService bookmarkPlaceService;
@@ -55,7 +53,7 @@ public class UserController {
     @GetMapping("/getbookmarks")
     public ResponseEntity<?> getBookmarks(@AuthenticationPrincipal UserDetails userDetails){
         String username = userDetails.getUsername();
-        List<Long> code = bookmarkPlaceService.getBookmarks(username);
+        List<Long> code = bookmarkPlaceService.getBookmarksId(username);
         return ResponseEntity.ok().body(code);
     }
 
@@ -68,21 +66,6 @@ public class UserController {
 
         return ResponseEntity.ok("Plan created");
 
-    }
-
-
-    @PostMapping("/signup")
-    public ResponseEntity<?> createUser(@RequestBody User user) {
-        if (userService.findByEmail(user.getEmail()) != null) {
-            return ResponseEntity.badRequest().body("Email Already Registered");
-        }
-
-        UserDto userdto = userService.saveUser(user);
-        if (userdto == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        System.out.println(userdto);
-        return ResponseEntity.status(HttpStatus.OK).body(userdto);
     }
 
     @PostMapping("/addPlan")

@@ -56,7 +56,7 @@ export default function Signup() {
     console.log("Form Data to be submitted:", formData);
 
     try {
-      const response = await fetch("http://localhost:1200/signup", {
+      const response = await fetch("http://localhost:1200/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +75,7 @@ export default function Signup() {
         if (responseData) {
           console.log("Form Data Submitted Successfully");
           alert("Form is submitted");
-          navigate("/");
+          navigate("/Dashboard");
           setFormData(initialFormData);
         } else {
           console.error(
@@ -156,7 +156,6 @@ export default function Signup() {
                       placeholder="Lastname"
                       value={formData.lastname}
                       onChange={handleInputChange}
-                      required
                       fullWidth
                       InputProps={{
                         style: {
@@ -315,7 +314,7 @@ export default function Signup() {
                     SIGN UP
                   </Button>
                   <p>
-                    Already have an account? <Link to="/login">Sign in</Link>
+                    Already have an account? <Link to="/login">Log in</Link>
                   </p>
                 </form>
               </Typography>

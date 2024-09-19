@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins="*")  //allow for all the ports
+@RequestMapping("/api/admin")
 public class AdminController {
 
     @Autowired

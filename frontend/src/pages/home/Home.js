@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./Home.css";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
@@ -13,6 +13,7 @@ import RouteFinder from "../../assets/Home/RouteFinder.png";
 import SafeLink from "../../assets/Home/SafeLink.png";
 import WeatherGuide from "../../assets/Home/WeatherGuide.png";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../utils/AuthContext";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -30,6 +31,14 @@ export default function Home() {
     navigate("/weather");
   };
 
+  const { isAuthenticated } = useAuth();
+
+  // Redirect to dashboard if user is authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/Dashboard");
+    }
+  }, [isAuthenticated]);
   return (
     <>
       <Navbar />

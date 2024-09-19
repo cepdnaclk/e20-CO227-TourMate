@@ -39,14 +39,14 @@ export default function Place({
     if (bookmarked) {
       setBookmark(true);
     }
-  }, [place]);
+  }, [place, bookmarked]);
 
   const handleBookmark = async () => {
     const typeNames = place.subtype.map((sub) => sub.name).join(", ");
     try {
       const url = Bookmark
-        ? "http://localhost:1200/removebookmark"
-        : "http://localhost:1200/addbookmarks";
+        ? "http://localhost:1200/api/user/removebookmark"
+        : "http://localhost:1200/api/user/addbookmarks";
 
       const response = await fetch(url, {
         method: "POST",

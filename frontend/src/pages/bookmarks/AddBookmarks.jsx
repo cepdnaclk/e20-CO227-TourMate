@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
 import Card from "../../components/PlaceCard/Card";
 import "./AddBookmarks.css";
-import { Box, FormControlLabel, FormGroup, Checkbox } from "@mui/material";
+import {
+  Box,
+  FormControlLabel,
+  FormGroup,
+  Checkbox,
+  Typography,
+} from "@mui/material";
 import Navbar2 from "../../components/Navbar/Navbar2";
-import Footer from "../../components/Footer/Footer";
+import { CircularProgress } from "@mui/material";
+import { Error } from "@mui/icons-material";
 
 export default function AddBookmarks() {
   const [attractions, setAttractions] = useState([]);
@@ -37,11 +44,12 @@ export default function AddBookmarks() {
     setFilteredPlaces(filtered); // Update filteredAttractions state
   }, [selectedTypes, attractions]); // Make sure to include attractions as a dependency
 
+  // Function to fetch destination types
   useEffect(() => {
     const fetchTypes = async () => {
       try {
         const response = await fetch(
-          "http://localhost:1200/attractions/getTypes",
+          "http://localhost:1200/api/attractions/getTypes",
           {
             method: "get",
             headers: {
@@ -54,22 +62,22 @@ export default function AddBookmarks() {
           console.log("Error fetching destination types:", response.status);
           return;
         }
-        console.log(response);
         const data = await response.json();
         setTypes(data); // Set the response data (a list of strings) to state
       } catch (error) {
-        console.error("Error fetching destination types:", error);
+        console.log("Error fetching destination types");
       }
     };
 
     fetchTypes();
   }, []);
 
+  // Function to fetch all attractions
   useEffect(() => {
     const fetchAttractions = async () => {
       try {
         const response = await fetch(
-          "http://localhost:1200/attractions/getall",
+          "http://localhost:1200/api/attractions/getall",
           {
             method: "GET",
             headers: {
@@ -84,11 +92,11 @@ export default function AddBookmarks() {
           console.log(data);
           setAttractions(data);
         } else {
-          console.error("Error:", response.statusText);
-          setError("Failed to fetch data");
+          console.log("Error:", response.statusText);
+          setError("Failed to fetch attractions");
         }
       } catch (error) {
-        console.log("Error in fetching data:", error);
+        console.log("Error in fetching attractions from database");
         setError("Something went wrong");
       } finally {
         setLoading(false);
@@ -98,16 +106,20 @@ export default function AddBookmarks() {
     fetchAttractions();
   }, []);
 
+  // Function to fetch bookmarks
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
-        const response = await fetch("http://localhost:1200/getbookmarks", {
-          method: "get",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        const response = await fetch(
+          "http://localhost:1200/api/user/getbookmarks",
+          {
+            method: "get",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();
@@ -124,19 +136,12 @@ export default function AddBookmarks() {
     fetchBookmarks();
   }, []);
 
-  //filtering
+  //filtering based on City
   useEffect(() => {
     const filteredPlace = attractions.filter((place) => {
-      // const typeMatches = place.type
-      //   .split(",")
-      //   .map((type) => type.trim().toLowerCase()) // Split and trim each type
-      //   .some((type) => type.includes(searchTerm.toLowerCase())); // Check if any type matches the searchTerm
-
-      // Filter based on name, city, or type
       return (
         place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         place.city.toLowerCase().includes(searchTerm.toLowerCase())
-        // typeMatches
       );
     });
 
@@ -144,11 +149,33 @@ export default function AddBookmarks() {
   }, [searchTerm, attractions]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="loading">
+        <CircularProgress size="5rem" />
+      </div>
+    );
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return (
+      <>
+        <Navbar2 />
+        <div
+          style={{
+            marginTop: "100px",
+            height: "400px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="h5" marginRight="10px">
+            {error}
+          </Typography>{" "}
+          <Error />
+        </div>
+      </>
+    );
   }
 
   return (
@@ -172,6 +199,7 @@ export default function AddBookmarks() {
             className="search-input"
           />
         </Box>
+
         <Box
           sx={{
             display: "flex",
@@ -201,6 +229,22 @@ export default function AddBookmarks() {
             ))}
           </FormGroup>
         </Box>
+
+        {attractions.length === 0 && (
+          <Box
+            sx={{
+              height: "200px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="h5" sx={{ color: "red", marginRight: "10px" }}>
+              No Attraction found
+            </Typography>
+            <Error />{" "}
+          </Box>
+        )}
 
         <Box
           display="flex"

@@ -79,12 +79,12 @@ const Plan = () => {
     if (step > 1) setStep(step - 1);
   };
 
-  // Placeholder function for form submission
+  // Save User plan
   const handleSubmit = async () => {
     console.log({ userPlan });
     // Add your API call logic here to save the userPlan details.
     try {
-      const response = await fetch("http://localhost:1200/addPlan", {
+      const response = await fetch("http://localhost:1200/api/user/addPlan", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -391,7 +391,7 @@ const Step3 = ({ handleChange }) => {
     const fetchTypes = async () => {
       try {
         const response = await fetch(
-          "http://localhost:1200/attractions/getTypes",
+          "http://localhost:1200/api/attractions/getTypes",
           {
             method: "get",
             headers: {

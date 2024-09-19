@@ -10,7 +10,7 @@ export const getPlaceData = async (sw, ne, type) => {
       // open_now: "false",
     },
     headers: {
-      "x-rapidapi-key": "9f81c80342msh99a1c2dc4870077p1ad952jsn95227fa78b79",
+      "x-rapidapi-key": process.env.REACT_APP_RAPID_API_KEY,
       "x-rapidapi-host": "travel-advisor.p.rapidapi.com",
     },
   };
@@ -50,7 +50,7 @@ export const getHotelData = async (
       units: "metric",
     },
     headers: {
-      "x-rapidapi-key": "9f81c80342msh99a1c2dc4870077p1ad952jsn95227fa78b79",
+      "x-rapidapi-key": process.env.REACT_APP_RAPID_API_KEY,
       "x-rapidapi-host": "booking-com18.p.rapidapi.com",
     },
   };
@@ -58,16 +58,17 @@ export const getHotelData = async (
     options.params.children = Array(children).fill(10).join(",");
   }
   try {
-    const {
-      data: {
-        data: { results },
-      },
-    } = await axios.get(
+    const response = await axios.get(
       "https://booking-com18.p.rapidapi.com/stays/search-by-geo",
       options
     );
-    // console.log(results);
-    return results || [];
+    if (response.status !== 200) {
+      console.log("Error fetching hotels");
+      return [];
+    }
+    const results = response.data.data.results;
+    console.log("Hotels:", results);
+    return results;
   } catch (error) {
     console.error(error);
   }

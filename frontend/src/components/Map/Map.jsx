@@ -37,12 +37,14 @@ const locationIcon = L.divIcon({
 
 const getIconByType = (type) => {
   switch (type) {
-    case "restaurant":
+    case "restaurants":
       return L.divIcon({
         className: "custom-icon",
-        html: `<div style="background: transparent; border: none; display: flex; justify-content: center; align-items: center;">
-                <svg width="24px" height="24px" viewBox="-102.4 -102.4 1228.80 1228.80" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"><rect x="-102.4" y="-102.4" width="1228.80" height="1228.80" rx="614.4" fill="#ff0000" strokewidth="0"></rect></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M682.666667 554.666667a42.666667 42.666667 0 0 0-42.666667-42.666667h-21.333333c-23.552 0-21.333333 19.114667-21.333334 42.666667l-21.333333 362.666666a42.666667 42.666667 0 0 0 42.666667 42.666667h42.666666a42.666667 42.666667 0 0 0 42.666667-42.666667l-21.333333-362.666666zM426.666667 448h-85.333334l-21.333333 469.333333a42.666667 42.666667 0 0 0 42.666667 42.666667h42.666666a42.666667 42.666667 0 0 0 42.666667-42.666667l-21.333333-469.333333z" fill="#dadbe2"></path><path d="M682.666667 554.666667h-85.333334V64c42.666667 0 192 85.333333 85.333334 490.666667zM448 64v277.333333h-42.666667V64h-42.666666v277.333333h-42.666667V64h-42.666667l-21.333333 298.666667 85.333333 85.333333h85.333334l85.333333-85.333333-21.333333-298.666667z" fill="#fcfcfc"></path></g></svg>
-                </div>`,
+        html: `<div style="background: transparent; border: none; display: flex; justify-content: center; align-items: center; transform: scale(1.33);">
+                 <svg version="1.0" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path fill="#f02000" d="M32,52.789l-12-18C18.5,32,16,28.031,16,24c0-8.836,7.164-16,16-16s16,7.164,16,16 c0,4.031-2.055,8-4,10.789L32,52.789z"></path> <g> <path fill="#394240" d="M32,0C18.746,0,8,10.746,8,24c0,5.219,1.711,10.008,4.555,13.93c0.051,0.094,0.059,0.199,0.117,0.289 l16,24C29.414,63.332,30.664,64,32,64s2.586-0.668,3.328-1.781l16-24c0.059-0.09,0.066-0.195,0.117-0.289 C54.289,34.008,56,29.219,56,24C56,10.746,45.254,0,32,0z M44,34.789l-12,18l-12-18C18.5,32,16,28.031,16,24 c0-8.836,7.164-16,16-16s16,7.164,16,16C48,28.031,45.945,32,44,34.789z"></path> <circle fill="#394240" cx="32" cy="24" r="8"></circle> </g> </g> </g></svg>  <path d="M12 2C8.13 2 5 5.13 5 9C5 12.26 10 21 12 21C14 21 19 12.26 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.07 11.5 8.5 9.93 8.5 8C8.5 6.07 10.07 4.5 12 4.5C13.93 4.5 15.5 6.07 15.5 8C15.5 9.93 13.93 11.5 12 11.5Z" fill="black"/>
+                 </svg>
+                 
+               </div>`,
         iconSize: [24, 24],
         iconAnchor: [12, 24],
         popupAnchor: [0, -24],
@@ -151,6 +153,7 @@ const Map = ({
       }, 1000); // Adjust the delay as needed
     };
 
+    //Set initial bounds
     useEffect(() => {
       if (!initialBoundsSet.current) {
         const bounds = map.getBounds();

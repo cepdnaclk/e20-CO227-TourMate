@@ -55,12 +55,9 @@ const App = () => {
                   <Route path="/find-places" element={<SearchPlace />} />
                   <Route path="/find-restaurants" element={<SearchPlace />} />
                   <Route path="/schedule-plan" element={<SchedulePlan />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
                 </Route>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route
-                  path="/"
-                  element={isAuthenticated ? <Dashboard /> : <Home />}
-                />
+                <Route path="/" element={<Home />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/find-route" element={<RoutePage />} />

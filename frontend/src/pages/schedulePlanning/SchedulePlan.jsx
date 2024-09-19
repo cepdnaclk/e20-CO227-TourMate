@@ -52,7 +52,7 @@ const SchedulePlan = () => {
     const fetchBookmarkPlaces = async () => {
       try {
         const response = await fetch(
-          "http://localhost:1200/bookmarks/getplaces",
+          "http://localhost:1200/api/bookmarks/getplaces",
           {
             method: "get",
             headers: {
