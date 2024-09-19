@@ -391,7 +391,7 @@ const Step3 = ({ handleChange }) => {
     const fetchTypes = async () => {
       try {
         const response = await fetch(
-          "http://localhost:1200/api/destinations/getTypes",
+          "http://localhost:1200/attractions/getTypes",
           {
             method: "get",
             headers: {
@@ -401,7 +401,8 @@ const Step3 = ({ handleChange }) => {
           }
         );
         if (!response.ok) {
-          throw new Error("Failed to fetch destination types");
+          console.log("Error fetching destination types:", response.status);
+          return;
         }
         console.log(response);
         const data = await response.json();

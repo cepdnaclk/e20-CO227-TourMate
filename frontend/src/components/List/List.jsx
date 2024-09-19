@@ -10,6 +10,7 @@ import {
   Typography,
   Grid,
   CircularProgress,
+  Box,
 } from "@mui/material";
 import React, { useState, useEffect, createRef } from "react";
 import "./List.css";
@@ -48,9 +49,10 @@ export default function List({
 
         if (response.ok) {
           const data = await response.json();
+          console.log("Bookmarks:", data);
           setBookmarks(data);
         } else {
-          console.error("Error :", response.status);
+          console.log("Error getting bookmarks:", response.status);
         }
       } catch (error) {
         console.log("Error fetching bookmarks");
@@ -65,37 +67,39 @@ export default function List({
       className="container"
       style={{ position: "relative", height: "80vh", overflowY: "auto" }}
     >
-      <Typography variant="h6">Restaurant, Hotels & Attractions</Typography>
+      <Typography variant="h6">Restaurant & Attractions</Typography>
       {isLoading ? (
         <div className="loading">
           <CircularProgress size="5rem" />
         </div>
       ) : (
         <>
-          <FormControl className="formControl" sx={{ zIndex: "10" }}>
-            <InputLabel>Type</InputLabel>
-            <Select
-              value={type}
-              className="select"
-              onChange={(e) => setType(e.target.value)}
-            >
-              <MenuItem value="restaurants">Restaurants</MenuItem>
-              <MenuItem value="hotels">Hotels</MenuItem>
-              <MenuItem value="attractions">Attractions</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl className="formControl" sx={{ zIndex: "10" }}>
-            <InputLabel>Rating</InputLabel>
-            <Select
-              value={rating}
-              className="select"
-              onChange={(e) => setRating(e.target.value)}
-            >
-              <MenuItem value={0}>All</MenuItem>
-              <MenuItem value={3}>Above 3.0</MenuItem>
-              <MenuItem value={4}>Above 4.0</MenuItem>
-            </Select>
-          </FormControl>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <FormControl className="formControl" sx={{ zIndex: "10" }}>
+              <InputLabel>Type</InputLabel>
+              <Select
+                value={type}
+                className="select"
+                onChange={(e) => setType(e.target.value)}
+              >
+                <MenuItem value="restaurants">Restaurants</MenuItem>
+                <MenuItem value="hotels">Hotels</MenuItem>
+                <MenuItem value="attractions">Attractions</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl className="formControl" sx={{ zIndex: "10" }}>
+              <InputLabel>Rating</InputLabel>
+              <Select
+                value={rating}
+                className="select"
+                onChange={(e) => setRating(e.target.value)}
+              >
+                <MenuItem value={0}>All</MenuItem>
+                <MenuItem value={3}>Above 3.0</MenuItem>
+                <MenuItem value={4}>Above 4.0</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
           <Grid
             container
             spacing={3}

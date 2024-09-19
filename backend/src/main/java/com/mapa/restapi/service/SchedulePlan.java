@@ -48,7 +48,7 @@ public class SchedulePlan {
     }
 
     // Method to get bookmarked places from the database
-    public List<Destination> getUserBookmarkPlace(long userid) {
+    public List<TouristAttraction> getUserBookmarkPlace(long userid) {
         return bookmarkPlaceService.findAttractionPlaces(userid);
     }
 
@@ -59,7 +59,7 @@ public class SchedulePlan {
         UserPlan userPlan = getUserPlan(user.getUserid());
 
         // Retrieve bookmarked places from the database
-        List<Destination> bookmarkedPlaces = getUserBookmarkPlace(user.getUserid());
+        List<TouristAttraction> bookmarkedPlaces = getUserBookmarkPlace(user.getUserid());
 
         Map<String, Integer> travelTimes = new HashMap<>();
 
@@ -74,10 +74,10 @@ public class SchedulePlan {
         Set<String> routeLocations = routeService.getCitiesAlongRoute(userPlan.getStartLocation(), userPlan.getEndLocation());
 
         // Filter bookmarked places based on the route
-        List<Destination> filteredPlaces = filterPlacesByCity(bookmarkedPlaces, routeLocations);
+        List<TouristAttraction> filteredPlaces = filterPlacesByCity(bookmarkedPlaces, routeLocations);
 
         // Calculate travel times for filtered places
-        for (Destination place : filteredPlaces) {
+        for (TouristAttraction place : filteredPlaces) {
             int duration = calculateTravelTime(currentLocation, place.getCity());
             travelTimes.put(place.getCity(), duration);
         }
@@ -90,11 +90,11 @@ public class SchedulePlan {
         System.out.println();
 
         // Sort places by travel time
-        List<Destination> sortedPlaces = sortPlacesByTravelTime(travelTimes, filteredPlaces);
+        List<TouristAttraction> sortedPlaces = sortPlacesByTravelTime(travelTimes, filteredPlaces);
 
         // Debug: Print sorted places
         System.out.println("---------------Sorted Places--------------");
-        for (Destination place : sortedPlaces) {
+        for (TouristAttraction place : sortedPlaces) {
             System.out.println(place.getCity());
         }
         System.out.println();
@@ -107,7 +107,7 @@ public class SchedulePlan {
             ScheduleEventDto event = new ScheduleEventDto();
 
             // Select the next place to visit
-            Destination nextPlace = selectNextPlace(currentLocation, sortedPlaces, currentTime, endTime);
+            TouristAttraction nextPlace = selectNextPlace(currentLocation, sortedPlaces, currentTime, endTime);
             if (nextPlace == null) break;
 
             // Calculate travel time and visit duration
@@ -159,9 +159,9 @@ public class SchedulePlan {
     }
 
     // Method to filter places based on the route
-    private List<Destination> filterPlacesByCity(List<Destination> bookmarkPlaces, Set<String> routeCity) {
-        List<Destination> filterPlace = new ArrayList<>();
-        for (Destination place : bookmarkPlaces) {
+    private List<TouristAttraction> filterPlacesByCity(List<TouristAttraction> bookmarkPlaces, Set<String> routeCity) {
+        List<TouristAttraction> filterPlace = new ArrayList<>();
+        for (TouristAttraction place : bookmarkPlaces) {
             if (routeCity.contains(place.getCity())) {
                 filterPlace.add(place);
             }
@@ -181,7 +181,7 @@ public class SchedulePlan {
 //    }
 
     // Method to sort places by travel time
-    public List<Destination> sortPlacesByTravelTime(Map<String, Integer> travelTimes, List<Destination> filteredPlaces) {
+    public List<TouristAttraction> sortPlacesByTravelTime(Map<String, Integer> travelTimes, List<TouristAttraction> filteredPlaces) {
         // Convert the map entries to a list and sort by travel time
         List<Map.Entry<String, Integer>> entryList = new ArrayList<>(travelTimes.entrySet());
         entryList.sort(Map.Entry.comparingByValue());
@@ -192,9 +192,9 @@ public class SchedulePlan {
             sortedCity.add(entry.getKey());
         }
 
-        List<Destination> sortedAttraction = new ArrayList<>();
+        List<TouristAttraction> sortedAttraction = new ArrayList<>();
         for (String s : sortedCity) {
-            for (Destination attraction : filteredPlaces) {
+            for (TouristAttraction attraction : filteredPlaces) {
                 if (Objects.equals(s, attraction.getCity())) {
                     sortedAttraction.add(attraction);
                 }
@@ -211,7 +211,7 @@ public class SchedulePlan {
     }
 
     // Method to select the next place to visit
-    private Destination selectNextPlace(String currentLocation, List<Destination> places, LocalTime currentTime, LocalTime endTime) {
+    private TouristAttraction selectNextPlace(String currentLocation, List<TouristAttraction> places, LocalTime currentTime, LocalTime endTime) {
         // Select the next place to visit based on proximity, interest, and remaining time
         if (places.isEmpty()) {
             return null;

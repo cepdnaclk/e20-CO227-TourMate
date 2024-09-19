@@ -60,8 +60,8 @@ export default function Place({
           name: place.name,
           city: place.parent_display_name,
           imgUrl: place.photo.images.large.url,
-          latitude: place.latitude,
-          longitude: place.longitude,
+          latitude: Number(place.latitude),
+          longitude: Number(place.longitude),
           rating: place.rating,
           phone: place.phone,
           web_url: place.web_url,
@@ -75,10 +75,10 @@ export default function Place({
         console.log(data);
         setBookmark((prevBookmark) => !prevBookmark);
       } else {
-        console.error("Error adding/removing bookmark:", response.statusText);
+        console.log("Error adding/removing bookmark:", response.statusText);
       }
     } catch (error) {
-      console.error("Error in fetching data:", error);
+      console.log("Error in fetching data:", error);
     }
   };
 

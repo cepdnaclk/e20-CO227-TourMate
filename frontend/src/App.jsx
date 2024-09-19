@@ -17,9 +17,12 @@ import ProtectedRoutes from "./utils/ProtectedRoutes";
 import { Box, Container } from "@mui/material";
 import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
-import RestaurantPage from "./pages/RestaurantPage";
+import SchedulePlan from "./pages/schedulePlanning/SchedulePlan";
+import { useAuth } from "./utils/AuthContext";
+import Footer from "./components/Footer/Footer";
 
 const App = () => {
+  const { isAuthenticated } = useAuth();
   return (
     <AuthProvider>
       <Router>
@@ -45,25 +48,35 @@ const App = () => {
               <Routes>
                 <Route element={<ProtectedRoutes />}>
                   {/* Add other protected routes here if needed */}=
-                  <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/add-bookmarks" element={<AddBookmarks />} />
                   <Route path="/create-plan" element={<Plan />} />
-                   <Route path="/find-hotel" element={<HotelPage />} />
-                   <Route path="/find-places" element={<SearchPlace />} /> 
-                   <Route path="/find-restaurants" element={<RestaurantPage />} />
-                    <Route path="/schedule-plan" element={<PlanPage />} />
+                  <Route path="/find-hotel" element={<HotelPage />} />
+                  <Route path="/find-places" element={<SearchPlace />} />
+                  <Route path="/find-restaurants" element={<SearchPlace />} />
+                  <Route path="/schedule-plan" element={<SchedulePlan />} />
                 </Route>
-                <Route path="/" element={<Home />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route
+                  path="/"
+                  element={isAuthenticated ? <Dashboard /> : <Home />}
+                />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/find-route" element={<RoutePage />} />
-                <Route path="/currency-converter" element={<CurrencyConverter />}/>
-                <Route path="/emergency-connector" element={<EmergencyConnector />}/>
+                <Route
+                  path="/currency-converter"
+                  element={<CurrencyConverter />}
+                />
+                <Route
+                  path="/emergency-connector"
+                  element={<EmergencyConnector />}
+                />
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
               </Routes>
             </div>
+            <Footer />
           </Container>
         </Box>
       </Router>

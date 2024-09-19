@@ -2,7 +2,7 @@ package com.mapa.restapi.controller;
 
 
 import com.mapa.restapi.dto.UserDto;
-import com.mapa.restapi.model.Destination;
+import com.mapa.restapi.model.TouristAttraction;
 import com.mapa.restapi.model.User;
 import com.mapa.restapi.model.UserPlan;
 import com.mapa.restapi.service.BookmarkPlaceService;
@@ -31,7 +31,7 @@ public class UserController {
     private UserPlanService userPlanService;
 
     @PostMapping("/addbookmarks")
-    public ResponseEntity<?> addBookmarks(@RequestBody Destination place , @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<?> addBookmarks(@RequestBody TouristAttraction place , @AuthenticationPrincipal UserDetails userDetails){
 
         String username = userDetails.getUsername();
         int code = bookmarkPlaceService.addBookmark(username,place);
@@ -42,15 +42,16 @@ public class UserController {
     }
 
     @PostMapping("/removebookmark")
-    public ResponseEntity<?> removeBookmarks(@RequestBody Destination place){
+    public ResponseEntity<?> removeBookmarks(@RequestBody TouristAttraction place){
 
         int code = bookmarkPlaceService.removeBookmark(place);
-        if (code==1){
+        if (code==0){
             return ResponseEntity.ok().body("Bookmark removed");
         }
         return ResponseEntity.badRequest().body("Error while removing bookmark");
     }
 
+    //Get Bookmark Id
     @GetMapping("/getbookmarks")
     public ResponseEntity<?> getBookmarks(@AuthenticationPrincipal UserDetails userDetails){
         String username = userDetails.getUsername();

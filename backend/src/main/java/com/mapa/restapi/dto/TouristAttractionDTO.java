@@ -1,11 +1,12 @@
 package com.mapa.restapi.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @Builder
-public class DestinationDTO {
+@AllArgsConstructor
+@NoArgsConstructor
+public class TouristAttractionDTO {
 
     private long id;
     private String type;
@@ -13,13 +14,13 @@ public class DestinationDTO {
     private String name;
     private String city;
     private String imgUrl;
-    private String latitude;
-    private String longitude;
+    private double latitude;
+    private double longitude;
     private String rating;
     private String web_url;
     private String phone;
     private String address;
-    private String district;
+    private Long apiLocationId;
 
 
 }

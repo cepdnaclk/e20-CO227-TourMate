@@ -46,7 +46,7 @@ class BookmarkedPlaceRepoTest {
         List<BookmarkedPlace> places = bookmarkedPlaceRepo.findByUserID(testUser.getUserid()).orElse(null);
 
         for (BookmarkedPlace place : places) {
-            System.out.println(place.getAttraction_id().getName());
+            System.out.println(place.getAttraction_id());
         }
 
         assertNotNull(places);
@@ -57,7 +57,7 @@ class BookmarkedPlaceRepoTest {
         List<BookmarkedPlace> places = bookmarkedPlaceRepo.findByUser(testUser).orElse(null);
 
         for (BookmarkedPlace place : places) {
-            System.out.println(place.getAttraction_id().getName());
+            System.out.println(place.getAttraction_id());
         }
 
         assertNotNull(places);

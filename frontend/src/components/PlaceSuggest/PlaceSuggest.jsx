@@ -68,7 +68,7 @@ export default function PlaceSuggest({ setCoordinates }) {
         <SearchIcon />
       </div>
       <InputBase
-        placeholder="search..."
+        placeholder="Search City"
         className="input"
         value={searchTerm}
         onChange={handleInputChange}
