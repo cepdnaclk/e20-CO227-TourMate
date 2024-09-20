@@ -4,18 +4,26 @@ import "leaflet-routing-machine";
 import "leaflet/dist/leaflet.css";
 import "./SchedulePlan.css";
 import townBoundingBoxes from "./TownBoundingBox";
-import { Box, Button, Rating, Typography, Divider, Grid } from "@mui/material";
+import {
+  Box,
+  Button,
+  Rating,
+  Typography,
+  Divider,
+  Grid,
+  CircularProgress,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
   CheckCircle,
   ArrowBackIos,
   Place,
-  Restaurant,
   RestaurantRounded,
+  HotelRounded,
 } from "@mui/icons-material";
-import { getPlaceData } from "../../api";
-import SmallHotelCard from "../../components/SmallHotelCard/SmallHotelCard";
+import { getPlaceData, getHotelData } from "../../api";
 import Navbar2 from "../../components/Navbar/Navbar2";
+import DisplayCard from "../../components/DisplayCard/DisplayCard";
 
 const SchedulePlan = () => {
   const [start, setStart] = useState("");
@@ -30,6 +38,10 @@ const SchedulePlan = () => {
   const mapRef = useRef(null);
   const routingControlRef = useRef(null);
   const [mealRestaurants, setMealRestaurants] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingRestaurants, setLoadingRestaurants] = useState(false);
+  const [hotels, setHotels] = useState([]);
+  const [hotelsLoading, setHotelsLoading] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -220,9 +232,11 @@ const SchedulePlan = () => {
     return hours + minutes / 60;
   };
 
+  //Invoke when Schedule button clicked
   const findRoute = () => {
     const stopsToFetch = stops.filter((stop) => stop.trim() !== "");
     const locations = [start, ...stopsToFetch, destination];
+    setIsLoading(true); //Set loading true to show loading until schedule generated done
     setCount(count + 1); //Count to render which part
 
     // Get the daily start and end times from the user input
@@ -268,7 +282,7 @@ const SchedulePlan = () => {
         displayTowns(passingTowns, "Passing Towns");
         displayTowns(nearbyTowns, "Nearby Towns");
 
-        console.log("Waiting Times Before Route Calculation:", waitingTimes);
+        // console.log("Waiting Times Before Route Calculation:", waitingTimes);
 
         // Calculate the route based on the fetched locations and other parameters
         calculateContinuousRoute(
@@ -388,6 +402,7 @@ const SchedulePlan = () => {
     setArrivalTable([]); // Clear previous table entries
     setSummary(""); // Clear previous summary
     setMealRestaurants([]); // Clear previous meal restaurants
+    setHotels([]); //Clear previous hotels
 
     const overallSummary = {
       totalDistance: totalDistance.toFixed(2),
@@ -421,6 +436,7 @@ const SchedulePlan = () => {
           currentDateTime.getHours() + segmentTravelTime / 3600;
 
         if (segmentEndHour > dailyEndTime) {
+          fetchHotels(waypoint, departureTime);
           currentDateTime.setDate(currentDateTime.getDate() + 1); // Move to the next day
           currentDateTime.setHours(dailyStartTime, 0, 0);
           departureTime = new Date(currentDateTime); // Set departure for next segment
@@ -444,6 +460,7 @@ const SchedulePlan = () => {
         );
 
         if (nearbyTownsDuringMeal.meal !== "none") {
+          //Call the function to fetch restaurants for the nearby towns
           fetchRestaurantsForMealTime(
             nearbyTownsDuringMeal.nearbyTowns,
             nearbyTownsDuringMeal.meal,
@@ -506,6 +523,8 @@ const SchedulePlan = () => {
             arrival: formattedArrivalTime,
           },
         ]);
+
+        setIsLoading(false); // Set loading state to false
       }
     });
   };
@@ -601,20 +620,20 @@ const SchedulePlan = () => {
     let orderedStopsWithTimes = [];
     let currentLocation = start;
 
-    console.log("Initial remaining stops:", remainingStops);
-    console.log("Starting location:", start);
-    console.log("Destination:", destination);
+    // console.log("Initial remaining stops:", remainingStops);
+    // console.log("Starting location:", start);
+    // console.log("Destination:", destination);
 
     remainingStops = remainingStops.filter((pair) => {
       const isDestination = pair.stop === destination;
-      console.log(`Filtering ${pair.stop}, is destination: ${isDestination}`);
+      // console.log(`Filtering ${pair.stop}, is destination: ${isDestination}`);
       return !isDestination;
     });
 
-    console.log(
-      "Filtered remaining stops (without destination):",
-      remainingStops
-    );
+    // console.log(
+    //   "Filtered remaining stops (without destination):",
+    //   remainingStops
+    // );
 
     while (remainingStops.length > 0) {
       let closestStop = null;
@@ -633,7 +652,7 @@ const SchedulePlan = () => {
       orderedStopsWithTimes.push(closestPair);
       currentLocation = closestStop;
 
-      console.log("Current ordered stops:", orderedStopsWithTimes);
+      // console.log("Current ordered stops:", orderedStopsWithTimes);
 
       remainingStops = remainingStops.filter((pair) => pair !== closestPair);
     }
@@ -643,9 +662,9 @@ const SchedulePlan = () => {
         destination
     ) {
       orderedStopsWithTimes.push({ stop: destination, name: "Destination" });
-      console.log("Added destination:", destination);
+      // console.log("Added destination:", destination);
     } else {
-      console.log("Destination is already the last stop, no need to add.");
+      // console.log("Destination is already the last stop, no need to add.");
     }
 
     console.log("Final ordered stops:", orderedStopsWithTimes);
@@ -780,7 +799,11 @@ const SchedulePlan = () => {
 
   //Fetch restaurants for specific meal time
   const fetchRestaurantsForMealTime = (towns, meal, arrivalTime) => {
+    setLoadingRestaurants(true);
     const bound = getBounds(towns[0]);
+
+    // Format date to 'YYYY-MM-DD' early on
+    const arrivalFormatDate = arrivalTime.toISOString().split("T")[0];
 
     if (bound) {
       const sw = { lat: bound.south, lng: bound.west };
@@ -796,49 +819,39 @@ const SchedulePlan = () => {
 
           console.log(restaurantsData);
 
-          // Extract only the date part from arrivalTime
-          const arrivalDate = new Date(
-            arrivalTime.getFullYear(),
-            arrivalTime.getMonth(),
-            arrivalTime.getDate()
-          );
-
           // Use prevState to avoid adding duplicate meals for the same date
           setMealRestaurants((prev) => {
-            const existingMeal = prev.find((item) => {
-              const itemArrivalDate = new Date(
-                item.arrivalTime.getFullYear(),
-                item.arrivalTime.getMonth(),
-                item.arrivalTime.getDate()
-              );
-              return (
-                item.meal === meal &&
-                itemArrivalDate.getTime() === arrivalDate.getTime()
-              );
-            });
+            const existingMeal = prev.find(
+              (item) =>
+                item.meal === meal && item.arrivalTime === arrivalFormatDate
+            );
 
             if (existingMeal) {
               console.log(
-                `Meal "${meal}" for the date "${arrivalDate}" already exists, skipping update.`
+                `Meal "${meal}" for the date "${arrivalFormatDate}" already exists, skipping update.`
               );
               return prev; // Return the same state if the meal for the same date exists
             }
 
             console.log(
-              `Adding meal "${meal}" with restaurants and arrival date.`
+              `Adding meal "${meal}" with restaurants and arrival date "${arrivalFormatDate}".`
             );
+
             return [
               ...prev,
               {
                 meal,
                 restaurants: filteredRestaurant,
-                arrivalTime: arrivalDate,
+                arrivalTime: arrivalFormatDate, // Use formatted date
               },
             ];
           });
+
+          setLoadingRestaurants(false);
         })
         .catch((error) => {
           console.error("Error fetching restaurant data:", error);
+          setLoadingRestaurants(false);
         });
     }
   };
@@ -853,6 +866,76 @@ const SchedulePlan = () => {
       return null;
     }
   }
+
+  //Fetch hotels
+  const fetchHotels = (waypoint, date) => {
+    const bounds = createBound(waypoint);
+    setHotelsLoading(true);
+
+    // Format date to 'YYYY-MM-DD'
+    const checkInDate = date.toISOString().split("T")[0];
+    const checkOutDate = new Date(date);
+    checkOutDate.setDate(checkOutDate.getDate() + 1); // Increment by 1 day for checkout
+    const formattedCheckOutDate = checkOutDate.toISOString().split("T")[0];
+
+    const adults = 2;
+    const rooms = 1;
+    const children = 0;
+
+    console.log("Hotels for ", checkInDate);
+    getHotelData(
+      bounds.sw,
+      bounds.ne,
+      checkInDate,
+      formattedCheckOutDate,
+      rooms,
+      adults,
+      children
+    ).then((data) => {
+      if (data === undefined) {
+        setHotels((prev) => [...prev, { date: checkInDate, hotels: [] }]);
+      } else {
+        const filteredHotels = data.filter(
+          (hotel) => hotel.basicPropertyData.reviews.totalScore >= 7
+        );
+        setHotels((prev) => {
+          const existingHotel = prev.find((item) => item.date === checkInDate);
+
+          if (existingHotel) {
+            return prev; // Return the same state if the meal for the same date exists
+          }
+
+          return [...prev, { date: checkInDate, hotels: filteredHotels }];
+        });
+      }
+      console.log("Hotels:", hotels);
+      setHotelsLoading(false);
+    });
+  };
+
+  //Create bound for given coordinate
+  const createBound = (coordinates) => {
+    const centerLat = coordinates.lat;
+    const centerLng = coordinates.lon;
+
+    // Define a distance in degrees for latitude and longitude
+    // Note: Adjust the distance as needed
+    const latOffset = 0.1; // Latitude offset
+    const lngOffset = 0.1; // Longitude offset
+
+    // Calculate the southwest (SW) and northeast (NE) corners
+    const swLat = centerLat - latOffset;
+    const swLng = centerLng - lngOffset;
+    const neLat = centerLat + latOffset;
+    const neLng = centerLng + lngOffset;
+
+    // Define the bounds
+    const bounds = {
+      sw: { lat: swLat, lng: swLng },
+      ne: { lat: neLat, lng: neLng },
+    };
+    return bounds;
+  };
 
   const handleEndTimeChange = (event) => {
     if (event.target.value < dailyStartTime) {
@@ -869,7 +952,9 @@ const SchedulePlan = () => {
         <Box
           sx={{ display: "flex", justifyContent: "center", marginTop: "120px" }}
         >
-          <h1 className="Schedule-Header">Schedule Plan</h1>
+          <h1 className="Schedule-Header">
+            Schedule {count === 0 ? "Plan" : "Result"}
+          </h1>
         </Box>
 
         <div className="container">
@@ -1118,140 +1203,289 @@ const SchedulePlan = () => {
                 spacing={3}
                 sx={{ height: "50%", minHeight: "500px", marginBottom: "50px" }}
               >
-                <Grid
-                  item
-                  xs={12}
-                  md={4}
-                  sx={{ maxHeight: "500px", overflow: "auto" }}
-                >
-                  {arrivalTable.map((row, index) => (
+                {isLoading ? (
+                  <Box
+                    sx={{
+                      alignItems: "center",
+                      justifyContent: "center", // Add this line
+                      position: "fixed",
+                      top: "50vh",
+                      left: "80vh",
+                    }}
+                  >
                     <Box
                       sx={{
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
                       }}
-                      key={index}
                     >
-                      <Place />
-                      <Typography variant="h5">{row.from}</Typography>
-                      <Typography variant="h6" sx={{ color: "grey" }}>
-                        {row.departure}
-                      </Typography>
-                      {index < arrivalTable.length && (
-                        <Divider
-                          orientation="vertical"
-                          sx={{
-                            height: "40px", // Adjust the height as needed
-                            width: "2px", // Adjust the thickness of the line
-                            backgroundColor: "grey",
-                            marginY: 1, // Add some space between items
-                          }}
-                        />
-                      )}
-                    </Box>
-                  ))}
-                  {/* Render the last element separately */}
-                  {arrivalTable.length > 0 && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        marginTop: 2, // Adjust spacing as needed
-                      }}
-                    >
-                      <Place />
                       <Typography variant="h5">
-                        {arrivalTable[arrivalTable.length - 1].to}
+                        Generating Schedule For You
                       </Typography>
-                      <Typography variant="h6" sx={{ color: "grey" }}>
-                        {arrivalTable[arrivalTable.length - 1].arrival}
-                      </Typography>
+                      <CircularProgress />
                     </Box>
-                  )}
-                </Grid>
+                  </Box>
+                ) : (
+                  <Grid
+                    item
+                    xs={12}
+                    md={4}
+                    sx={{ maxHeight: "500px", overflow: "auto" }}
+                  >
+                    {arrivalTable.map((row, index) => (
+                      <Box
+                        sx={{
+                          display: isLoading ? "none" : "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                        }}
+                        key={index}
+                      >
+                        <Place />
+                        <Typography variant="h5">{row.from}</Typography>
+                        <Typography variant="h6" sx={{ color: "grey" }}>
+                          {row.departure}
+                        </Typography>
+                        {index < arrivalTable.length && (
+                          <Divider
+                            orientation="vertical"
+                            sx={{
+                              height: "40px", // Adjust the height as needed
+                              width: "2px", // Adjust the thickness of the line
+                              backgroundColor: "grey",
+                              marginY: 1, // Add some space between items
+                            }}
+                          />
+                        )}
+                      </Box>
+                    ))}
+                    {/* Render the last element separately */}
+                    {arrivalTable.length > 0 && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          marginTop: 2, // Adjust spacing as needed
+                        }}
+                      >
+                        <Place />
+                        <Typography variant="h5">
+                          {arrivalTable[arrivalTable.length - 1].to}
+                        </Typography>
+                        <Typography variant="h6" sx={{ color: "grey" }}>
+                          {arrivalTable[arrivalTable.length - 1].arrival}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Grid>
+                )}
                 <Grid item xs={12} md={8}>
-                  <div id="map" style={{ height: "100%" }}></div>
+                  <div
+                    id="map"
+                    style={{
+                      height: "100%",
+                      display: isLoading ? "none" : "block",
+                    }}
+                  ></div>
                 </Grid>
               </Grid>
 
-              <div id="segmentDetails">
-                <h2>Segment Details</h2>
-                <div>
-                  {segmentDetails.map((segment, index) => (
-                    <div key={index} className="segment-container">
-                      <h4>
-                        From {segment.from} to {segment.to}
-                      </h4>
-                      <p>
-                        <strong>Distance:</strong> {segment.distance} km
-                      </p>
-                      <p>
-                        <strong>Time:</strong> {segment.time} minutes
-                      </p>
-                      <p>
-                        <strong>Waiting Time:</strong> {segment.waitingTime}{" "}
-                        minutes
-                      </p>
+              {isLoading ? (
+                <></>
+              ) : (
+                <>
+                  <div id="segmentDetails">
+                    <h2>Segment Details</h2>
+                    <div>
+                      {segmentDetails.map((segment, index) => (
+                        <div key={index} className="segment-container">
+                          <h4>
+                            From {segment.from} to {segment.to}
+                          </h4>
+                          <p>
+                            <strong>Distance:</strong> {segment.distance} km
+                          </p>
+                          <p>
+                            <strong>Time:</strong> {segment.time} minutes
+                          </p>
+                          <p>
+                            <strong>Waiting Time:</strong> {segment.waitingTime}{" "}
+                            minutes
+                          </p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
 
-              <div id="arrivalTableContainer">
-                <h2>Schedule Table</h2>
-                <table id="arrivalTable">
-                  <thead>
-                    <tr>
-                      <th>From</th>
-                      <th>To</th>
-                      <th>Distance</th>
-                      <th>Estimated Departure Time</th>
-                      <th>Estimated Arrival Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {arrivalTable.map((row, index) => (
-                      <tr key={index}>
-                        <td>{row.from}</td>
-                        <td>{row.to}</td>
-                        <td>{row.distance} km</td>
-                        <td>{row.departure}</td>
-                        <td>{row.arrival}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <Box sx={{ marginTop: "50px" }}>
-                <Box sx={{ display: "flex", justifyContent: "center" }}>
-                  <Typography variant="h5" sx={{ marginRight: "5px" }}>
-                    Pick Your Restaurant{" "}
-                  </Typography>
-                  <RestaurantRounded />
-                </Box>
-                <SmallHotelCard mealRestaurants={mealRestaurants} />
-              </Box>
+                  <div id="arrivalTableContainer">
+                    <h2>Schedule Table</h2>
+                    <table id="arrivalTable">
+                      <thead>
+                        <tr>
+                          <th>From</th>
+                          <th>To</th>
+                          <th>Distance</th>
+                          <th>Estimated Departure Time</th>
+                          <th>Estimated Arrival Time</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {arrivalTable.map((row, index) => (
+                          <tr key={index}>
+                            <td>{row.from}</td>
+                            <td>{row.to}</td>
+                            <td>{row.distance} km</td>
+                            <td>{row.departure}</td>
+                            <td>{row.arrival}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {/* For Restaurants */}
+                  {mealRestaurants.length > 0 && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Typography variant="h5" sx={{ marginRight: "5px" }}>
+                        Pick Your Restaurant{" "}
+                      </Typography>
+                      <RestaurantRounded />
+                    </Box>
+                  )}
 
-              <div id="summaryDiv">
-                <h3>Overall Summary</h3>
+                  {loadingRestaurants ? (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        marginTop: "20px",
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{ color: "green", marginRight: "10px" }}
+                      >
+                        Preparing Your Meal
+                      </Typography>
+                      <CircularProgress />
+                    </Box>
+                  ) : (
+                    <Box>
+                      {mealRestaurants.map((item, index) => (
+                        <Box key={index} mb={2}>
+                          <Typography variant="h6">
+                            Meal: {item.meal} {item.arrivalTime}
+                          </Typography>
+                          <Box display="flex" flexWrap="wrap" gap={2} mt={2}>
+                            {item.restaurants
+                              .slice(0, 5)
+                              .map((restaurant, idx) => (
+                                <DisplayCard
+                                  key={idx}
+                                  name={restaurant.name}
+                                  imgUrl={restaurant?.photo?.images?.large?.url}
+                                  rating={restaurant.rating}
+                                  location={restaurant?.address_obj?.city}
+                                />
+                              ))}
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
 
-                <h3>Travel Assumptions</h3>
-                <p>
-                  <strong>Allowed Travel Hours:</strong>{" "}
-                  {`${formatTime(dailyStartTime)} to ${formatTime(
-                    dailyEndTime
-                  )}`}
-                </p>
-                <p>
-                  <strong>
-                    If travel time exceeds the allowed time, the remaining
-                    journey will resume at {formatTime(dailyStartTime)} the next
-                    day.
-                  </strong>
-                </p>
-              </div>
+                  {/* For Hotel */}
+                  {hotels.length > 0 && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Typography variant="h5" sx={{ marginRight: "5px" }}>
+                        Pick Your Hotel{" "}
+                      </Typography>
+                      <HotelRounded />
+                    </Box>
+                  )}
+
+                  {hotelsLoading ? (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        marginTop: "20px",
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{ color: "green", marginRight: "10px" }}
+                      >
+                        Preparing Accommodation for you
+                      </Typography>
+                      <CircularProgress />
+                    </Box>
+                  ) : (
+                    <Box>
+                      {/* For hotels with date */}
+                      {hotels.map((item, index) => (
+                        <Box key={index} mb={4}>
+                          {/* Display the date */}
+                          <Typography variant="h6" mb={2}>
+                            Hotels available on {item.date}
+                          </Typography>
+
+                          <Box display="flex" flexWrap="wrap" gap={2}>
+                            {item.hotels.slice(0, 5).map((hotel, idx) => (
+                              <DisplayCard
+                                key={idx}
+                                name={hotel.basicPropertyData.name}
+                                imgUrl={
+                                  hotel.basicPropertyData.photos
+                                    ? hotel.basicPropertyData.photos.main
+                                        .lowResJpegUrl.absoluteUrl
+                                    : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
+                                }
+                                score={
+                                  hotel.basicPropertyData.reviews.totalScore
+                                }
+                                location={hotel.basicPropertyData.location.city}
+                              />
+                            ))}
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+
+                  <div id="summaryDiv">
+                    <h3>Overall Summary</h3>
+
+                    <h3>Travel Assumptions</h3>
+                    <p>
+                      <strong>Allowed Travel Hours:</strong>{" "}
+                      {`${formatTime(dailyStartTime)} to ${formatTime(
+                        dailyEndTime
+                      )}`}
+                    </p>
+                    <p>
+                      <strong>
+                        If travel time exceeds the allowed time, the remaining
+                        journey will resume at {formatTime(dailyStartTime)} the
+                        next day.
+                      </strong>
+                    </p>
+                  </div>
+                </>
+              )}
 
               <Button onClick={() => setCount(0)} variant="outlined">
                 <ArrowBackIos />
