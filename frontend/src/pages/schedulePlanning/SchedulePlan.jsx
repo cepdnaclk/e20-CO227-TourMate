@@ -805,6 +805,14 @@ const SchedulePlan = () => {
     // Format date to 'YYYY-MM-DD' early on
     const arrivalFormatDate = arrivalTime.toISOString().split("T")[0];
 
+    const existingMeal = mealRestaurants.find(
+      (item) => item.meal === meal && item.arrivalTime === arrivalFormatDate
+    );
+
+    if (existingMeal) {
+      return; // Return  if the meal for the same date exists
+    }
+
     if (bound) {
       const sw = { lat: bound.south, lng: bound.west };
       const ne = { lat: bound.north, lng: bound.east };
@@ -821,22 +829,6 @@ const SchedulePlan = () => {
 
           // Use prevState to avoid adding duplicate meals for the same date
           setMealRestaurants((prev) => {
-            const existingMeal = prev.find(
-              (item) =>
-                item.meal === meal && item.arrivalTime === arrivalFormatDate
-            );
-
-            if (existingMeal) {
-              console.log(
-                `Meal "${meal}" for the date "${arrivalFormatDate}" already exists, skipping update.`
-              );
-              return prev; // Return the same state if the meal for the same date exists
-            }
-
-            console.log(
-              `Adding meal "${meal}" with restaurants and arrival date "${arrivalFormatDate}".`
-            );
-
             return [
               ...prev,
               {
@@ -882,6 +874,12 @@ const SchedulePlan = () => {
     const rooms = 1;
     const children = 0;
 
+    const existingHotel = hotels.find((item) => item.date === checkInDate);
+
+    if (existingHotel) {
+      return; // Return if the same hotel exist
+    }
+
     console.log("Hotels for ", checkInDate);
     getHotelData(
       bounds.sw,
@@ -899,12 +897,6 @@ const SchedulePlan = () => {
           (hotel) => hotel.basicPropertyData.reviews.totalScore >= 7
         );
         setHotels((prev) => {
-          const existingHotel = prev.find((item) => item.date === checkInDate);
-
-          if (existingHotel) {
-            return prev; // Return the same state if the meal for the same date exists
-          }
-
           return [...prev, { date: checkInDate, hotels: filteredHotels }];
         });
       }
