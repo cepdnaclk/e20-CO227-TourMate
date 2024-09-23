@@ -20,6 +20,7 @@ import {
   Place,
   RestaurantRounded,
   HotelRounded,
+  Error,
 } from "@mui/icons-material";
 import { getPlaceData, getHotelData } from "../../api";
 import Navbar2 from "../../components/Navbar/Navbar2";
@@ -402,21 +403,8 @@ const SchedulePlan = () => {
     setSegmentDetails([]);
     setArrivalTable([]);
     setSummary("");
-
-    // Use functional updates to ensure the latest state
-    // setMealRestaurants(() => {
-    //   console.log("Clearing meal restaurants...");
-    //   return [];
-    // });
-
-    // setHotels(() => {
-    //   console.log("Clearing hotels...");
-    //   return [];
-    // });
     setHotels([]);
     setMealRestaurants([]);
-
-    console.log("After clearing state", hotels, mealRestaurants);
 
     const overallSummary = {
       totalDistance: totalDistance.toFixed(2),
@@ -471,25 +459,25 @@ const SchedulePlan = () => {
 
         // Get nearby towns during meal times
         const nearbyTownsDuringMeal = getNearbyTownsForMealTime(
-          [from, to],
+          waypoint,
           departureTime
         );
 
         if (nearbyTownsDuringMeal.meal !== "none") {
           // Fetch restaurants after clearing the state
           fetchRestaurantsForMealTime(
-            nearbyTownsDuringMeal.nearbyTowns,
+            nearbyTownsDuringMeal.waypoint,
             nearbyTownsDuringMeal.meal,
             arrivalTime
           );
           console.log(
             `Nearby towns for ${nearbyTownsDuringMeal.meal}:`,
-            nearbyTownsDuringMeal.nearbyTowns
+            nearbyTownsDuringMeal.waypoint
           );
 
           // Handle the nearby towns
           displayTowns(
-            nearbyTownsDuringMeal.nearbyTowns,
+            nearbyTownsDuringMeal.waypoint,
             `Nearby ${nearbyTownsDuringMeal.meal} Towns`
           );
         }
@@ -761,7 +749,7 @@ const SchedulePlan = () => {
 
   // Define time ranges for meals in hours (24-hour format)
   const mealTimes = {
-    breakfast: { start: 7, end: 8 }, // 7:00 AM to 8:00 AM
+    breakfast: { start: 6, end: 8 }, // 6:00 AM to 8:00 AM
     lunch: { start: 12, end: 14 }, // 12:00 PM to 2:00 PM
     dinner: { start: 18, end: 20 }, // 6:00 PM to 8:00 PM
   };
@@ -774,35 +762,32 @@ const SchedulePlan = () => {
   };
 
   // Updated function to fetch nearby towns for specific meal times
-  const getNearbyTownsForMealTime = (waypoints, currentDateTime) => {
+  const getNearbyTownsForMealTime = (waypoint, currentDateTime) => {
     // Check current time in hours
     const currentHour = currentDateTime.getHours();
-
-    // Get nearby towns
-    const nearbyTownsForWaypoints = getNearbyTowns(waypoints);
 
     // Check if the current time falls within any meal time range
     if (isWithinMealTime(currentHour, mealTimes.breakfast)) {
       console.log("It's breakfast time!");
       return {
         meal: "breakfast",
-        nearbyTowns: nearbyTownsForWaypoints, // Towns nearby during breakfast
+        waypoint: waypoint, // Towns nearby during breakfast
       };
     } else if (isWithinMealTime(currentHour, mealTimes.lunch)) {
       console.log("It's lunch time!");
       return {
         meal: "lunch",
-        nearbyTowns: nearbyTownsForWaypoints, // Towns nearby during lunch
+        waypoint: waypoint, // Towns nearby during lunch
       };
     } else if (isWithinMealTime(currentHour, mealTimes.dinner)) {
       console.log("It's dinner time!");
       return {
         meal: "dinner",
-        nearbyTowns: nearbyTownsForWaypoints, // Towns nearby during dinner
+        waypoint: waypoint, // Towns nearby during dinner
       };
     }
 
-    return { meal: "none", nearbyTowns: [] }; // No meal time
+    return { meal: "none", waypoint: [] }; // No meal time
   };
 
   // Formatting time in 'hh:mm AM/PM' format
@@ -814,29 +799,26 @@ const SchedulePlan = () => {
   };
 
   //Fetch restaurants for specific meal time
-  const fetchRestaurantsForMealTime = (towns, meal, arrivalTime) => {
+  const fetchRestaurantsForMealTime = (waypoint, meal, arrivalTime) => {
     setLoadingRestaurants(true);
-    const bound = getBounds(towns[0]);
+    const bound = createBound(waypoint);
 
     // Format date to 'YYYY-MM-DD' early on
     const arrivalFormatDate = arrivalTime.toISOString().split("T")[0];
 
-    const existingMeal = mealRestaurants.find(
-      (item) => item.meal === meal && item.arrivalTime === arrivalFormatDate
-    );
+    // const existingMeal = mealRestaurants.find(
+    //   (item) => item.meal === meal && item.arrivalTime === arrivalFormatDate
+    // );
 
-    if (existingMeal) {
-      console.log("Meal exist.Skiping", meal, arrivalTime);
-      setLoadingRestaurants(false);
-      return; // Return  if the meal for the same date exists
-    }
-    console.log("Not skipped");
+    // if (existingMeal) {
+    //   console.log("Meal exist.Skiping", meal, arrivalTime);
+    //   setLoadingRestaurants(false);
+    //   return; // Return  if the meal for the same date exists
+    // }
+    // console.log("Not skipped");
 
     if (bound) {
-      const sw = { lat: bound.south, lng: bound.west };
-      const ne = { lat: bound.north, lng: bound.east };
-
-      getPlaceData(sw, ne, "restaurants")
+      getPlaceData(bound.sw, bound.ne, "restaurants")
         .then((restaurantsData) => {
           // Filter restaurants based on rating and closure status
           const filteredRestaurant = restaurantsData.filter(
@@ -1385,19 +1367,34 @@ const SchedulePlan = () => {
                             Meal: {item.meal} {item.arrivalTime}
                           </Typography>
                           <Box display="flex" flexWrap="wrap" gap={2} mt={2}>
-                            {item.restaurants
-                              .slice(0, 5)
-                              .map((restaurant, idx) => (
-                                <DisplayCard
-                                  key={idx}
-                                  name={restaurant.name}
-                                  imgUrl={restaurant?.photo?.images?.large?.url}
-                                  rating={restaurant.rating}
-                                  location={restaurant?.address_obj?.city}
-                                  type="restaurant"
-                                  item={restaurant}
-                                />
-                              ))}
+                            {item.restaurants && item.restaurants.length > 0 ? (
+                              item.restaurants
+                                .slice(0, 5)
+                                .map((restaurant, idx) => (
+                                  <DisplayCard
+                                    key={idx}
+                                    name={restaurant.name}
+                                    imgUrl={
+                                      restaurant?.photo?.images?.large?.url
+                                    }
+                                    rating={restaurant.rating}
+                                    location={restaurant?.address_obj?.city}
+                                    type="restaurant"
+                                    item={restaurant}
+                                  />
+                                ))
+                            ) : (
+                              <Typography
+                                variant="h6"
+                                color={"green"}
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                Sorry . No Restaurants Found <Error />
+                              </Typography>
+                            )}
                           </Box>
                         </Box>
                       ))}
@@ -1447,24 +1444,41 @@ const SchedulePlan = () => {
                           </Typography>
 
                           <Box display="flex" flexWrap="wrap" gap={2}>
-                            {item.hotels.slice(0, 5).map((hotel, idx) => (
-                              <DisplayCard
-                                key={idx}
-                                name={hotel.basicPropertyData.name}
-                                imgUrl={
-                                  hotel.basicPropertyData.photos
-                                    ? hotel.basicPropertyData.photos.main
-                                        .lowResJpegUrl.absoluteUrl
-                                    : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
-                                }
-                                score={
-                                  hotel.basicPropertyData.reviews.totalScore
-                                }
-                                location={hotel.basicPropertyData.location.city}
-                                type="hotel"
-                                item={hotel}
-                              />
-                            ))}
+                            {item.hotels && item.hotels.length > 0 ? (
+                              item.hotels
+                                .slice(0, 5)
+                                .map((hotel, idx) => (
+                                  <DisplayCard
+                                    key={idx}
+                                    name={hotel.basicPropertyData.name}
+                                    imgUrl={
+                                      hotel.basicPropertyData.photos
+                                        ? hotel.basicPropertyData.photos.main
+                                            .lowResJpegUrl.absoluteUrl
+                                        : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
+                                    }
+                                    score={
+                                      hotel.basicPropertyData.reviews.totalScore
+                                    }
+                                    location={
+                                      hotel.basicPropertyData.location.city
+                                    }
+                                    type="hotel"
+                                    item={hotel}
+                                  />
+                                ))
+                            ) : (
+                              <Typography
+                                variant="h6"
+                                color={"green"}
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                Sorry . No Hotels Found <Error />
+                              </Typography>
+                            )}
                           </Box>
                         </Box>
                       ))}
