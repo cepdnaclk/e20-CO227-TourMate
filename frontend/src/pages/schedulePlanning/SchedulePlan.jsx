@@ -398,11 +398,25 @@ const SchedulePlan = () => {
   ) => {
     let currentDateTime = new Date(startDateTimeValue);
 
-    setSegmentDetails([]); // Clear previous details
-    setArrivalTable([]); // Clear previous table entries
-    setSummary(""); // Clear previous summary
-    setMealRestaurants([]); // Clear previous meal restaurants
-    setHotels([]); //Clear previous hotels
+    // Clear previous details and state
+    setSegmentDetails([]);
+    setArrivalTable([]);
+    setSummary("");
+
+    // Use functional updates to ensure the latest state
+    // setMealRestaurants(() => {
+    //   console.log("Clearing meal restaurants...");
+    //   return [];
+    // });
+
+    // setHotels(() => {
+    //   console.log("Clearing hotels...");
+    //   return [];
+    // });
+    setHotels([]);
+    setMealRestaurants([]);
+
+    console.log("After clearing state", hotels, mealRestaurants);
 
     const overallSummary = {
       totalDistance: totalDistance.toFixed(2),
@@ -431,16 +445,18 @@ const SchedulePlan = () => {
           accumulatedTime += waitingTime * 60; // Convert waiting time to seconds
         }
 
-        // Check if the segment ends past 8:00 PM
+        // Check if the segment ends past dailyEndTime
         let segmentEndHour =
           currentDateTime.getHours() + segmentTravelTime / 3600;
 
         if (segmentEndHour > dailyEndTime) {
+          // Call fetchHotels after clearing
           fetchHotels(waypoint, departureTime);
           currentDateTime.setDate(currentDateTime.getDate() + 1); // Move to the next day
           currentDateTime.setHours(dailyStartTime, 0, 0);
           departureTime = new Date(currentDateTime); // Set departure for next segment
-          // Now add the travel time again after setting the start time for the next day
+
+          // Add the travel time again after setting the start time for the next day
           currentDateTime.setSeconds(
             currentDateTime.getSeconds() + segmentTravelTime + waitingTime * 60
           );
@@ -460,7 +476,7 @@ const SchedulePlan = () => {
         );
 
         if (nearbyTownsDuringMeal.meal !== "none") {
-          //Call the function to fetch restaurants for the nearby towns
+          // Fetch restaurants after clearing the state
           fetchRestaurantsForMealTime(
             nearbyTownsDuringMeal.nearbyTowns,
             nearbyTownsDuringMeal.meal,
@@ -471,7 +487,7 @@ const SchedulePlan = () => {
             nearbyTownsDuringMeal.nearbyTowns
           );
 
-          // Display the towns or handle them according to your needs (e.g., show on map)
+          // Handle the nearby towns
           displayTowns(
             nearbyTownsDuringMeal.nearbyTowns,
             `Nearby ${nearbyTownsDuringMeal.meal} Towns`
@@ -497,16 +513,16 @@ const SchedulePlan = () => {
 
         // Add segment details
         setSegmentDetails((prevDetails) => {
-          const totalHours = Math.floor(segmentTravelTime / 3600); // Get the full hours
-          const totalMinutes = Math.floor((segmentTravelTime % 3600) / 60); // Get the remaining minutes
+          const totalHours = Math.floor(segmentTravelTime / 3600); // Full hours
+          const totalMinutes = Math.floor((segmentTravelTime % 3600) / 60); // Remaining minutes
 
           return [
             ...prevDetails,
             {
               from: from.name,
               to: to.name,
-              distance: segmentDistance.toFixed(2), // Keep distance as is, with 2 decimal places
-              time: `${totalHours}h ${totalMinutes}`, // Format time as "Xh Ymin"
+              distance: segmentDistance.toFixed(2),
+              time: `${totalHours}h ${totalMinutes}min`,
               waitingTime,
             },
           ];
@@ -810,8 +826,11 @@ const SchedulePlan = () => {
     );
 
     if (existingMeal) {
+      console.log("Meal exist.Skiping", meal, arrivalTime);
+      setLoadingRestaurants(false);
       return; // Return  if the meal for the same date exists
     }
+    console.log("Not skipped");
 
     if (bound) {
       const sw = { lat: bound.south, lng: bound.west };
@@ -874,13 +893,6 @@ const SchedulePlan = () => {
     const rooms = 1;
     const children = 0;
 
-    const existingHotel = hotels.find((item) => item.date === checkInDate);
-
-    if (existingHotel) {
-      return; // Return if the same hotel exist
-    }
-
-    console.log("Hotels for ", checkInDate);
     getHotelData(
       bounds.sw,
       bounds.ne,
@@ -890,17 +902,14 @@ const SchedulePlan = () => {
       adults,
       children
     ).then((data) => {
-      if (data === undefined) {
-        setHotels((prev) => [...prev, { date: checkInDate, hotels: [] }]);
-      } else {
-        const filteredHotels = data.filter(
-          (hotel) => hotel.basicPropertyData.reviews.totalScore >= 7
-        );
-        setHotels((prev) => {
-          return [...prev, { date: checkInDate, hotels: filteredHotels }];
-        });
-      }
-      console.log("Hotels:", hotels);
+      const newHotels = data
+        ? data.filter(
+            (hotel) => hotel.basicPropertyData.reviews.totalScore >= 7
+          )
+        : [];
+
+      // Add new hotel data
+      setHotels((prev) => [...prev, { date: checkInDate, hotels: newHotels }]);
       setHotelsLoading(false);
     });
   };
@@ -1385,6 +1394,8 @@ const SchedulePlan = () => {
                                   imgUrl={restaurant?.photo?.images?.large?.url}
                                   rating={restaurant.rating}
                                   location={restaurant?.address_obj?.city}
+                                  type="restaurant"
+                                  item={restaurant}
                                 />
                               ))}
                           </Box>
@@ -1450,6 +1461,8 @@ const SchedulePlan = () => {
                                   hotel.basicPropertyData.reviews.totalScore
                                 }
                                 location={hotel.basicPropertyData.location.city}
+                                type="hotel"
+                                item={hotel}
                               />
                             ))}
                           </Box>

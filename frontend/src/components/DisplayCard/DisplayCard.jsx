@@ -9,8 +9,22 @@ import {
   Rating,
 } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import "./DisplayCard.css";
 
-const DisplayCard = ({ name, imgUrl, rating, location, score }) => {
+const DisplayCard = ({
+  key,
+  name,
+  imgUrl,
+  rating,
+  location,
+  score,
+  type,
+  item,
+}) => {
+  const handleClick = () => {
+    console.log("Clicked", type, item);
+  };
+
   // Function to handle opening Google Maps
   const openInGoogleMaps = (name) => {
     const query = encodeURIComponent(name);
@@ -21,7 +35,11 @@ const DisplayCard = ({ name, imgUrl, rating, location, score }) => {
   };
 
   return (
-    <Card sx={{ maxWidth: 200, minWidth: 180 }}>
+    <Card
+      sx={{ maxWidth: 200, minWidth: 180 }}
+      onClick={handleClick}
+      className="display-card"
+    >
       <CardMedia
         component="img"
         height="140"
