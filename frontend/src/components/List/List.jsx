@@ -16,6 +16,18 @@ import React, { useState, useEffect, createRef } from "react";
 import "./List.css";
 import Place from "../Place/Place";
 
+/**
+ * List component which render Place in SearchPlace page
+ *
+ * @param {Array} places list of places from  API
+ * @param {number} childClicked index of selected place
+ * @param {boolean} isLoading whether the component is loading
+ * @param {number} rating filter places by rating
+ * @param {function} setRating setter for rating
+ * @param {string} type filter places by type
+ * @param {function} setType setter for type
+ * @param {function} setCardSelect setter for selected place index
+ */
 export default function List({
   places,
   childClicked,

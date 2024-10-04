@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -20,9 +20,13 @@ const DisplayCard = ({
   score,
   type,
   item,
+  date,
+  meal,
+  handleClickCard,
+  selected,
 }) => {
   const handleClick = () => {
-    console.log("Clicked", type, item);
+    handleClickCard(type, item, date, meal);
   };
 
   // Function to handle opening Google Maps
@@ -36,7 +40,11 @@ const DisplayCard = ({
 
   return (
     <Card
-      sx={{ maxWidth: 200, minWidth: 180 }}
+      sx={{
+        maxWidth: 200,
+        minWidth: 180,
+        backgroundColor: selected ? "#94f769" : "white", // Change background if the item is selected
+      }}
       onClick={handleClick}
       className="display-card"
     >

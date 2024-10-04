@@ -21,6 +21,7 @@ import {
   RestaurantRounded,
   HotelRounded,
   Error,
+  ArrowForwardIos,
 } from "@mui/icons-material";
 import { getPlaceData, getHotelData } from "../../api";
 import Navbar2 from "../../components/Navbar/Navbar2";
@@ -54,6 +55,44 @@ const SchedulePlan = () => {
 
   const [dailyStartTime, setDailyStartTime] = useState("07:00");
   const [dailyEndTime, setDailyEndTime] = useState("20:00");
+  const [selectedHotel, setSelectedHotel] = useState([]); // Initialize as an empty array
+  const [selectedRestaurant, setSelectedRestaurant] = useState([]); // Initialize as an empty array
+
+  const handleClickCard = (type, item, date, meal) => {
+    if (type === "hotel") {
+      setSelectedHotel((prev) => {
+        const existingSelection = prev.find(
+          (selection) => selection.date === date
+        );
+        if (existingSelection) {
+          // Replace the current hotel for that date
+          return prev.map((selection) =>
+            selection.date === date ? { item, date } : selection
+          );
+        }
+        // Add new hotel selection for that date (keep previous selections intact)
+        return [...prev, { item, date }];
+      });
+    } else if (type === "restaurant") {
+      setSelectedRestaurant((prev) => {
+        const existingSelection = prev.find(
+          (selection) => selection.date === date && selection.meal === meal
+        );
+        if (existingSelection) {
+          // Replace the current restaurant for that date and meal
+          return prev.map((selection) =>
+            selection.date === date && selection.meal === meal
+              ? { item, date, meal }
+              : selection
+          );
+        }
+        // Add new restaurant selection for that date and meal (keep previous selections intact)
+        return [...prev, { item, date, meal }];
+      });
+    }
+
+    console.log(selectedHotel, selectedRestaurant);
+  };
 
   //Navigate to Bookmark page
   const handleManageBookmarksClick = () => {
@@ -438,8 +477,14 @@ const SchedulePlan = () => {
           currentDateTime.getHours() + segmentTravelTime / 3600;
 
         if (segmentEndHour > dailyEndTime) {
-          // Call fetchHotels after clearing
+          // Call fetchHotels
           fetchHotels(waypoint, departureTime);
+          // Call fetchRestaurants for dinner
+          fetchRestaurantsForMealTime(
+            waypoint,
+            "dinner",
+            new Date(currentDateTime)
+          );
           currentDateTime.setDate(currentDateTime.getDate() + 1); // Move to the next day
           currentDateTime.setHours(dailyStartTime, 0, 0);
           departureTime = new Date(currentDateTime); // Set departure for next segment
@@ -464,21 +509,11 @@ const SchedulePlan = () => {
         );
 
         if (nearbyTownsDuringMeal.meal !== "none") {
-          // Fetch restaurants after clearing the state
+          // Fetch restaurants
           fetchRestaurantsForMealTime(
             nearbyTownsDuringMeal.waypoint,
             nearbyTownsDuringMeal.meal,
             arrivalTime
-          );
-          console.log(
-            `Nearby towns for ${nearbyTownsDuringMeal.meal}:`,
-            nearbyTownsDuringMeal.waypoint
-          );
-
-          // Handle the nearby towns
-          displayTowns(
-            nearbyTownsDuringMeal.waypoint,
-            `Nearby ${nearbyTownsDuringMeal.meal} Towns`
           );
         }
 
@@ -941,7 +976,7 @@ const SchedulePlan = () => {
         </Box>
 
         <div className="container">
-          {count === 0 ? (
+          {count === 0 && (
             //Getting Stops and Bookmark places for schedule
             <>
               <div className="input-container">
@@ -1178,7 +1213,8 @@ const SchedulePlan = () => {
                 Generate Schedule
               </button>
             </>
-          ) : (
+          )}{" "}
+          {count === 1 && (
             //Schedule Display segment with route map
             <>
               <Grid
@@ -1381,6 +1417,13 @@ const SchedulePlan = () => {
                                     location={restaurant?.address_obj?.city}
                                     type="restaurant"
                                     item={restaurant}
+                                    date={item.arrivalTime}
+                                    meal={item.meal}
+                                    handleClickCard={handleClickCard}
+                                    selected={selectedRestaurant.some(
+                                      (selectRestaurant) =>
+                                        selectRestaurant.item === restaurant
+                                    )}
                                   />
                                 ))
                             ) : (
@@ -1465,6 +1508,12 @@ const SchedulePlan = () => {
                                     }
                                     type="hotel"
                                     item={hotel}
+                                    date={item.date}
+                                    handleClickCard={handleClickCard}
+                                    selected={selectedHotel.some(
+                                      (selectHotel) =>
+                                        selectHotel.item === hotel
+                                    )}
                                   />
                                 ))
                             ) : (
@@ -1505,11 +1554,118 @@ const SchedulePlan = () => {
                   </div>
                 </>
               )}
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Button onClick={() => setCount(0)} variant="outlined">
+                  <ArrowBackIos />
+                  Back
+                </Button>
+                <Button onClick={() => setCount(2)} variant="outlined">
+                  Next
+                  <ArrowForwardIos />
+                </Button>
+              </Box>
+            </>
+          )}
+          {count === 2 && (
+            <>
+              {selectedRestaurant.length > 0 && (
+                <Box sx={{ marginTop: "20px", marginBottom: "20px" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Typography variant="h5" sx={{ marginRight: "5px" }}>
+                      Your Restaurants{" "}
+                    </Typography>
+                    <RestaurantRounded />
+                  </Box>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "center", gap: 2 }}
+                  >
+                    {selectedRestaurant.length > 0 &&
+                      selectedRestaurant.map((restaurant, index) => (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                          }}
+                        >
+                          <Typography>
+                            {restaurant.date} {restaurant.meal}
+                          </Typography>
+                          <DisplayCard
+                            key={index}
+                            name={restaurant.item.name}
+                            imgUrl={
+                              restaurant.item.photo
+                                ? restaurant.item.photo.images?.large?.url
+                                : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
+                            }
+                            rating={restaurant.item.rating}
+                            location={restaurant.item.address_obj?.city}
+                            handleClickCard={() => {}}
+                          />
+                        </Box>
+                      ))}
+                  </Box>
+                </Box>
+              )}
 
-              <Button onClick={() => setCount(0)} variant="outlined">
-                <ArrowBackIos />
-                Back
-              </Button>
+              {selectedHotel.length > 0 && (
+                <Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Typography variant="h5" sx={{ marginRight: "5px" }}>
+                      Your Hotels{" "}
+                    </Typography>
+                    <HotelRounded />
+                  </Box>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "center", gap: 2 }}
+                  >
+                    {selectedHotel.length > 0 &&
+                      selectedHotel.map((hotel, index) => (
+                        <Box sx={{ display: "flex", flexDirection: "column" }}>
+                          <Typography>{hotel.date}</Typography>
+                          <DisplayCard
+                            key={index}
+                            name={hotel.item.basicPropertyData.name}
+                            imgUrl={
+                              hotel.item.basicPropertyData.photos
+                                ? hotel.item.basicPropertyData.photos.main
+                                    .lowResJpegUrl.absoluteUrl
+                                : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
+                            }
+                            score={
+                              hotel.item.basicPropertyData.reviews.totalScore
+                            }
+                            location={
+                              hotel.item.basicPropertyData.location.city
+                            }
+                            handleClickCard={() => {}}
+                          />
+                        </Box>
+                      ))}
+                  </Box>
+                </Box>
+              )}
+
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Button onClick={() => setCount(1)} variant="outlined">
+                  <ArrowBackIos />
+                  Back
+                </Button>
+                <Button onClick={() => setCount(2)} variant="outlined">
+                  Next
+                  <ArrowForwardIos />
+                </Button>
+              </Box>
             </>
           )}
         </div>
