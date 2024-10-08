@@ -1586,28 +1586,18 @@ const SchedulePlan = () => {
                   >
                     {selectedRestaurant.length > 0 &&
                       selectedRestaurant.map((restaurant, index) => (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                          }}
-                        >
-                          <Typography>
-                            {restaurant.date} {restaurant.meal}
-                          </Typography>
-                          <DisplayCard
-                            key={index}
-                            name={restaurant.item.name}
-                            imgUrl={
-                              restaurant.item.photo
-                                ? restaurant.item.photo.images?.large?.url
-                                : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
-                            }
-                            rating={restaurant.item.rating}
-                            location={restaurant.item.address_obj?.city}
-                            handleClickCard={() => {}}
-                          />
-                        </Box>
+                        <DisplayCard
+                          key={index}
+                          name={restaurant.item.name}
+                          imgUrl={
+                            restaurant.item.photo
+                              ? restaurant.item.photo.images?.large?.url
+                              : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
+                          }
+                          rating={restaurant.item.rating}
+                          location={restaurant.item.address_obj?.city}
+                          handleClickCard={() => {}}
+                        />
                       ))}
                   </Box>
                 </Box>
@@ -1631,26 +1621,21 @@ const SchedulePlan = () => {
                   >
                     {selectedHotel.length > 0 &&
                       selectedHotel.map((hotel, index) => (
-                        <Box sx={{ display: "flex", flexDirection: "column" }}>
-                          <Typography>{hotel.date}</Typography>
-                          <DisplayCard
-                            key={index}
-                            name={hotel.item.basicPropertyData.name}
-                            imgUrl={
-                              hotel.item.basicPropertyData.photos
-                                ? hotel.item.basicPropertyData.photos.main
-                                    .lowResJpegUrl.absoluteUrl
-                                : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
-                            }
-                            score={
-                              hotel.item.basicPropertyData.reviews.totalScore
-                            }
-                            location={
-                              hotel.item.basicPropertyData.location.city
-                            }
-                            handleClickCard={() => {}}
-                          />
-                        </Box>
+                        <DisplayCard
+                          key={index}
+                          name={hotel.item.basicPropertyData.name}
+                          imgUrl={
+                            hotel.item.basicPropertyData.photos
+                              ? hotel.item.basicPropertyData.photos.main
+                                  .lowResJpegUrl.absoluteUrl
+                              : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
+                          }
+                          score={
+                            hotel.item.basicPropertyData.reviews.totalScore
+                          }
+                          location={hotel.item.basicPropertyData.location.city}
+                          handleClickCard={() => {}}
+                        />
                       ))}
                   </Box>
                 </Box>
