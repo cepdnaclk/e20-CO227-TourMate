@@ -67,7 +67,7 @@ public class EntityController {
         return ResponseEntity.ok( touristAttractionService.getTouristAttraction());
     }
 
-    @GetMapping("/schedule/getschedule")
+    @GetMapping("/schedule/getschedules")
     public ResponseEntity<List<ScheduleEventDto>> getSchedule(@AuthenticationPrincipal UserDetails userDetails){
         String username = userDetails.getUsername();
         return ResponseEntity.ok( scheduleEventService.getAllSchedules(username));
