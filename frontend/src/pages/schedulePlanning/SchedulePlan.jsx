@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import L from "leaflet";
+import L, { map } from "leaflet";
 import "leaflet-routing-machine";
 import "leaflet/dist/leaflet.css";
 import "./SchedulePlan.css";
@@ -26,6 +26,7 @@ import {
 import { getPlaceData, getHotelData } from "../../api";
 import Navbar2 from "../../components/Navbar/Navbar2";
 import DisplayCard from "../../components/DisplayCard/DisplayCard";
+import axios from "axios";
 
 const SchedulePlan = () => {
   const [start, setStart] = useState("");
@@ -33,6 +34,7 @@ const SchedulePlan = () => {
   const [stops, setStops] = useState([""]);
   const [waitingTimes, setWaitingTimes] = useState(Array(stops.length).fill(0));
   const [startDateTime, setStartDateTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [reverseRoute, setReverseRoute] = useState(false);
   const [segmentDetails, setSegmentDetails] = useState([]);
   const [arrivalTable, setArrivalTable] = useState([]);
@@ -517,6 +519,9 @@ const SchedulePlan = () => {
           );
         }
 
+        // Format times as ISO strings for backend compatibility with LocalDateTime
+        const DepartureTime = departureTime.toISOString(); // "2024-10-04T14:45:00.000Z"
+        const ArrivalTime = arrivalTime.toISOString();
         // Format the times to be displayed in the table
         const formattedDepartureTime = departureTime.toLocaleString("en-GB", {
           day: "2-digit",
@@ -560,9 +565,11 @@ const SchedulePlan = () => {
             distance: segmentDistance.toFixed(2),
             departure: formattedDepartureTime,
             arrival: formattedArrivalTime,
+            departureTime: departureTime,
+            arrivalTime: arrivalTime,
           },
         ]);
-
+        setEndTime(departureTime); // Set endTime for the current segment
         setIsLoading(false); // Set loading state to false
       }
     });
@@ -961,6 +968,55 @@ const SchedulePlan = () => {
       return;
     }
     setDailyEndTime(event.target.value);
+  };
+
+  // Save schedule
+  const saveSchedule = async () => {
+    try {
+      // Retrieve the token from localStorage
+      const token = localStorage.getItem("token");
+
+      // Prepare the request body
+      const requestBody = {
+        startLocation: start,
+        endLocation: destination,
+        stops: arrivalTable.map((stop, index) => ({
+          fromLocation: stop.from,
+          toLocation: stop.to,
+          distance: stop.distance,
+          departureTime: stop.departureTime,
+          arrivalTime: stop.arrivalTime,
+          waitingTime: waitingTimes[index],
+        })),
+        startTime: startDateTime,
+        endTime: endTime,
+      };
+
+      // Configure the request with Authorization header
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+          "Content-Type": "application/json",
+        },
+      };
+
+      // Send the POST request to the backend
+      const response = await axios.post(
+        "http://localhost:1200/api/schedule/addschedule",
+        requestBody,
+        config
+      );
+
+      // Handle success
+      if (response.ok) {
+        console.log("Schedule saved successfully:", response.data);
+      } else {
+        console.error("Failed to save the schedule");
+      }
+    } catch (error) {
+      // Handle error
+      console.error("Error while saving the schedule:", error);
+    }
   };
 
   return (
@@ -1646,8 +1702,8 @@ const SchedulePlan = () => {
                   <ArrowBackIos />
                   Back
                 </Button>
-                <Button onClick={() => setCount(2)} variant="outlined">
-                  Next
+                <Button onClick={saveSchedule} variant="outlined">
+                  Finish
                   <ArrowForwardIos />
                 </Button>
               </Box>

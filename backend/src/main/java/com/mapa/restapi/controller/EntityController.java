@@ -1,9 +1,12 @@
 package com.mapa.restapi.controller;
 
 import com.mapa.restapi.dto.HotelDto;
+import com.mapa.restapi.dto.ScheduleEventDto;
 import com.mapa.restapi.dto.TouristAttractionDTO;
+import com.mapa.restapi.model.ScheduleEvent;
 import com.mapa.restapi.service.BookmarkPlaceService;
 import com.mapa.restapi.service.HotelRestaurantService;
+import com.mapa.restapi.service.ScheduleEventService;
 import com.mapa.restapi.service.TouristAttractionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +27,8 @@ public class EntityController {
     private HotelRestaurantService hotelRestaurantService;
     @Autowired
     private BookmarkPlaceService bookmarkPlaceService;
-
+    @Autowired
+    private ScheduleEventService scheduleEventService;
 
     @GetMapping("/getHotels")
     public ResponseEntity<List<HotelDto>> getHotels(){
@@ -61,6 +65,23 @@ public class EntityController {
     @GetMapping("/attractions/getall")
     public ResponseEntity<List<TouristAttractionDTO>> getPlaces(){
         return ResponseEntity.ok( touristAttractionService.getTouristAttraction());
+    }
+
+    @GetMapping("/schedule/getschedule")
+    public ResponseEntity<List<ScheduleEventDto>> getSchedule(@AuthenticationPrincipal UserDetails userDetails){
+        String username = userDetails.getUsername();
+        return ResponseEntity.ok( scheduleEventService.getAllSchedules(username));
+    }
+
+    @PostMapping("/schedule/addschedule")
+    public ResponseEntity<?> addSchedule(@AuthenticationPrincipal UserDetails userDetails, @RequestBody ScheduleEvent schedule){
+        String username = userDetails.getUsername();
+        int response=scheduleEventService.addScheduleEvent(username,schedule);
+        if (response!=0){
+            return ResponseEntity.badRequest().body("Error in saving Schedule");
+        }
+        return ResponseEntity.ok("Successfully added schedule");
+
     }
 
 }

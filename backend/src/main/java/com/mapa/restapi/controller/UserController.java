@@ -1,15 +1,11 @@
 package com.mapa.restapi.controller;
 
 
-import com.mapa.restapi.dto.UserDto;
 import com.mapa.restapi.model.TouristAttraction;
-import com.mapa.restapi.model.User;
 import com.mapa.restapi.model.UserPlan;
 import com.mapa.restapi.service.BookmarkPlaceService;
 import com.mapa.restapi.service.UserPlanService;
-import com.mapa.restapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
