@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, createElement } from "react";
 import L, { map } from "leaflet";
 import "leaflet-routing-machine";
 import "leaflet/dist/leaflet.css";
@@ -60,6 +60,7 @@ const SchedulePlan = () => {
   const [selectedHotel, setSelectedHotel] = useState([]); // Initialize as an empty array
   const [selectedRestaurant, setSelectedRestaurant] = useState([]); // Initialize as an empty array
 
+  //Select Hotel & Restaurants
   const handleClickCard = (type, item, date, meal) => {
     if (type === "hotel") {
       setSelectedHotel((prev) => {
@@ -567,6 +568,7 @@ const SchedulePlan = () => {
             arrival: formattedArrivalTime,
             departureTime: departureTime,
             arrivalTime: arrivalTime,
+            type: "attraction",
           },
         ]);
         setEndTime(departureTime); // Set endTime for the current segment
@@ -988,6 +990,27 @@ const SchedulePlan = () => {
           arrivalTime: stop.arrivalTime,
           waitingTime: waitingTimes[index],
         })),
+        scheduleRestaurants: selectedRestaurant.map((restaurant) => ({
+          date: restaurant.date,
+          meal: restaurant.meal,
+          restaurant: {
+            name: restaurant.item.name,
+            rating: restaurant.item.rating,
+            image: restaurant.item.photo.images.large.url,
+            location: restaurant.item.address_obj.city,
+          },
+        })),
+        scheduleHotels: selectedHotel.map((hotel) => ({
+          date: hotel.date,
+          hotel: {
+            name: hotel.item.basicPropertyData.name,
+            rating: hotel.item.basicPropertyData.reviews.totalScore,
+            location: hotel.item.basicPropertyData.location.city,
+            image:
+              hotel.item.basicPropertyData.photos.main.lowResJpegUrl
+                .absoluteUrl,
+          },
+        })),
         startTime: startDateTime,
         endTime: endTime,
       };
@@ -1006,16 +1029,88 @@ const SchedulePlan = () => {
         requestBody,
         config
       );
-
       // Handle success
-      if (response.ok) {
+      if (response.status === 200) {
         console.log("Schedule saved successfully:", response.data);
+        navigate("/Dashboard");
       } else {
-        console.error("Failed to save the schedule");
+        console.log("Failed to save the schedule");
       }
     } catch (error) {
       // Handle error
-      console.error("Error while saving the schedule:", error);
+      console.log("Error while saving the schedule:", error);
+    }
+  };
+
+  const downloadPdf = async () => {
+    const token = localStorage.getItem("token");
+
+    // Prepare the request body
+    const requestBody = {
+      startLocation: start,
+      endLocation: destination,
+      stops: arrivalTable.map((stop, index) => ({
+        fromLocation: stop.from,
+        toLocation: stop.to,
+        distance: stop.distance,
+        departureTime: stop.departureTime,
+        arrivalTime: stop.arrivalTime,
+        waitingTime: waitingTimes[index],
+      })),
+      scheduleRestaurants: selectedRestaurant.map((restaurant) => ({
+        date: restaurant.date,
+        meal: restaurant.meal,
+        restaurant: {
+          name: restaurant.item.name,
+          rating: restaurant.item.rating,
+          image: restaurant.item.photo.images.large.url,
+          location: restaurant.item.address_obj.city,
+        },
+      })),
+      scheduleHotels: selectedHotel.map((hotel) => ({
+        date: hotel.date,
+        hotel: {
+          name: hotel.item.basicPropertyData.name,
+          rating: hotel.item.basicPropertyData.reviews.totalScore,
+          location: hotel.item.basicPropertyData.location.city,
+          image:
+            hotel.item.basicPropertyData.photos.main.lowResJpegUrl.absoluteUrl,
+        },
+      })),
+      startTime: startDateTime,
+      endTime: endTime,
+    };
+
+    try {
+      const response = await fetch(
+        "http://localhost:1200/api/schedule/download",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to download PDF");
+      }
+
+      const blob = await response.blob(); // Convert the response into a blob object
+      const url = window.URL.createObjectURL(blob); // Create a URL for the blob object
+      const link = document.createElement("a"); // Create a link element
+      link.href = url; // Set the link's URL to the blob URL
+      link.setAttribute("download", "schedule.pdf"); // Set the download attribute with the desired file name
+      document.body.appendChild(link); // Append the link to the body
+      link.click(); // Programmatically click the link to trigger the download
+      link.remove(); // Remove the link after download
+
+      // Clean up the URL object after use
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
     }
   };
 
@@ -1624,6 +1719,13 @@ const SchedulePlan = () => {
           )}
           {count === 2 && (
             <>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Typography>Schedule Details</Typography>
+
+                <Button variant="outlined" onClick={downloadPdf}>
+                  Download PDF
+                </Button>
+              </Box>
               {selectedRestaurant.length > 0 && (
                 <Box sx={{ marginTop: "20px", marginBottom: "20px" }}>
                   <Box

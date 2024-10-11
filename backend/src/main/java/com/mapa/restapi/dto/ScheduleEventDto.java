@@ -1,6 +1,6 @@
 package com.mapa.restapi.dto;
 
-import com.mapa.restapi.model.Stop;
+import com.mapa.restapi.model.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,5 +21,7 @@ public class ScheduleEventDto {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private List<Stop> stops;
+    private List<ScheduleHotel> hotels;
+    private List<ScheduleRestaurant> restaurants;
 }
 

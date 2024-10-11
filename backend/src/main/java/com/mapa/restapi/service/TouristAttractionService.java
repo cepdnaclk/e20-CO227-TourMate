@@ -1,7 +1,6 @@
 package com.mapa.restapi.service;
 
 import com.mapa.restapi.dto.TouristAttractionDTO;
-import com.mapa.restapi.model.Destination;
 import com.mapa.restapi.model.TouristAttraction;
 import com.mapa.restapi.repo.TouristAttractionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +36,26 @@ public class TouristAttractionService {
         return new ArrayList<>(typesSet); // Convert Set back to List
     }
 
+    public List<TouristAttractionDTO> suggestPlaces(List<String> preferences, List<String> cities) {
+        List<TouristAttraction> attractions = new ArrayList<>();
+
+        for (String city : cities) {
+            // Assuming preferences has at least 1 entry
+            if (!preferences.isEmpty()) {
+                // Call the repository method with the city and preferences
+                for (String preference : preferences) {
+                    attractions.addAll(touristAttractionRepo.findByCityAndPreferences(city, preference));
+                }
+            }
+        }
+
+        // Convert to DTO and return the result
+        return attractions.stream()
+                .map(this::convertToDTO) // Assume convertToDto converts TouristAttraction to TouristAttractionDTO
+                .collect(Collectors.toList());
+    }
+
+
 
     public TouristAttractionDTO convertToDTO(TouristAttraction touristAttraction) {
         TouristAttractionDTO dto = TouristAttractionDTO.builder()
@@ -56,4 +75,6 @@ public class TouristAttractionService {
                 .build();
         return dto;
     }
+
+
 }

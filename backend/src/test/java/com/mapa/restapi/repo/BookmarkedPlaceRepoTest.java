@@ -2,7 +2,6 @@ package com.mapa.restapi.repo;
 
 import com.mapa.restapi.exception.EntityServiceException;
 import com.mapa.restapi.model.BookmarkedPlace;
-import com.mapa.restapi.model.EntityType;
 import com.mapa.restapi.model.User;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -10,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,9 +21,6 @@ class BookmarkedPlaceRepoTest {
 
     @Autowired
     private static UserRepo userRepo;
-
-    @Autowired
-    private  EntityTypeRepo entityTypeRepo;
 
     private static User testUser;
 

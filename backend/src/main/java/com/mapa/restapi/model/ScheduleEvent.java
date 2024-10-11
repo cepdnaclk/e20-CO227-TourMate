@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"user","stops"})
+@ToString(exclude = {"user","stops","scheduleHotels","scheduleRestaurants"})
 public class ScheduleEvent {
 
     @Id
@@ -29,4 +29,11 @@ public class ScheduleEvent {
 
     @OneToMany(mappedBy = "scheduleEvent", cascade = CascadeType.ALL)
     private List<Stop> stops;
+
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "scheduleEvent")
+    private List<ScheduleHotel> scheduleHotels;
+
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "scheduleEvent")
+    private List<ScheduleRestaurant> scheduleRestaurants;
+
 }

@@ -1,10 +1,7 @@
 package com.mapa.restapi.model;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Entity;
 import lombok.*;
-
-import java.util.List;
 
 /*
 User Entity

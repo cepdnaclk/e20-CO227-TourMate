@@ -1,10 +1,13 @@
 package com.mapa.restapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Data
@@ -18,16 +21,9 @@ public class Hotel {
     private long hotelID;
 
     private String name;
-    private String coordinates;
-    private String address;
-    private String city;
-    @OneToOne(
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY
-    )
-    @JoinColumn(
-            name = "entityID"
-    )
-    private EntityType entityID;
+    private String location;
+    private String image;
+    private double rating;
+
 
 }
