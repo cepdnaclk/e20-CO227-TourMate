@@ -71,6 +71,16 @@ public class UserController {
         return ResponseEntity.ok().body("Plan added");
     }
 
+    @GetMapping("/getPlan")
+    public ResponseEntity<?> getPlan(@AuthenticationPrincipal UserDetails userDetails){
+        String username = userDetails.getUsername();
+        UserPlan plan =userPlanService.getPlanByID(username);
+        if (plan==null){
+            return ResponseEntity.ok().body("Plan not found");
+        }
+        return ResponseEntity.ok().body(plan);
+    }
+
 
 
 

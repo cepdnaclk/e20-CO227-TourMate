@@ -47,7 +47,7 @@ export default function Home() {
           {/* ---------------Three Columns Section------------------- */}
           <div className="home-container-columns">
             <div className="home-column">
-              <Link to="/schedule-plan">
+              <Link to="/create-plan">
                 <button className="main-btn">
                   <FontAwesomeIcon icon={faMapMarkedAlt} size="3x" />
                   <h3>Create Schedule</h3>

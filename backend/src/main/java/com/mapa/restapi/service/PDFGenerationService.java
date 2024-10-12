@@ -166,8 +166,7 @@ public class PDFGenerationService {
             document.add(new Paragraph("\n")); // Add a blank line between restaurants
         }
     }
-
-
+    
     //Details from,to etc
     private void addScheduleDetails(Document document, ScheduleEvent scheduleEvent, Font normalFont, Font boldFont) throws DocumentException {
         // Date formatter for converting Date to "YYYY-MM-DD HH:MM"

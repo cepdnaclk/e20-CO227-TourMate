@@ -18,11 +18,9 @@ import { Box, Container } from "@mui/material";
 import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
 import SchedulePlan from "./pages/schedulePlanning/SchedulePlan";
-import { useAuth } from "./utils/AuthContext";
 import Footer from "./components/Footer/Footer";
 
 const App = () => {
-  const { isAuthenticated } = useAuth();
   return (
     <AuthProvider>
       <Router>

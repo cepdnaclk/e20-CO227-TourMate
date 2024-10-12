@@ -4,6 +4,7 @@ import "./Navbar.css";
 import logob from "../../assets/logob.png";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../utils/AuthContext";
+import { useNavigate } from "react-router-dom";
 const Navbar2 = () => {
   // useEffect(() => {
   //   const handleScroll = () => {
@@ -36,6 +37,8 @@ const Navbar2 = () => {
     // Optionally redirect to homepage or another appropriate page after logout
   };
 
+  const planCreated = localStorage.getItem("planCreated");
+
   return (
     <header className="nav-header">
       <a href="/Dashboard" className="nav-logo">
@@ -47,7 +50,9 @@ const Navbar2 = () => {
         <Link to="/find-hotel">Hotels</Link>
         <Link to="/find-places">Restaurants</Link>
         <Link to="/find-places">Places</Link>
-        <Link to="/schedule-plan">Schedule</Link>
+        <Link to={planCreated ? "/schedule-plan" : "/create-plan"}>
+          Schedule
+        </Link>
       </nav>
       <Link to="/" className="link-button">
         <button onClick={handleLogout} className="logout-btn">

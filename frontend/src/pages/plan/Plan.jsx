@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -7,68 +7,25 @@ import {
   Step,
   StepLabel,
   Typography,
-  InputAdornment,
   Tooltip,
 } from "@mui/material";
-import { getPlaceSuggestions } from "../../api";
 import "./plan.css";
 import { useNavigate } from "react-router-dom";
 import { Error } from "@mui/icons-material";
-import { Search } from "@mui/icons-material";
+import Navbar2 from "../../components/Navbar/Navbar2";
 
 const Plan = () => {
   const [step, setStep] = useState(1);
   const [userPlan, setUserPlan] = useState({
     startLocation: "",
     endLocation: "",
-    startTime: "",
-    endTime: "",
+    startTime: "07:00",
+    endTime: "20:00",
     preference: "",
   });
   const [isNextDisabled, setIsNextDisabled] = useState(true);
-  const [suggestions, setSuggestions] = useState([]);
-  const [currentField, setCurrentField] = useState("");
 
   const navigate = useNavigate();
-
-  function debounce(func, delay) {
-    let timeout;
-    return function (...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), delay);
-    };
-  }
-
-  const fetchSuggestions = useCallback(
-    debounce(async (query) => {
-      if (!query) {
-        setSuggestions([]);
-        return;
-      }
-
-      getPlaceSuggestions(query)
-        .then((data) => {
-          // Filter out suggestions where type is 'country'
-          const filteredSuggestions = data.filter(
-            (suggestion) => !suggestion.types.includes("country")
-          );
-
-          // Set the filtered suggestions to state
-          setSuggestions(filteredSuggestions);
-
-          console.log(filteredSuggestions);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }, 600), // Debounce delay in milliseconds
-    []
-  );
-
-  const handleSuggestionClick = (field, suggestion) => {
-    setUserPlan((prev) => ({ ...prev, [field]: suggestion }));
-    setSuggestions([]);
-  };
 
   // Handling next and back steps
   const nextStep = () => {
@@ -96,6 +53,8 @@ const Plan = () => {
       if (response.ok) {
         const data = await response.text();
         console.log(data);
+        // After plan is successfully created
+        localStorage.setItem("planCreated", "true");
         navigate("/schedule-plan");
       } else {
         const error = await response.text();
@@ -112,10 +71,6 @@ const Plan = () => {
   const handleChange = (input) => (e) => {
     const value = e.target.value;
     setUserPlan({ ...userPlan, [input]: value });
-    if (step === 1) {
-      fetchSuggestions(value);
-    }
-    setCurrentField(input);
   };
 
   // Validation checks for each step
@@ -142,158 +97,189 @@ const Plan = () => {
   };
 
   return (
-    <Box sx={{ width: "100%", maxWidth: 600, margin: "0 auto", padding: 2 }}>
-      <ProgressBar step={step} />
-
-      {step === 1 && (
-        <Step1
-          handleChange={handleChange}
-          userPlan={userPlan}
-          suggestions={suggestions}
-          handleSuggestionClick={handleSuggestionClick}
-          currentField={currentField}
-        />
-      )}
-      {step === 2 && <Step2 handleChange={handleChange} userPlan={userPlan} />}
-      {step === 3 && <Step3 handleChange={handleChange} />}
-
+    <>
+      <Navbar2 />
       <Box
-        sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
+        sx={{
+          width: "100%",
+          maxWidth: 600,
+          marginTop: "80px",
+          padding: 2,
+          marginLeft: "20%",
+        }}
       >
-        <Button
-          variant="contained"
-          onClick={prevStep}
-          disabled={step === 1}
+        <ProgressBar step={step} />
+
+        {step === 1 && (
+          <Step1
+            handleChange={handleChange}
+            setUserPlan={setUserPlan}
+            userPlan={userPlan}
+          />
+        )}
+        {step === 2 && (
+          <Step2 handleChange={handleChange} userPlan={userPlan} />
+        )}
+        {step === 3 && <Step3 handleChange={handleChange} />}
+
+        <Box
           sx={{
-            borderRadius: 10,
-            padding: "5px 10px",
-            backgroundColor: "black",
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: 2,
           }}
         >
-          Back
-        </Button>
-        {step === 3 ? (
           <Button
             variant="contained"
-            onClick={handleSubmit}
+            onClick={prevStep}
+            disabled={step === 1}
             sx={{
-              backgroundColor: "red",
               borderRadius: 10,
-              padding: "10px 15px",
+              padding: "5px 10px",
+              backgroundColor: "black",
             }}
           >
-            Submit
+            Back
           </Button>
-        ) : (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={nextStep}
-            disabled={isNextDisabled}
-            sx={{ borderRadius: 10, padding: "5px 10px" }}
-          >
-            Next
-          </Button>
-        )}
+          {step === 3 ? (
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              sx={{
+                backgroundColor: "red",
+                borderRadius: 10,
+                padding: "10px 15px",
+              }}
+            >
+              Submit
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={nextStep}
+              disabled={isNextDisabled}
+              sx={{ borderRadius: 10, padding: "5px 10px" }}
+            >
+              Next
+            </Button>
+          )}
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 
 // Step 1: Location
-const Step1 = ({
-  handleChange,
-  userPlan,
-  suggestions,
-  handleSuggestionClick,
-  currentField,
-}) => (
-  <Box sx={{ mt: 2 }}>
-    <Box sx={{ display: "flex", justifyContent: "center", margin: "10px" }}>
-      <Typography variant="h5">Where Do You Want To Go?</Typography>
-    </Box>
-    <Box sx={{ marginBottom: "20px" }}>
-      <Typography>Start</Typography>
-      <Box sx={{ position: "relative" }}>
-        <TextField
-          label="Search City or Town"
-          variant="outlined"
-          fullWidth
-          value={userPlan.startLocation}
-          onChange={handleChange("startLocation")}
-          margin="normal"
-          required
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <Search />
-              </InputAdornment>
-            ),
-          }}
-        />
-        {currentField === "startLocation" && suggestions.length > 0 && (
-          <ul className="suggestionsList">
-            {suggestions.map((suggestion, index) => (
-              <li
-                className="suggestion"
-                key={index}
-                onClick={() =>
-                  handleSuggestionClick(
-                    "startLocation",
-                    suggestion.structured_formatting.main_text
-                  )
-                }
-              >
-                {suggestion.description}
-              </li>
-            ))}
-          </ul>
-        )}
-      </Box>
-    </Box>
+const Step1 = ({ handleChange, setUserPlan, userPlan }) => {
+  const [start, setStart] = useState("");
+  const [destination, setDestination] = useState("");
+  const [reverseRoute, setReverseRoute] = useState(false);
 
-    <Box>
-      <Typography>Destination</Typography>
-      <Box sx={{ position: "relative" }}>
-        <TextField
-          label="Search City or Town"
-          variant="outlined"
-          fullWidth
-          value={userPlan.endLocation}
-          onChange={handleChange("endLocation")}
-          margin="normal"
-          required
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <Search />
-              </InputAdornment>
-            ),
-          }}
-        />
-        {currentField === "endLocation" && suggestions.length > 0 && (
-          <ul className="suggestionsList">
-            {suggestions.map((suggestion, index) => (
-              <li
-                className="suggestion"
-                key={index}
-                onClick={() =>
-                  handleSuggestionClick(
-                    "endLocation",
-                    suggestion.structured_formatting.main_text
-                  )
-                }
-              >
-                {suggestion.description}
-              </li>
-            ))}
-          </ul>
-        )}
-      </Box>
-    </Box>
-  </Box>
-);
+  const token = localStorage.getItem("token");
+  const handleLocationInput = (inputId, value) => {
+    if (value.length > 1) {
+      fetch(
+        `http://localhost:1200/api/destinations/suggestions?query=${value}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+        .then((response) => {
+          if (!response.ok) throw new Error("Failed to fetch suggestions");
+          return response.json();
+        })
+        .then((suggestions) => {
+          // Update the datalist based on the suggestions
+          const datalist = document.getElementById(`${inputId}Suggestions`);
+          datalist.innerHTML = "";
 
+          suggestions.forEach((suggestion) => {
+            const option = document.createElement("option");
+            option.value = suggestion.destinationName;
+            datalist.appendChild(option);
+          });
+        })
+        .catch((error) => console.error("Error fetching suggestions:", error));
+    }
+  };
+
+  // Handle reverse route toggle (start as destination)
+  const handleReverseRouteChange = () => {
+    setReverseRoute(!reverseRoute);
+
+    // When reverse route is enabled, set destination to start location
+    if (!reverseRoute) {
+      setDestination(start);
+      setUserPlan({ ...userPlan, endLocation: start });
+    } else {
+      setDestination("");
+    }
+  };
+
+  return (
+    <Box sx={{ mt: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", margin: "10px" }}>
+        <Typography variant="h5">Where Do You Want To Go?</Typography>
+      </Box>
+      <div>
+        <label htmlFor="start" className="label" style={{ marginTop: "10px" }}>
+          Start:
+        </label>
+        <input
+          type="text"
+          id="start"
+          value={start}
+          onChange={(e) => {
+            setStart(e.target.value); // Set destination first
+            handleChange("startLocation")(e); // Then call handleChange for "endLocation"
+          }}
+          list="startSuggestions"
+          onInput={(e) => handleLocationInput("start", e.target.value)}
+          className="location-input"
+        />
+        <datalist id="startSuggestions"></datalist>
+      </div>
+      <div>
+        <div>
+          <label
+            htmlFor="destination"
+            className="label"
+            style={{ marginTop: "10px" }}
+          >
+            Destination:
+          </label>
+          <input
+            type="text"
+            id="destination"
+            value={destination}
+            onChange={(e) => {
+              setDestination(e.target.value); // Set destination first
+              handleChange("endLocation")(e); // Then call handleChange for "endLocation"
+            }}
+            list="destinationSuggestions"
+            onInput={(e) => handleLocationInput("destination", e.target.value)}
+            className="location-input"
+          />
+          <datalist id="destinationSuggestions"></datalist>
+        </div>
+      </div>
+      <div className="checkbox-container">
+        <label>
+          <input
+            type="checkbox"
+            id="reverseRoute"
+            checked={reverseRoute}
+            onChange={handleReverseRouteChange}
+          />{" "}
+          Use Destination as Start Location
+        </label>
+      </div>
+    </Box>
+  );
+};
 // Step 2: Time
 const Step2 = ({ handleChange, userPlan, setUserPlan }) => {
   const today = new Date().toISOString().split("T")[0]; // Today's date in YYYY-MM-DD format
@@ -329,10 +315,10 @@ const Step2 = ({ handleChange, userPlan, setUserPlan }) => {
         <Box sx={{ display: "flex", flexDirection: "column" }}>
           <label>Start Date:</label>
           <input
-            type="date"
+            type="datetime-local"
             value={userPlan.startDate}
             onChange={handleChange("startDate")}
-            min={today} // Disable past dates
+            min={new Date().toISOString().split("T")[0] + "T00:00"} // Disable past dates
             required
             style={{
               padding: "10px",
@@ -348,19 +334,20 @@ const Step2 = ({ handleChange, userPlan, setUserPlan }) => {
         </Box>
 
         {/* Start Time Input */}
-        <TextField
-          label="Start Time"
-          type="time"
-          variant="outlined"
-          style={{ width: "80%", marginBottom: "20px" }}
-          value={userPlan.startTime}
-          onChange={(e) => handleTimeChange(e, "startTime")}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          margin="normal"
-          required
-        />
+        <Tooltip title="Tell Us When do you plan to start your journey each day? ">
+          <TextField
+            label="Start Time"
+            type="time"
+            variant="outlined"
+            style={{ width: "80%", marginBottom: "20px" }}
+            value={userPlan.startTime}
+            onChange={(e) => handleTimeChange(e, "startTime")}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            margin="normal"
+          />
+        </Tooltip>
 
         {/* End Time Input */}
         <Tooltip title="Tell Us When do you plan to stop your journey each day? ">

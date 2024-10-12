@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
@@ -23,10 +24,9 @@ public class UserPlan {
     private User user;
 
     private LocalDate createDate;
-    private LocalDate startDate;
+    private LocalDateTime startDate;
     private LocalTime startTime;
     private LocalTime endTime;
-    private LocalDate endDate;
     private String startLocation;
     private String endLocation;
     private String preference;

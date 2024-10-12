@@ -46,6 +46,7 @@ const SchedulePlan = () => {
   const [loadingRestaurants, setLoadingRestaurants] = useState(false);
   const [hotels, setHotels] = useState([]);
   const [hotelsLoading, setHotelsLoading] = useState(false);
+  const [userPlan, setUserPlan] = useState();
 
   const token = localStorage.getItem("token");
 
@@ -59,6 +60,34 @@ const SchedulePlan = () => {
   const [dailyEndTime, setDailyEndTime] = useState("20:00");
   const [selectedHotel, setSelectedHotel] = useState([]); // Initialize as an empty array
   const [selectedRestaurant, setSelectedRestaurant] = useState([]); // Initialize as an empty array
+
+  // Fetch user plan
+  useEffect(() => {
+    const fetchUserPlan = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:1200/api/user/getPlan",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Add the authorization header
+            },
+          }
+        );
+
+        const data = response.data;
+        setUserPlan(data);
+        setStart(data.startLocation || "");
+        setDestination(data.endLocation || "");
+        setStartDateTime(data.startDate || "");
+        setDailyStartTime(data.startTime || "07:00");
+        setDailyEndTime(data.endTime || "20:00");
+      } catch (error) {
+        console.log("Error fetching user plan:", error);
+      }
+    };
+
+    fetchUserPlan();
+  }, [token]);
 
   //Select Hotel & Restaurants
   const handleClickCard = (type, item, date, meal) => {
@@ -316,6 +345,14 @@ const SchedulePlan = () => {
       .then((locationsData) => {
         // Once you have all the locations (finalWaypoints), you can calculate the route
         const finalWaypoints = locationsData; // Store the resolved locations as finalWaypoints
+
+        // // Generate OpenStreetMap URL
+        // const openStreetMapURL = generateOpenStreetMapURL(finalWaypoints);
+        // console.log("OpenStreetMap URL:", openStreetMapURL);
+
+        // Generate GraphHopper Maps URL
+        const graphHopperMapsURL = generateGraphHopperMapsURL(locationsData);
+        console.log("GraphHopper Maps URL:", graphHopperMapsURL);
 
         // Now calculate towns along the route and nearby towns
         const passingTowns = getTownsAlongRoute(finalWaypoints);
@@ -1112,6 +1149,33 @@ const SchedulePlan = () => {
     } catch (error) {
       console.error("Error downloading PDF:", error);
     }
+  };
+
+  // // Function to generate OpenStreetMap URL with coordinates
+  // const generateOpenStreetMapURL = (locationsData) => {
+  //   const baseUrl = "https://www.openstreetmap.org/directions";
+  //   const engine = "graphhopper_car"; // You can change the engine if needed
+
+  //   // Construct the route parameter
+  //   const route = locationsData
+  //     .map((loc) => `${loc.lat},${loc.lon}`)
+  //     .join("%3B"); // Use '%3B' which is the URL-encoded semicolon ';'
+
+  //   const url = `${baseUrl}?engine=${engine}&route=${route}`;
+  //   return url;
+  // };
+
+  // Function to generate GraphHopper Maps URL with coordinates
+  const generateGraphHopperMapsURL = (locationsData) => {
+    const baseUrl = "https://graphhopper.com/maps/";
+    const params = new URLSearchParams();
+
+    locationsData.forEach((loc) => {
+      params.append("point", `${loc.lat},${loc.lon}`);
+    });
+
+    const url = `${baseUrl}?${params.toString()}`;
+    return url;
   };
 
   return (

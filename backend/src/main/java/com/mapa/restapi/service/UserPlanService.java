@@ -38,7 +38,6 @@ public class UserPlanService {
                     .startLocation(plan.getStartLocation())
                     .endLocation(plan.getEndLocation())
                     .startDate(plan.getStartDate())
-                    .endDate(plan.getEndDate())
                     .startTime(plan.getStartTime())
                     .endTime(plan.getEndTime())
                 .preference(plan.getPreference())
@@ -53,18 +52,12 @@ public class UserPlanService {
         userPlanRepo.deleteByUserId(user.getUserid());
     }
 
-//
-//    // Method to get a plan by ID
-//    public UserPlan getPlanByID(int planID) {
-//        return userPlans.stream()
-//                .filter(plan -> plan.getPlanID() == planID)
-//                .findFirst()
-//                .orElse(null);
-//    }
-//
-//    // Method to list all plans
-//    public List<UserPlan> getAllPlans() {
-//        return userPlans;
-//    }
+
+    // Method to get a plan by ID
+    public UserPlan getPlanByID(String email) {
+        User user = userRepo.findByEmail(email).orElseThrow(()->new RuntimeException("User does not exist"));
+        return userPlanRepo.findByUserID(user.getUserid()).orElse(null);
+    }
+
 
 }
