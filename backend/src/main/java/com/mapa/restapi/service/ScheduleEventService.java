@@ -156,6 +156,7 @@ public class ScheduleEventService {
                 .restaurants(scheduleEvent.getScheduleRestaurants())
                 .endTime(scheduleEvent.getEndTime())
                 .startTime(scheduleEvent.getStartTime())
+                .mapUrl(scheduleEvent.getMapUrl())
                 .build();
 
     }

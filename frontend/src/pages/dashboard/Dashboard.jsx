@@ -13,10 +13,11 @@ import RouteFinder from "../../assets/Home/RouteFinder.png";
 import SafeLink from "../../assets/Home/SafeLink.png";
 import WeatherGuide from "../../assets/Home/WeatherGuide.png";
 import { useNavigate, Link } from "react-router-dom";
-import SearchPlace from "../SearchPlace";
 
 export default function Home() {
   const navigate = useNavigate();
+
+  const planCreated = localStorage.getItem("planCreated");
 
   const handleFindRoute = () => {
     navigate("/find-route");
@@ -47,7 +48,7 @@ export default function Home() {
           {/* ---------------Three Columns Section------------------- */}
           <div className="home-container-columns">
             <div className="home-column">
-              <Link to="/create-plan">
+              <Link to={planCreated ? "/schedule-plan" : "/create-plan"}>
                 <button className="main-btn">
                   <FontAwesomeIcon icon={faMapMarkedAlt} size="3x" />
                   <h3>Create Schedule</h3>

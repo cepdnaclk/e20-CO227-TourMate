@@ -67,7 +67,6 @@ export const getHotelData = async (
       return [];
     }
     const results = response.data.data.results;
-    console.log("Hotels:", results);
     return results;
   } catch (error) {
     console.error(error);

@@ -64,7 +64,7 @@ export default function AttractionCard({ place, bookmarked }) {
   };
 
   return (
-    <Card elevation={6} className="card" sx={{ width: 350 }}>
+    <Card elevation={6} className="card" sx={{ width: 300 }}>
       <CardMedia
         style={{ height: 250, position: "relative" }}
         image={
@@ -102,7 +102,12 @@ export default function AttractionCard({ place, bookmarked }) {
           {place.name}
         </Typography>
         <Box display="flex" justifyContent="space-between">
-          <Rating value={Number(place.rating)} precision={0.5} readOnly />
+          <Rating
+            value={Number(place.rating)}
+            precision={0.5}
+            readOnly
+            size="small"
+          />
         </Box>
         {place.type.split(",").map((name) => (
           <Chip

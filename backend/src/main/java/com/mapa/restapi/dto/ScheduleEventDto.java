@@ -23,5 +23,6 @@ public class ScheduleEventDto {
     private List<Stop> stops;
     private List<ScheduleHotel> hotels;
     private List<ScheduleRestaurant> restaurants;
+    private String mapUrl;
 }
 

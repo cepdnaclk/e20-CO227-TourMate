@@ -32,12 +32,6 @@ public class User {
     private String usertype;
     private String identifier;
 
-    @OneToOne(
-            mappedBy = "user",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY)
-    private ForgotPassword forgotPassword;
-
 
     
 }

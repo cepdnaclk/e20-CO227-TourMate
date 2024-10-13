@@ -13,7 +13,7 @@ import {
   Grid,
   CircularProgress,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   CheckCircle,
   ArrowBackIos,
@@ -22,6 +22,7 @@ import {
   HotelRounded,
   Error,
   ArrowForwardIos,
+  Create,
 } from "@mui/icons-material";
 import { getPlaceData, getHotelData } from "../../api";
 import Navbar2 from "../../components/Navbar/Navbar2";
@@ -60,6 +61,9 @@ const SchedulePlan = () => {
   const [dailyEndTime, setDailyEndTime] = useState("20:00");
   const [selectedHotel, setSelectedHotel] = useState([]); // Initialize as an empty array
   const [selectedRestaurant, setSelectedRestaurant] = useState([]); // Initialize as an empty array
+  const [mapUrl, setMapUrl] = useState("");
+  const [pdfUrl, setPdfUrl] = useState(null); // State to store the PDF URL
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   // Fetch user plan
   useEffect(() => {
@@ -194,6 +198,7 @@ const SchedulePlan = () => {
     }
   }, [count]);
 
+  //Fetch suggestion from db
   const handleLocationInput = (inputId, value) => {
     if (value.length > 1) {
       fetch(
@@ -311,13 +316,9 @@ const SchedulePlan = () => {
     setIsLoading(true); //Set loading true to show loading until schedule generated done
     setCount(count + 1); //Count to render which part
 
-    // Get the daily start and end times from the user input
-    const dailyStartTimeInput = document.getElementById("dailyStartTime").value;
-    const dailyEndTimeInput = document.getElementById("dailyEndTime").value;
-
     // Convert the times to hours
-    const dailyStartTime = getHoursFromTime(dailyStartTimeInput);
-    const dailyEndTime = getHoursFromTime(dailyEndTimeInput);
+    const dailyStartTimeHour = getHoursFromTime(dailyStartTime);
+    const dailyEndTimeHour = getHoursFromTime(dailyEndTime);
 
     const locationPromises = locations.map((loc) =>
       fetch(
@@ -352,6 +353,7 @@ const SchedulePlan = () => {
 
         // Generate GraphHopper Maps URL
         const graphHopperMapsURL = generateGraphHopperMapsURL(locationsData);
+        setMapUrl(graphHopperMapsURL);
         console.log("GraphHopper Maps URL:", graphHopperMapsURL);
 
         // Now calculate towns along the route and nearby towns
@@ -369,8 +371,8 @@ const SchedulePlan = () => {
           finalWaypoints,
           waitingTimes,
           new Date(startDateTime),
-          dailyStartTime,
-          dailyEndTime
+          dailyStartTimeHour,
+          dailyEndTimeHour
         );
       })
       .catch((error) => console.error("Error fetching geocoding data:", error));
@@ -536,7 +538,7 @@ const SchedulePlan = () => {
         } else {
           // Add the travel time to the current time if within the same day
           currentDateTime.setSeconds(
-            currentDateTime.getSeconds() + segmentTravelTime + waitingTime * 60
+            currentDateTime.getSeconds() + segmentTravelTime
           );
         }
 
@@ -603,13 +605,23 @@ const SchedulePlan = () => {
             distance: segmentDistance.toFixed(2),
             departure: formattedDepartureTime,
             arrival: formattedArrivalTime,
-            departureTime: departureTime,
-            arrivalTime: arrivalTime,
-            type: "attraction",
+            departureTime: DepartureTime,
+            arrivalTime: ArrivalTime,
           },
         ]);
-        setEndTime(departureTime); // Set endTime for the current segment
+        currentDateTime.setSeconds(
+          currentDateTime.getSeconds() + waitingTime * 60
+        );
+
         setIsLoading(false); // Set loading state to false
+      }
+    });
+
+    setEndTime(() => {
+      if (arrivalTable.length > 0) {
+        return arrivalTable[arrivalTable.length - 1].arrivalTime;
+      } else {
+        return startDateTime; // Handle case where arrivalTable might be empty
       }
     });
   };
@@ -907,8 +919,6 @@ const SchedulePlan = () => {
               restaurant.rating >= 3 && restaurant.is_closed === false
           );
 
-          console.log(restaurantsData);
-
           // Use prevState to avoid adding duplicate meals for the same date
           setMealRestaurants((prev) => {
             return [
@@ -1050,6 +1060,7 @@ const SchedulePlan = () => {
         })),
         startTime: startDateTime,
         endTime: endTime,
+        mapUrl: mapUrl,
       };
 
       // Configure the request with Authorization header
@@ -1079,9 +1090,10 @@ const SchedulePlan = () => {
     }
   };
 
+  //Get pdf file
   const downloadPdf = async () => {
     const token = localStorage.getItem("token");
-
+    setPdfLoading(true);
     // Prepare the request body
     const requestBody = {
       startLocation: start,
@@ -1116,6 +1128,7 @@ const SchedulePlan = () => {
       })),
       startTime: startDateTime,
       endTime: endTime,
+      mapUrl: mapUrl,
     };
 
     try {
@@ -1137,33 +1150,25 @@ const SchedulePlan = () => {
 
       const blob = await response.blob(); // Convert the response into a blob object
       const url = window.URL.createObjectURL(blob); // Create a URL for the blob object
-      const link = document.createElement("a"); // Create a link element
-      link.href = url; // Set the link's URL to the blob URL
-      link.setAttribute("download", "schedule.pdf"); // Set the download attribute with the desired file name
-      document.body.appendChild(link); // Append the link to the body
-      link.click(); // Programmatically click the link to trigger the download
-      link.remove(); // Remove the link after download
-
-      // Clean up the URL object after use
-      window.URL.revokeObjectURL(url);
+      setPdfUrl(url);
+      setPdfLoading(false);
     } catch (error) {
       console.error("Error downloading PDF:", error);
     }
   };
 
-  // // Function to generate OpenStreetMap URL with coordinates
-  // const generateOpenStreetMapURL = (locationsData) => {
-  //   const baseUrl = "https://www.openstreetmap.org/directions";
-  //   const engine = "graphhopper_car"; // You can change the engine if needed
-
-  //   // Construct the route parameter
-  //   const route = locationsData
-  //     .map((loc) => `${loc.lat},${loc.lon}`)
-  //     .join("%3B"); // Use '%3B' which is the URL-encoded semicolon ';'
-
-  //   const url = `${baseUrl}?engine=${engine}&route=${route}`;
-  //   return url;
-  // };
+  // Download PDF
+  const handleDownLoadPdf = () => {
+    const today = new Date().toISOString().split("T")[0];
+    if (pdfUrl) {
+      const link = document.createElement("a");
+      link.href = pdfUrl;
+      link.setAttribute("download", `schedule ${today}.pdf`); // Set the file name
+      document.body.appendChild(link);
+      link.click();
+      link.remove(); // Clean up
+    }
+  };
 
   // Function to generate GraphHopper Maps URL with coordinates
   const generateGraphHopperMapsURL = (locationsData) => {
@@ -1209,6 +1214,7 @@ const SchedulePlan = () => {
                       handleLocationInput("start", e.target.value)
                     }
                     className="location-input"
+                    readOnly
                   />
                   <datalist id="startSuggestions"></datalist>
                 </div>
@@ -1223,7 +1229,7 @@ const SchedulePlan = () => {
                     onChange={(e) => setStartDateTime(e.target.value)}
                     className="date-input"
                     min={new Date().toISOString().split("T")[0] + "T00:00"}
-                    required
+                    readOnly
                   />
                 </div>
                 <div>
@@ -1240,23 +1246,34 @@ const SchedulePlan = () => {
                       handleLocationInput("destination", e.target.value)
                     }
                     className="location-input"
+                    readOnly
                   />
                   <datalist id="destinationSuggestions"></datalist>
                 </div>
+                <Button
+                  component={Link}
+                  to="/create-plan"
+                  variant="text" // Makes it a filled button
+                  color="secondary" // Choose color from Material-UI theme (primary, secondary, etc.)
+                  endIcon={<Create />}
+                >
+                  New Plan
+                </Button>
               </div>
-              <div className="checkbox-container">
+              {/* <div className="checkbox-container">
                 <label>
                   <input
                     type="checkbox"
                     id="reverseRoute"
                     checked={reverseRoute}
                     onChange={handleReverseRouteChange}
+                    readOnly
                   />{" "}
                   Use Destination as Start Location
                 </label>
-              </div>
+              </div> */}
               {/* New inputs for daily start and end time */}
-              <div className="time-input-container" style={{ display: "flex" }}>
+              {/* <div className="time-input-container" style={{ display: "flex" }}>
                 <div style={{ marginRight: "10px", marginBottom: "20px" }}>
                   <label htmlFor="dailyStartTime" className="label">
                     Daily Start Time:
@@ -1267,7 +1284,7 @@ const SchedulePlan = () => {
                     value={dailyStartTime}
                     onChange={(e) => setDailyStartTime(e.target.value)}
                     className="time-input"
-                    required
+                    readOnly
                   />
                 </div>
                 <div>
@@ -1283,7 +1300,7 @@ const SchedulePlan = () => {
                     required
                   />
                 </div>
-              </div>
+              </div> */}
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="h5">Your Bookmarks:</Typography>
                 <Button
@@ -1325,7 +1342,7 @@ const SchedulePlan = () => {
                         </Box>
                         <Rating
                           name={`bookmark-rating-${index}`}
-                          value={bookmark.rating}
+                          value={Number(bookmark.rating)}
                           precision={0.5} // Allows half-star increments
                           readOnly
                           size="small"
@@ -1628,7 +1645,7 @@ const SchedulePlan = () => {
                                     imgUrl={
                                       restaurant?.photo?.images?.large?.url
                                     }
-                                    rating={restaurant.rating}
+                                    rating={Number(restaurant.rating)}
                                     location={restaurant?.address_obj?.city}
                                     type="restaurant"
                                     item={restaurant}
@@ -1774,7 +1791,13 @@ const SchedulePlan = () => {
                   <ArrowBackIos />
                   Back
                 </Button>
-                <Button onClick={() => setCount(2)} variant="outlined">
+                <Button
+                  onClick={() => {
+                    setCount(2);
+                    downloadPdf();
+                  }}
+                  variant="outlined"
+                >
                   Next
                   <ArrowForwardIos />
                 </Button>
@@ -1783,86 +1806,33 @@ const SchedulePlan = () => {
           )}
           {count === 2 && (
             <>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography>Schedule Details</Typography>
-
-                <Button variant="outlined" onClick={downloadPdf}>
-                  Download PDF
-                </Button>
-              </Box>
-              {selectedRestaurant.length > 0 && (
-                <Box sx={{ marginTop: "20px", marginBottom: "20px" }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Typography variant="h5" sx={{ marginRight: "5px" }}>
-                      Your Restaurants{" "}
-                    </Typography>
-                    <RestaurantRounded />
-                  </Box>
-                  <Box
-                    sx={{ display: "flex", justifyContent: "center", gap: 2 }}
-                  >
-                    {selectedRestaurant.length > 0 &&
-                      selectedRestaurant.map((restaurant, index) => (
-                        <DisplayCard
-                          key={index}
-                          name={restaurant.item.name}
-                          imgUrl={
-                            restaurant.item.photo
-                              ? restaurant.item.photo.images?.large?.url
-                              : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
-                          }
-                          rating={restaurant.item.rating}
-                          location={restaurant.item.address_obj?.city}
-                          handleClickCard={() => {}}
-                        />
-                      ))}
-                  </Box>
+              {pdfLoading ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    height: "600px",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography>Preparing Pdf</Typography>
+                  <CircularProgress />
                 </Box>
-              )}
-
-              {selectedHotel.length > 0 && (
-                <Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Typography variant="h5" sx={{ marginRight: "5px" }}>
-                      Your Hotels{" "}
-                    </Typography>
-                    <HotelRounded />
+              ) : (
+                <div>
+                  <Box sx={{ margin: "20px" }}>
+                    <button onClick={handleDownLoadPdf}>Download PDF</button>
                   </Box>
-                  <Box
-                    sx={{ display: "flex", justifyContent: "center", gap: 2 }}
-                  >
-                    {selectedHotel.length > 0 &&
-                      selectedHotel.map((hotel, index) => (
-                        <DisplayCard
-                          key={index}
-                          name={hotel.item.basicPropertyData.name}
-                          imgUrl={
-                            hotel.item.basicPropertyData.photos
-                              ? hotel.item.basicPropertyData.photos.main
-                                  .lowResJpegUrl.absoluteUrl
-                              : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
-                          }
-                          score={
-                            hotel.item.basicPropertyData.reviews.totalScore
-                          }
-                          location={hotel.item.basicPropertyData.location.city}
-                          handleClickCard={() => {}}
-                        />
-                      ))}
-                  </Box>
-                </Box>
-              )}
 
+                  {/* Embed the PDF in an iframe */}
+                  <iframe
+                    src={pdfUrl}
+                    title="Schedule PDF"
+                    width="100%"
+                    height="600px"
+                  ></iframe>
+                </div>
+              )}
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Button onClick={() => setCount(1)} variant="outlined">
                   <ArrowBackIos />

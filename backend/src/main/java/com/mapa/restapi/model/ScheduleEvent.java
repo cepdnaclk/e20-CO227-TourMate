@@ -22,7 +22,7 @@ public class ScheduleEvent {
     private String endLocation;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-
+    private String mapUrl;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
