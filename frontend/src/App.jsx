@@ -14,7 +14,7 @@ import HotelPage from "./pages/Hotel/HotelPage";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./utils/AuthContext";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
-import { Box, Container } from "@mui/material";
+import { Box } from "@mui/material";
 import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
 import SchedulePlan from "./pages/schedulePlanning/SchedulePlan";
@@ -32,16 +32,7 @@ const App = () => {
             alignItems: "center",
           }}
         >
-          <Container
-            component="main"
-            sx={{
-              flex: 1,
-            }}
-            style={{
-              padding: 0,
-              margin: 0,
-            }}
-          >
+          <Box sx={{ width: "100%" }}>
             <div>
               <Routes>
                 <Route element={<ProtectedRoutes />}>
@@ -72,7 +63,7 @@ const App = () => {
               </Routes>
             </div>
             <Footer />
-          </Container>
+          </Box>
         </Box>
       </Router>
     </AuthProvider>

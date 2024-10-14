@@ -181,7 +181,15 @@ export default function AddBookmarks() {
   return (
     <>
       <Navbar2 />
-      <div className="container" style={{ marginTop: "100px" }}>
+      <div
+        className="bookmark-container"
+        style={{
+          marginTop: "100px",
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+      >
         <h1 className="header-bookmark">Tourist Attractions</h1>
         <Box
           sx={{
@@ -205,6 +213,8 @@ export default function AddBookmarks() {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            padding: "10px",
+            width: "80%",
           }}
         >
           <FormGroup

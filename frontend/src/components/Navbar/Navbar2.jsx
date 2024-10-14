@@ -45,7 +45,10 @@ const Navbar2 = () => {
         <img src={logob} alt="Tour Mate Logo" className="logo-image" />
       </a>
 
-      <nav className="nav">
+      <nav
+        className="nav-links"
+        style={{ display: "flex", gap: "30px", alignItems: "center" }}
+      >
         <Link to="/find-route">Route</Link>
         <Link to="/find-hotel">Hotels</Link>
         <Link to="/find-places">Restaurants</Link>

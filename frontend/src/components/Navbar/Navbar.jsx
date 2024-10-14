@@ -34,10 +34,13 @@ const Navbar = () => {
         <img src={logob} alt="Tour Mate Logo" className="logo-image" />
       </a>
 
-      <nav className="nav">
+      <nav
+        className="nav-links"
+        style={{ display: "flex", gap: "30px", alignItems: "center" }}
+      >
         <Link to="/">Home</Link>
         <Link to="/">Tours</Link>
-        <Link to="/">About me</Link>
+        <Link to="/">About Us</Link>
         <Link to="/">Contact me</Link>
       </nav>
       <Link to="/signup" className="link-button">

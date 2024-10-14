@@ -54,7 +54,7 @@ const SchedulePlan = () => {
   const [passingTowns, setPassingTowns] = useState([]);
   const [nearbyTowns, setNearbyTowns] = useState([]);
   const [bookmarkPlaces, setBookmarkPlaces] = useState([]);
-  const [count, setCount] = useState(0); //Count to select which part to render
+  const [step, setStep] = useState(0); //Count to select which part to render
   const navigate = useNavigate();
 
   const [dailyStartTime, setDailyStartTime] = useState("07:00");
@@ -64,6 +64,7 @@ const SchedulePlan = () => {
   const [mapUrl, setMapUrl] = useState("");
   const [pdfUrl, setPdfUrl] = useState(null); // State to store the PDF URL
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState("");
 
   // Fetch user plan
   useEffect(() => {
@@ -86,12 +87,14 @@ const SchedulePlan = () => {
         setDailyStartTime(data.startTime || "07:00");
         setDailyEndTime(data.endTime || "20:00");
       } catch (error) {
-        console.log("Error fetching user plan:", error);
+        console.error("Error fetching user plan:", error);
       }
     };
-
-    fetchUserPlan();
-  }, [token]);
+    if (step === 0) {
+      setEndTime("");
+      fetchUserPlan();
+    }
+  }, [token, step]);
 
   //Select Hotel & Restaurants
   const handleClickCard = (type, item, date, meal) => {
@@ -158,11 +161,12 @@ const SchedulePlan = () => {
           console.log("Error fetching bookmark places");
         }
       } catch (error) {
-        console.log("Something went wrong in fetching bookmark places");
+        console.error("Something went wrong in fetching bookmark places");
       }
     };
-
-    fetchBookmarkPlaces();
+    if (step === 0) {
+      fetchBookmarkPlaces();
+    }
   }, []);
 
   // Update waitingTimes when stops length changes
@@ -186,8 +190,8 @@ const SchedulePlan = () => {
 
   //Map rendering
   useEffect(() => {
-    //If count is 1 (When Schedule button clicked) fetch Map
-    if (count === 1) {
+    //If step is 1 (When Schedule button clicked) fetch Map
+    if (step === 1) {
       mapRef.current = L.map("map").setView([7.8731, 80.7718], 7);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "&copy; OpenStreetMap contributors",
@@ -196,7 +200,7 @@ const SchedulePlan = () => {
         if (mapRef.current) mapRef.current.remove();
       };
     }
-  }, [count]);
+  }, [step]);
 
   //Fetch suggestion from db
   const handleLocationInput = (inputId, value) => {
@@ -314,7 +318,7 @@ const SchedulePlan = () => {
     const stopsToFetch = stops.filter((stop) => stop.trim() !== "");
     const locations = [start, ...stopsToFetch, destination];
     setIsLoading(true); //Set loading true to show loading until schedule generated done
-    setCount(count + 1); //Count to render which part
+    setStep(step + 1); //Count to render which part
 
     // Convert the times to hours
     const dailyStartTimeHour = getHoursFromTime(dailyStartTime);
@@ -354,7 +358,6 @@ const SchedulePlan = () => {
         // Generate GraphHopper Maps URL
         const graphHopperMapsURL = generateGraphHopperMapsURL(locationsData);
         setMapUrl(graphHopperMapsURL);
-        console.log("GraphHopper Maps URL:", graphHopperMapsURL);
 
         // Now calculate towns along the route and nearby towns
         const passingTowns = getTownsAlongRoute(finalWaypoints);
@@ -616,15 +619,15 @@ const SchedulePlan = () => {
         setIsLoading(false); // Set loading state to false
       }
     });
+  };
 
+  useEffect(() => {
     setEndTime(() => {
       if (arrivalTable.length > 0) {
         return arrivalTable[arrivalTable.length - 1].arrivalTime;
-      } else {
-        return startDateTime; // Handle case where arrivalTable might be empty
       }
     });
-  };
+  }, [arrivalTable]);
 
   const TSPPlanner = ({ locations }) => {
     const [optimalOrder, setOptimalOrder] = useState([]);
@@ -1083,16 +1086,19 @@ const SchedulePlan = () => {
         navigate("/Dashboard");
       } else {
         console.log("Failed to save the schedule");
+        window.alert("Failed to save the schedule");
       }
     } catch (error) {
       // Handle error
-      console.log("Error while saving the schedule:", error);
+      console.error("Error while saving the schedule:", error);
+      window.alert("Error while saving the schedule");
     }
   };
 
   //Get pdf file
   const downloadPdf = async () => {
     const token = localStorage.getItem("token");
+    setPdfError("");
     setPdfLoading(true);
     // Prepare the request body
     const requestBody = {
@@ -1145,6 +1151,8 @@ const SchedulePlan = () => {
       );
 
       if (!response.ok) {
+        setPdfError("Failed to download PDF", response.status);
+        setPdfLoading(false);
         throw new Error("Failed to download PDF");
       }
 
@@ -1153,7 +1161,9 @@ const SchedulePlan = () => {
       setPdfUrl(url);
       setPdfLoading(false);
     } catch (error) {
-      console.error("Error downloading PDF:", error);
+      setPdfLoading(false);
+      setPdfError("Failed to download PDF");
+      console.error("Error downloading PDF:");
     }
   };
 
@@ -1191,12 +1201,12 @@ const SchedulePlan = () => {
           sx={{ display: "flex", justifyContent: "center", marginTop: "120px" }}
         >
           <h1 className="Schedule-Header">
-            Schedule {count === 0 ? "Plan" : "Result"}
+            Schedule {step === 0 ? "Plan" : "Result"}
           </h1>
         </Box>
 
         <div className="container">
-          {count === 0 && (
+          {step === 0 && (
             //Getting Stops and Bookmark places for schedule
             <>
               <div className="input-container">
@@ -1446,7 +1456,7 @@ const SchedulePlan = () => {
               </button>
             </>
           )}{" "}
-          {count === 1 && (
+          {step === 1 && (
             //Schedule Display segment with route map
             <>
               <Grid
@@ -1787,13 +1797,13 @@ const SchedulePlan = () => {
                 </>
               )}
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Button onClick={() => setCount(0)} variant="outlined">
+                <Button onClick={() => setStep(0)} variant="outlined">
                   <ArrowBackIos />
                   Back
                 </Button>
                 <Button
                   onClick={() => {
-                    setCount(2);
+                    setStep(2);
                     downloadPdf();
                   }}
                   variant="outlined"
@@ -1804,9 +1814,9 @@ const SchedulePlan = () => {
               </Box>
             </>
           )}
-          {count === 2 && (
+          {step === 2 && (
             <>
-              {pdfLoading ? (
+              {pdfLoading && (
                 <Box
                   sx={{
                     display: "flex",
@@ -1818,23 +1828,40 @@ const SchedulePlan = () => {
                   <Typography>Preparing Pdf</Typography>
                   <CircularProgress />
                 </Box>
-              ) : (
-                <div>
-                  <Box sx={{ margin: "20px" }}>
-                    <button onClick={handleDownLoadPdf}>Download PDF</button>
-                  </Box>
-
-                  {/* Embed the PDF in an iframe */}
-                  <iframe
-                    src={pdfUrl}
-                    title="Schedule PDF"
-                    width="100%"
-                    height="600px"
-                  ></iframe>
-                </div>
               )}
+
+              {!pdfLoading &&
+                (pdfError.length > 0 ? (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      height: "600px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography variant="h6" color="red">
+                      {pdfError}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <div>
+                    <Box sx={{ margin: "20px" }}>
+                      <button onClick={handleDownLoadPdf}>Download PDF</button>
+                    </Box>
+
+                    {/* Embed the PDF in an iframe */}
+                    <iframe
+                      src={pdfUrl}
+                      title="Schedule PDF"
+                      width="100%"
+                      height="600px"
+                    ></iframe>
+                  </div>
+                ))}
+
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Button onClick={() => setCount(1)} variant="outlined">
+                <Button onClick={() => setStep(1)} variant="outlined">
                   <ArrowBackIos />
                   Back
                 </Button>

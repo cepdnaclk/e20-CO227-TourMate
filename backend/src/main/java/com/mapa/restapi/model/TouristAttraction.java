@@ -17,7 +17,7 @@ public class TouristAttraction {
     private long attractionID;
     private String type;
 
-    @Column(length = 1000)
+    @Column(length = 2000)
     private String description;
     private String name;
     private String city;

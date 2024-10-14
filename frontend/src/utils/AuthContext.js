@@ -12,7 +12,6 @@ export const AuthProvider = ({ children }) => {
   const [jwtToken, setJwtToken] = useState(null);
 
   const login = (token) => {
-    console.log("Received token:", token);
     localStorage.setItem("token", token);
     setIsAuthenticated(true);
     setJwtToken(token);
@@ -27,7 +26,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("Token in localStorage:", token);
     console.log("Authentication status:", isAuthenticated);
     if (token) {
       setIsAuthenticated(true);

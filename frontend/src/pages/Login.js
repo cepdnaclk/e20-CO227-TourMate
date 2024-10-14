@@ -159,7 +159,7 @@ export default function Logtest() {
               Log in
             </Button>
             <Typography>
-              <Link href="ForgotPassword" variant="plain">
+              <Link href="forgot-password" variant="plain">
                 Forgot password?
               </Link>
             </Typography>

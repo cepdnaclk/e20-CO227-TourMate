@@ -39,20 +39,19 @@
   filter: brightness(0) invert(1); /* Change the logo color on scroll */
 }
 
-.nav a {
+.nav-links a {
   position: relative;
-  font-size: 18px;
+  font-size: 20px;
   color: black;
   font-weight: 500;
-  margin-left: 40px;
   transition: color 0.3s ease;
   text-decoration: none;
 }
-.nav a.scrolled {
+.nav-links a.scrolled {
   color: white;
 }
 
-.nav a::before {
+.nav-links a::before {
   content: "";
   position: absolute;
   left: 0;
@@ -62,7 +61,7 @@
   background: white;
   transition: 0.3s;
 }
-.nav a:hover::before {
+.nav-links a:hover::before {
   width: 100%;
 }
 
@@ -81,7 +80,6 @@
   justify-content: center;
   align-items: center;
   padding: 10px 40px;
-  margin-left: 222px;
   gap: 14px;
   /* Assests colour */
   background: #ff6f61;
@@ -108,7 +106,6 @@
   justify-content: center;
   align-items: center;
   padding: 10px 40px;
-  margin-left: 222px;
   gap: 14px;
   /* Assests colour */
   background: #90c3ff;

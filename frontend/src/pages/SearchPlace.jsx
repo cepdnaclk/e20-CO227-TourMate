@@ -113,7 +113,7 @@ function SearchPlace() {
       <CssBaseline />
       <Navbar />
       <SearchHeader setCoordinates={setCoordinates} />
-      <Grid container spacing={3} style={{ width: "100%" }}>
+      <Grid container spacing={3} style={{ width: "90%", marginLeft: "3%" }}>
         <Grid item xs={12} md={4}>
           <List
             places={filteredPlaces.length ? filteredPlaces : places}

@@ -78,7 +78,7 @@ export default function Place({
         console.log("Error adding/removing bookmark:", response.statusText);
       }
     } catch (error) {
-      console.log("Error in fetching data:", error);
+      console.error("Error in fetching data:", error);
     }
   };
 

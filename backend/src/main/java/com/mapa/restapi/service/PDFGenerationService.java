@@ -217,13 +217,9 @@ public class PDFGenerationService  {
         // Define the local time zone (example: Asia/Kolkata)
         ZoneId localZone = ZoneId.of("Asia/Kolkata");
 
-        // Iterate over stops and add each stop's details to the table
-
-                    // Convert UTC time to local time
-                    ZonedDateTime localEndTime = scheduleEvent.getEndTime().atZone(ZoneId.of("UTC")).withZoneSameInstant(localZone);
-
-
-                    // Add Start Location (Bold label, normal data)
+        // Convert UTC time to local time
+        ZonedDateTime localEndTime = scheduleEvent.getEndTime().atZone(ZoneId.of("UTC")).withZoneSameInstant(localZone);
+        // Add Start Location (Bold label, normal data)
         Paragraph startLocation = new Paragraph();
         startLocation.add(new Chunk("Start Location: ", boldFont));
         startLocation.add(new Chunk(scheduleEvent.getStartLocation(), normalFont));
