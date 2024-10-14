@@ -23,7 +23,7 @@ public class PDFGenerationService  {
 
 
         // Initialize PdfWriter for iText 5
-        PdfWriter writer = PdfWriter.getInstance(document, out);
+        PdfWriter.getInstance(document, out);
 
         // Open the document to write content
         document.open();
@@ -120,9 +120,6 @@ public class PDFGenerationService  {
             PdfPCell textCell = new PdfPCell();
             textCell.addElement(hotelParagraph); // Add the paragraph to the text cell
             textCell.setBorder(PdfPCell.NO_BORDER); // Remove border from text cell
-
-            // Add cells to the table
-            table.addCell(textCell);
 
             // Create a cell for the image
             PdfPCell imageCell = new PdfPCell();

@@ -1229,7 +1229,7 @@ const SchedulePlan = () => {
                     onChange={(e) => setStartDateTime(e.target.value)}
                     className="date-input"
                     min={new Date().toISOString().split("T")[0] + "T00:00"}
-                    readOnly
+                    required
                   />
                 </div>
                 <div>
