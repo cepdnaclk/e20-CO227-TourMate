@@ -40,7 +40,6 @@ export default function Logtest() {
     event.preventDefault();
 
     try {
-      console.log("Sending login request to backend...");
       const response = await fetch("http://localhost:1200/auth/login", {
         method: "POST",
         headers: {
@@ -51,7 +50,7 @@ export default function Logtest() {
 
       if (response.ok) {
         const jwtToken = await response.text(); // Read the JWT token from the response body
-        console.log("Login successful, received JWT token:", jwtToken);
+        console.log("Login successful, received JWT token:");
         // Store the token securely, e.g., in localStorage or session storage
         login(jwtToken); // Update the auth context with the JWT token
 

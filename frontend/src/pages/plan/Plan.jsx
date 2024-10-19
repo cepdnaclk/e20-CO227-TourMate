@@ -105,7 +105,7 @@ const Plan = () => {
           maxWidth: 600,
           marginTop: "80px",
           padding: 2,
-          marginLeft: "20%",
+          marginLeft: "30%",
         }}
       >
         <ProgressBar step={step} />

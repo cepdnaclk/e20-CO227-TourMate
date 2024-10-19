@@ -43,7 +43,7 @@ public class EntityController {
     }
 
 
-    @GetMapping("/attractions/suggestplaces")
+    @PostMapping("/attractions/suggestplaces")
     public ResponseEntity<List<TouristAttractionDTO>> getSuggestPlaces(@RequestBody SuggestPlaceRequest request){
         List<String> cities = request.getCities();
         List<String> preference = request.getPreference();

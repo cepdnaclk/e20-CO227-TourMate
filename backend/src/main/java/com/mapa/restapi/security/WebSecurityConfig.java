@@ -41,9 +41,7 @@ public class WebSecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         
-    String rawPassword = "taal";
-    String encodedPassword = new BCryptPasswordEncoder().encode(rawPassword);
-    //System.out.println("encodedPassword ----: "+encodedPassword);
+
     return new BCryptPasswordEncoder();
    
 

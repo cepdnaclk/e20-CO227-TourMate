@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, createElement } from "react";
-import L, { map } from "leaflet";
+import React, { useState, useEffect, useRef } from "react";
+import L from "leaflet";
 import "leaflet-routing-machine";
 import "leaflet/dist/leaflet.css";
 import "./SchedulePlan.css";
@@ -65,6 +65,7 @@ const SchedulePlan = () => {
   const [pdfUrl, setPdfUrl] = useState(null); // State to store the PDF URL
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState("");
+  const [suggestPlaces, setSuggestPlaces] = useState();
 
   // Fetch user plan
   useEffect(() => {
@@ -95,6 +96,34 @@ const SchedulePlan = () => {
       fetchUserPlan();
     }
   }, [token, step]);
+
+  // Fetch suggest places
+  const fetchSuggestPlaces = async () => {
+    try {
+      const requestBody = {
+        cities: ["colombo", "kandy"],
+        preference: userPlan.preference.split(","),
+      };
+      const response = await fetch(
+        "http://localhost:1200/api/attractions/suggestplaces",
+        {
+          method: "Post",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        setSuggestPlaces(data);
+      }
+    } catch (error) {
+      console.error("Error suggesting places");
+    }
+  };
 
   //Select Hotel & Restaurants
   const handleClickCard = (type, item, date, meal) => {
@@ -453,6 +482,7 @@ const SchedulePlan = () => {
       .on("routingerror", (error) => {
         console.error("Routing error:", error);
         alert("An error occurred while calculating the route.");
+        setIsLoading(false);
       })
       .addTo(mapRef.current);
   };
@@ -489,6 +519,9 @@ const SchedulePlan = () => {
     setSummary("");
     setHotels([]);
     setMealRestaurants([]);
+
+    //Fetch suggestion from API bases on preference
+    fetchSuggestPlaces();
 
     const overallSummary = {
       totalDistance: totalDistance.toFixed(2),
@@ -1775,6 +1808,7 @@ const SchedulePlan = () => {
                       ))}
                     </Box>
                   )}
+                  {}
 
                   <div id="summaryDiv">
                     <h3>Overall Summary</h3>
@@ -1796,22 +1830,24 @@ const SchedulePlan = () => {
                   </div>
                 </>
               )}
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Button onClick={() => setStep(0)} variant="outlined">
-                  <ArrowBackIos />
-                  Back
-                </Button>
-                <Button
-                  onClick={() => {
-                    setStep(2);
-                    downloadPdf();
-                  }}
-                  variant="outlined"
-                >
-                  Next
-                  <ArrowForwardIos />
-                </Button>
-              </Box>
+              {!isLoading && (
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Button onClick={() => setStep(0)} variant="outlined">
+                    <ArrowBackIos />
+                    Back
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setStep(2);
+                      downloadPdf();
+                    }}
+                    variant="outlined"
+                  >
+                    Next
+                    <ArrowForwardIos />
+                  </Button>
+                </Box>
+              )}
             </>
           )}
           {step === 2 && (
@@ -1861,11 +1897,19 @@ const SchedulePlan = () => {
                 ))}
 
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Button onClick={() => setStep(1)} variant="outlined">
+                <Button
+                  onClick={() => setStep(1)}
+                  disabled={pdfLoading}
+                  variant="outlined"
+                >
                   <ArrowBackIos />
                   Back
                 </Button>
-                <Button onClick={saveSchedule} variant="outlined">
+                <Button
+                  onClick={saveSchedule}
+                  disabled={pdfLoading}
+                  variant="outlined"
+                >
                   Finish
                   <ArrowForwardIos />
                 </Button>

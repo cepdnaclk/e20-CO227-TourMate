@@ -13,12 +13,12 @@ import {
   Checkbox,
   FormControlLabel,
   Tooltip,
+  TextField,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PlaceSuggest from "../../components/PlaceSuggest/PlaceSuggest";
 import { getHotelData } from "../../api";
 import HotelCard from "../../components/HotelCard/HotelCard";
-import { useCallback } from "react";
 import { debounce } from "lodash";
 import { fetchExchangeRate } from "../../api";
 import { HotelRounded, KeyboardArrowDown } from "@mui/icons-material";
@@ -46,6 +46,7 @@ export default function HotelPage() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [cancelChecked, setCancelChecked] = useState(false);
   const [prePayChecked, setPrePayChecked] = useState(false);
+  const [enable, setEnable] = useState(false);
 
   const handleCheck = (event) => {
     setCancelChecked(event.target.checked);
@@ -188,6 +189,23 @@ export default function HotelPage() {
 
     setFilteredHotels(filterHotels);
   }, [score, priceRange, hotels, exchangeRate, prePayChecked, cancelChecked]);
+
+  //Set enable for search button
+  useEffect(() => {
+    if (checkInDate && checkOutDate && coordinates) {
+      setEnable(true);
+    } else {
+      setEnable(false);
+    }
+  }, [checkInDate, checkOutDate, coordinates]);
+
+  //Helper function to get min checkout date
+  const getMinCheckOutDate = (checkInDate) => {
+    const date = new Date(checkInDate);
+    date.setDate(date.getDate() + 1); // Increment by 1 day
+    return date.toISOString().split("T")[0]; // Format the date to 'YYYY-MM-DD'
+  };
+
   return (
     <>
       <Navbar />
@@ -197,7 +215,7 @@ export default function HotelPage() {
         justifyContent="space-around"
         className="simple-header"
         sx={{
-          height: "50px",
+          height: "80px",
           position: "sticky",
           top: "100px",
           left: 0,
@@ -209,29 +227,38 @@ export default function HotelPage() {
         <PlaceSuggest setCoordinates={setCoordinates}></PlaceSuggest>
         <Tooltip title="Check-in Date">
           <div>
-            {/* <label for="checkIn">Check-In Date:</label> */}
-            <input
-              type="date"
+            <TextField
               id="checkIn"
-              name="checkIn"
-              onChange={(e) => setCheckInDate(e.target.value)}
+              label="Check-In Date"
+              type="date"
               value={checkInDate}
-              min={today}
-              placeholder="check-in"
+              onChange={(e) => setCheckInDate(e.target.value)}
+              InputLabelProps={{
+                shrink: true, // Keeps the label shrunk above the input
+              }}
+              inputProps={{
+                min: today, // Minimum date is today
+              }}
+              fullWidth
               required
             />
           </div>
         </Tooltip>
         <Tooltip title="Check-out Date">
           <div>
-            {/* <label for="checkout">Check-Out Date:</label> */}
-            <input
-              type="date"
+            <TextField
               id="checkout"
-              name="checkout"
+              label="Check-Out Date"
+              type="date"
+              value={checkOutDate}
               onChange={(e) => setCheckOutDate(e.target.value)}
-              min={checkInDate || today}
-              placeholder="check-out"
+              InputLabelProps={{
+                shrink: true, // Keeps the label shrunk above the input
+              }}
+              inputProps={{
+                min: getMinCheckOutDate(checkInDate) || today,
+              }}
+              fullWidth
               required
             />
           </div>
@@ -321,7 +348,11 @@ export default function HotelPage() {
             </Box>
           </Popover>
         </div>
-        <Button variant="contained" onClick={handleSearch}>
+        <Button
+          variant="contained"
+          disabled={!enable || isLoading}
+          onClick={handleSearch}
+        >
           Search
         </Button>
       </Box>
