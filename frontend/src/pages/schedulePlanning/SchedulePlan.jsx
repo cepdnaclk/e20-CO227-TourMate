@@ -36,7 +36,6 @@ const SchedulePlan = () => {
   const [waitingTimes, setWaitingTimes] = useState(Array(stops.length).fill(0));
   const [startDateTime, setStartDateTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [reverseRoute, setReverseRoute] = useState(false);
   const [segmentDetails, setSegmentDetails] = useState([]);
   const [arrivalTable, setArrivalTable] = useState([]);
   const [summary, setSummary] = useState("");
@@ -314,26 +313,6 @@ const SchedulePlan = () => {
     setWaitingTimes(newWaitingTimes);
 
     console.log("Updated Waiting Times:", newWaitingTimes);
-  };
-
-  // Handle reverse route toggle (start as destination)
-  const handleReverseRouteChange = () => {
-    setReverseRoute(!reverseRoute);
-
-    // When reverse route is enabled, set destination to start location
-    if (!reverseRoute) {
-      setDestination(start);
-    } else {
-      setDestination("");
-    }
-  };
-
-  // Sync destination when start changes if reverse route is enabled
-  const handleStartInput = (value) => {
-    setStart(value);
-    if (reverseRoute) {
-      setDestination(value);
-    }
   };
 
   // Function to extract time in hours from the user's input
@@ -662,92 +641,6 @@ const SchedulePlan = () => {
     });
   }, [arrivalTable]);
 
-  const TSPPlanner = ({ locations }) => {
-    const [optimalOrder, setOptimalOrder] = useState([]);
-
-    useEffect(() => {
-      if (locations.length > 0) {
-        const optimalPath = solveTSP(locations);
-        setOptimalOrder(optimalPath);
-      }
-    }, [locations]);
-
-    // Traveling Salesman Problem (TSP) Solver function
-    const solveTSP = (locations) => {
-      const numLocations = locations.length;
-      const distances = Array(numLocations)
-        .fill()
-        .map(() => Array(numLocations).fill(Infinity));
-
-      // Calculate the distance matrix between each pair of locations
-      for (let i = 0; i < numLocations; i++) {
-        for (let j = i + 1; j < numLocations; j++) {
-          const dist = distanceBetweenCoords(locations[i], locations[j]);
-          distances[i][j] = dist;
-          distances[j][i] = dist;
-        }
-      }
-
-      const memo = {};
-      const visitedAll = (1 << numLocations) - 1;
-
-      // TSP dynamic programming function
-      function tsp(mask, pos) {
-        if (mask === visitedAll) {
-          return distances[pos][0];
-        }
-        if (memo[`${mask}-${pos}`] !== undefined) {
-          return memo[`${mask}-${pos}`];
-        }
-        let result = Infinity;
-        for (let next = 0; next < numLocations; next++) {
-          if ((mask & (1 << next)) === 0) {
-            const newResult =
-              distances[pos][next] + tsp(mask | (1 << next), next);
-            result = Math.min(result, newResult);
-          }
-        }
-        memo[`${mask}-${pos}`] = result;
-        return result;
-      }
-
-      // Reconstruct the path
-      function findPath(mask, pos) {
-        if (mask === visitedAll) return [0];
-        let result = Infinity;
-        let bestNext = -1;
-        for (let next = 0; next < numLocations; next++) {
-          if ((mask & (1 << next)) === 0) {
-            const newResult =
-              distances[pos][next] + tsp(mask | (1 << next), next);
-            if (newResult < result) {
-              result = newResult;
-              bestNext = next;
-            }
-          }
-        }
-        return [bestNext, ...findPath(mask | (1 << bestNext), bestNext)];
-      }
-
-      const order = findPath(1, 0);
-      return order.map((index) => locations[index]);
-    };
-
-    return (
-      <div>
-        <h2>Optimal Route</h2>
-        <ul>
-          {optimalOrder.map((location, index) => (
-            <li key={index}>
-              Stop {index + 1}: Latitude: {location[0]}, Longitude:{" "}
-              {location[1]}
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  };
-
   const solveTSPForStopsWithTimes = (stopsWithTimes, start, destination) => {
     let remainingStops = stopsWithTimes.slice();
     let orderedStopsWithTimes = [];
@@ -1045,14 +938,6 @@ const SchedulePlan = () => {
       ne: { lat: neLat, lng: neLng },
     };
     return bounds;
-  };
-
-  const handleEndTimeChange = (event) => {
-    if (event.target.value < dailyStartTime) {
-      window.alert("End time must be after start time");
-      return;
-    }
-    setDailyEndTime(event.target.value);
   };
 
   // Save schedule
