@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import Navbar2 from "../components/Navbar/Navbar2";
+import Navbar from "../components/Navbar/Navbar";
 
 // Ensure the marker icon is correctly displayed
 delete L.Icon.Default.prototype._getIconUrl;
@@ -247,7 +247,6 @@ const RoutePage = () => {
 
   return (
     <>
-      <Navbar2 />
       <div
         style={{
           fontFamily: "Arial, sans-serif",

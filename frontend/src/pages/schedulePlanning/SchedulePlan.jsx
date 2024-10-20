@@ -65,6 +65,8 @@ const SchedulePlan = () => {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState("");
   const [suggestPlaces, setSuggestPlaces] = useState();
+  const [citySearch, setCitySearch] = useState("");
+  const [filteredBookmarks, setFilteredBookmarks] = useState([]);
 
   // Fetch user plan
   useEffect(() => {
@@ -1111,6 +1113,15 @@ const SchedulePlan = () => {
     return url;
   };
 
+  //Filter bookmark by city
+  useEffect(() => {
+    const filterBookmarks = bookmarkPlaces.filter((place) =>
+      place.city.toLowerCase().includes(citySearch.toLowerCase())
+    );
+
+    setFilteredBookmarks(filterBookmarks);
+  }, [citySearch, bookmarkPlaces]);
+
   return (
     <>
       <Navbar2 />
@@ -1188,47 +1199,7 @@ const SchedulePlan = () => {
                   New Plan
                 </Button>
               </div>
-              {/* <div className="checkbox-container">
-                <label>
-                  <input
-                    type="checkbox"
-                    id="reverseRoute"
-                    checked={reverseRoute}
-                    onChange={handleReverseRouteChange}
-                    readOnly
-                  />{" "}
-                  Use Destination as Start Location
-                </label>
-              </div> */}
-              {/* New inputs for daily start and end time */}
-              {/* <div className="time-input-container" style={{ display: "flex" }}>
-                <div style={{ marginRight: "10px", marginBottom: "20px" }}>
-                  <label htmlFor="dailyStartTime" className="label">
-                    Daily Start Time:
-                  </label>
-                  <input
-                    type="time"
-                    id="dailyStartTime"
-                    value={dailyStartTime}
-                    onChange={(e) => setDailyStartTime(e.target.value)}
-                    className="time-input"
-                    readOnly
-                  />
-                </div>
-                <div>
-                  <label htmlFor="dailyEndTime" className="label">
-                    Daily End Time:
-                  </label>
-                  <input
-                    type="time"
-                    id="dailyEndTime"
-                    value={dailyEndTime}
-                    onChange={handleEndTimeChange}
-                    className="time-input"
-                    required
-                  />
-                </div>
-              </div> */}
+
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="h5">Your Bookmarks:</Typography>
                 <Button
@@ -1243,62 +1214,80 @@ const SchedulePlan = () => {
                   No bookmarks found.Click Manage Bookmarks to add Some
                 </Typography>
               )}
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                {bookmarkPlaces.length > 0 &&
-                  bookmarkPlaces.map((bookmark, index) => (
-                    <div
-                      key={index}
-                      className="bookmark-card"
-                      onClick={() => handleBookmarkClick(bookmark, index)}
-                    >
-                      <img
-                        src={
-                          bookmark.imgUrl
-                            ? bookmark.imgUrl
-                            : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
-                        }
-                        alt={bookmark.name}
-                        className="bookmark-image"
-                      />
-                      <div className="bookmark-details">
-                        <Box
-                          display="flex"
-                          justifyContent="space-between"
-                          alignItems="center"
-                        >
-                          <h4>{bookmark.name}</h4>
-                        </Box>
-                        <Rating
-                          name={`bookmark-rating-${index}`}
-                          value={Number(bookmark.rating)}
-                          precision={0.5} // Allows half-star increments
-                          readOnly
-                          size="small"
+              {bookmarkPlaces.length > 0 && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Filter by city"
+                    value={citySearch}
+                    onChange={(e) => setCitySearch(e.target.value)}
+                    style={{
+                      border: "1px solid black",
+                      borderRadius: "5px",
+                      padding: "5px",
+                    }}
+                  ></input>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                    {(bookmarkPlaces.length > 0 && filteredBookmarks.length > 0
+                      ? filteredBookmarks
+                      : bookmarkPlaces
+                    ).map((bookmark, index) => (
+                      <div
+                        key={index}
+                        className="bookmark-card"
+                        onClick={() => handleBookmarkClick(bookmark, index)}
+                      >
+                        <img
+                          src={
+                            bookmark.imgUrl
+                              ? bookmark.imgUrl
+                              : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
+                          }
+                          alt={bookmark.name}
+                          className="bookmark-image"
                         />
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Typography sx={{ ml: 0.5 }}>
-                            {bookmark.city}
-                          </Typography>
+                        <div className="bookmark-details">
+                          <Box
+                            display="flex"
+                            justifyContent="space-between"
+                            alignItems="center"
+                          >
+                            <h4>{bookmark.name}</h4>
+                          </Box>
+                          <Rating
+                            name={`bookmark-rating-${index}`}
+                            value={Number(bookmark.rating)}
+                            precision={0.5} // Allows half-star increments
+                            readOnly
+                            size="small"
+                          />
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Typography sx={{ ml: 0.5 }}>
+                              {bookmark.city}
+                            </Typography>
+                          </Box>
+                        </div>
+                        <Box sx={{ position: "absolute", top: -3, right: -3 }}>
+                          {stops.includes(bookmark.name) ? (
+                            <CheckCircle
+                              style={{ color: "red" }}
+                              fontSize="large"
+                            />
+                          ) : (
+                            <></>
+                          )}
                         </Box>
                       </div>
-                      <Box sx={{ position: "absolute", top: -3, right: -3 }}>
-                        {stops.includes(bookmark.name) ? (
-                          <CheckCircle
-                            style={{ color: "red" }}
-                            fontSize="large"
-                          />
-                        ) : (
-                          <></>
-                        )}
-                      </Box>
-                    </div>
-                  ))}
-              </Box>
+                    ))}
+                  </Box>
+                </>
+              )}
+
               {stops.map((stop, index) => (
                 <div key={index}>
                   <label htmlFor={`stop${index + 1}`}>Stop {index + 1}:</label>
