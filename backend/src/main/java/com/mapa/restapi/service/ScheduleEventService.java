@@ -3,14 +3,11 @@ package com.mapa.restapi.service;
 import com.mapa.restapi.dto.ScheduleEventDto;
 import com.mapa.restapi.model.*;
 import com.mapa.restapi.repo.*;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -158,6 +155,21 @@ public class ScheduleEventService {
                 .startTime(scheduleEvent.getStartTime())
                 .mapUrl(scheduleEvent.getMapUrl())
                 .build();
+
+    }
+
+
+    public int deleteScheduleById(Long userId, Long scheduleId) {
+
+        ScheduleEvent scheduleEvent = scheduleEventRepo.findById(scheduleId).orElseThrow(()->new RuntimeException("Schedule not found with id: " + scheduleId));
+        if (scheduleEvent.getUser().getUserid()==userId){
+            scheduleEventRepo.deleteById(scheduleId);
+            return 0;
+        }
+        else {
+            return 1;
+        }
+
 
     }
 }

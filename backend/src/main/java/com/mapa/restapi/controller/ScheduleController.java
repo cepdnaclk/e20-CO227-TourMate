@@ -66,7 +66,7 @@ public class ScheduleController {
     }
 
     @PostMapping("/schedule/addschedule")
-    public ResponseEntity<?> addSchedule(@AuthenticationPrincipal UserDetails userDetails, @RequestBody ScheduleEvent schedule){
+    public ResponseEntity<String> addSchedule(@AuthenticationPrincipal UserDetails userDetails, @RequestBody ScheduleEvent schedule){
         String username = userDetails.getUsername();
         int response=scheduleEventService.addScheduleEvent(username,schedule);
         if (response!=0){
@@ -74,6 +74,16 @@ public class ScheduleController {
         }
         return ResponseEntity.ok("Successfully added schedule");
 
+    }
+
+    @DeleteMapping("/schedule/deleteSchedule/{scheduleId}/{userId}")
+    public ResponseEntity<String> deleteSchedule(@PathVariable Long scheduleId , @PathVariable Long userId){
+        int code = scheduleEventService.deleteScheduleById(userId,scheduleId);
+        if (code==0){
+            return ResponseEntity.ok("Successfully deleted Schedule");
+        }
+        return ResponseEntity.badRequest().body("Error in deleting Schedule");
+        
     }
 
 }

@@ -38,16 +38,16 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> createUser(@RequestBody User user) {
+
         if (userService.findByEmail(user.getEmail()) != null) {
-            return ResponseEntity.badRequest().body("Email Already Registered");
+            return ResponseEntity.badRequest().body("{\"message\": \"Email is Already Registered\"}");
         }
 
         UserDto userdto = userService.saveUser(user);
         if (userdto == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Error while signing in\"}");
         }
-        System.out.println(userdto);
-        return ResponseEntity.status(HttpStatus.OK).body(userdto);
+        return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Sign in success\"}");
     }
 
 
