@@ -37,31 +37,6 @@ public class BookmarkPlaceService {
     private DestinationRepo destinationRepo;
 
 
-    public List<BookmarkedPlace> findBookMarks(long userID) {
-        return bookmarkedPlaceRepo.findByUserID(userID).orElse(null);
-    }
-
-    public List<TouristAttraction> findAttractionPlaces(long userID) {
-        List<TouristAttraction> touristAttractions = new ArrayList<>();
-        List<BookmarkedPlace> list = findBookMarks(userID);
-        if (list.isEmpty()) {
-            System.out.println("No bookmarks found");
-            return null;
-        } else {
-            for (BookmarkedPlace place : list) {
-                TouristAttraction attraction = place.getAttraction_id();
-                if (attraction != null) {
-                    //System.out.println(attraction.getName());
-                    touristAttractions.add(attraction);
-                }
-            }
-        }
-
-        return touristAttractions;
-
-    }
-
-
     @Transactional
     public int addBookmark(String email,TouristAttraction attraction){
 

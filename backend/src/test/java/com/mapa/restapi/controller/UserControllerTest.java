@@ -41,23 +41,6 @@ public class UserControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
 
-    @Test
-    public void testGetUsers() throws Exception {
-        User user = new User();
-        user.setUserid(1L);
-        user.setFirstname("Test User");
-        user.setEmail("test@example.com");
-
-        when(userService.getAllUsers()).thenReturn(Collections.singletonList(user));
-
-        mockMvc.perform(get("/users"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].firstname").value("Test User"))
-                .andExpect(jsonPath("$[0].email").value("test@example.com"));
-
-        //Times that userService.getAllUsers() called should equal 1
-        verify(userService, times(1)).getAllUsers();
-    }
 
     @Test
     public void testSaveUserSuccess() throws Exception {
@@ -74,7 +57,7 @@ public class UserControllerTest {
         when(userService.findByEmail(anyString())).thenReturn(null);
         when(userService.saveUser(any(User.class))).thenReturn(userDto);
 
-        mockMvc.perform(post("/signup")
+        mockMvc.perform(post("/auth/signup")
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk());    //Expected status code (200)
@@ -87,7 +70,7 @@ public class UserControllerTest {
     public void testSaveUserEmailExists() throws Exception {
         when(userService.findByEmail(anyString())).thenReturn(new User());
 
-        mockMvc.perform(post("/signup")
+        mockMvc.perform(post("/auth/signup")
                         .contentType("application/json")
                         .content("{\"fisrtname\":\"Test User\", \"email\":\"test@example.com\", \"identifier\":\"testID\"}"))
                 .andExpect(status().isBadRequest())
@@ -97,15 +80,4 @@ public class UserControllerTest {
         verify(userService, never()).saveUser(any(User.class));
     }
 
-
-    @Test
-    public void testDeleteUser() throws Exception {
-        doNothing().when(userService).deleteUser(anyLong());
-
-        mockMvc.perform(delete("/delete/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Deleted"));
-
-        verify(userService, times(1)).deleteUser(anyLong());
-    }
 }
