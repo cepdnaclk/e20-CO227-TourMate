@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-
+import Navbar2 from "../components/Navbar/Navbar2";
+import Navbar1 from "../components/Navbar/Navbar";
+import { useAuth } from "../utils/AuthContext";
 
 const emergencyServices = [
   { name: 'Police', phone: '911' },
@@ -38,9 +40,11 @@ const EmergencyConnector = () => {
       }, 2000); // Simulate ringing for 2 seconds
     }
   };
-
+  const { isAuthenticated } = useAuth();
   return (
+    <div style={{paddingTop:'120px'}}>
     <div className="container mt-4">
+      {isAuthenticated ? <Navbar2 /> : <Navbar1 />} 
       <h1>Emergency Connector</h1>
       <ul className="list-group">
         {emergencyServices.map((service, index) => (
@@ -61,7 +65,7 @@ const EmergencyConnector = () => {
         {isRinging && <span className="ringing"></span>}
         Call {selectedService ? selectedService.name : 'Service'}
       </button>
-    </div>
+    </div></div>
   );
 };
 

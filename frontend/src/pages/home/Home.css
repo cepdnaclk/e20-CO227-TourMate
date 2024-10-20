@@ -63,6 +63,7 @@
 }
 
 .home-container-columns h3 {
+  color: #000000;
   margin: 20px 0 0;
   font-family: "Josefin Sans";
   font-style: normal;
@@ -70,7 +71,7 @@
   font-size: 24px;
   line-height: 24px;
   text-align: center;
-  color: #000000;
+  
 }
 /* Adjust layout for smaller screens */
 @media (max-width: 768px) {

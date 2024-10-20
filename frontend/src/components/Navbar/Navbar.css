@@ -13,6 +13,7 @@
   transition: background 0.3s ease, color 0.3s ease;
 }
 
+
 .nav-header::after {
   content: "";
   position: absolute;
@@ -34,11 +35,23 @@
   transition: filter 0.3s ease; /* Smooth transition for filter */
   margin-top: 32px;
 }
+.profile-logo{
+  height: 35px; /* Adjust the height as needed */
+  width: auto; /* Maintain aspect ratio */
+  transition: filter 0.3s ease; /* Smooth transition for filter */
+  margin-left: 150px;
+}
+.nav-profile.scrolled .profile-logo {
+  filter: brightness(0) invert(1); /* Change the logo color on scroll */
+}
 
 .nav-logo.scrolled .logo-image {
   filter: brightness(0) invert(1); /* Change the logo color on scroll */
 }
-
+.nav-links {
+  display: flex; /* Ensure the links remain on the same line */
+  gap: 20px; /* Space between links */
+}
 .nav-links a {
   position: relative;
   font-size: 20px;
@@ -46,6 +59,9 @@
   font-weight: 500;
   transition: color 0.3s ease;
   text-decoration: none;
+  margin-left: 20px;
+
+  
 }
 .nav-links a.scrolled {
   color: white;

@@ -40,7 +40,7 @@ export default function Home() {
     }
   }, [isAuthenticated]);
   return (
-    <>
+    <div className="home">
       <Navbar />
       <div className="home-container">
         <header className="home-header">
@@ -60,22 +60,22 @@ export default function Home() {
           {/* ---------------Three Columns Section------------------- */}
           <div className="home-container-columns">
             <div className="home-column">
-              <FontAwesomeIcon icon={faMapMarkedAlt} size="3x" />
-              <h3>Personalized Tour Planing</h3>
+              <FontAwesomeIcon icon={faMapMarkedAlt} size="3x"  />
+              <h3 style={{ color: "#000000" }}>Personalized Tour Planing</h3>
             </div>
             <div className="home-column">
               <FontAwesomeIcon icon={faUtensils} size="3x" />
-              <h3>Find Restaurants</h3>
+              <h3 style={{ color: "#000000" }}>Find Restaurants</h3>
             </div>
             <div className="home-column">
               <FontAwesomeIcon icon={faHotel} size="3x" />
-              <h3>Find Hotels</h3>
+              <h3 style={{ color: "#000000" }}>Find Hotels</h3>
             </div>
           </div>
           <div className="login-paragraph">
             <p>Welcome back, Traveler! Ready to continue your journey?</p>
             <Link to="/login">
-              <button className="login-button">Log IN</button>
+              <button className="login-button" style={{color:'black'}}>Log IN</button>
             </Link>
           </div>
         </header>
@@ -142,6 +142,6 @@ export default function Home() {
         </div>
         <Footer />
       </div>
-    </>
+    </div>
   );
 }
