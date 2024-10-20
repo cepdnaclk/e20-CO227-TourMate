@@ -1454,7 +1454,7 @@ const SchedulePlan = () => {
                     id="map"
                     style={{
                       height: "100%",
-                      display: isLoading ? "none" : "block",
+                      visibility: isLoading ? "hidden" : "visible",
                     }}
                   ></div>
                 </Grid>

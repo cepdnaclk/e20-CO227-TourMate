@@ -56,6 +56,7 @@ const Navbar2 = () => {
         <Link to={planCreated ? "/schedule-plan" : "/create-plan"}>
           Schedule
         </Link>
+          <Link to="/profile">Profile</Link>
       </nav>
       <Link to="/" className="link-button">
         <button onClick={handleLogout} className="logout-btn">

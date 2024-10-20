@@ -1,17 +1,19 @@
 package com.mapa.restapi.controller;
 
-
+import com.mapa.restapi.dto.UserDto;
 import com.mapa.restapi.model.TouristAttraction;
+import com.mapa.restapi.model.User;
 import com.mapa.restapi.model.UserPlan;
 import com.mapa.restapi.service.BookmarkPlaceService;
 import com.mapa.restapi.service.UserPlanService;
+import com.mapa.restapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins="*")//allow for all the ports
@@ -23,6 +25,9 @@ public class UserController {
 
     @Autowired
     private UserPlanService userPlanService;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/addbookmarks")
     public ResponseEntity<?> addBookmarks(@RequestBody TouristAttraction place , @AuthenticationPrincipal UserDetails userDetails){
@@ -81,7 +86,34 @@ public class UserController {
         return ResponseEntity.ok().body(plan);
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getUserProfileByEmail(@AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+        Optional<User> user = userService.getUserByEmail(email);
+        if (user.isPresent()) {
+            UserDto dto = new UserDto();
+            dto.setUserid(user.get().getUserid());
+            dto.setFirstname(user.get().getFirstname());
+            dto.setLastname(user.get().getLastname());
+            dto.setEmail(user.get().getEmail());
+            dto.setIdentifier(user.get().getIdentifier());
+            dto.setUsertype(user.get().getUsertype());
+            return ResponseEntity.ok(dto);
+        }
+        return ResponseEntity.notFound().build();
+    }
 
+    // Update user profile by email
+    @PutMapping("/profile")
+    public ResponseEntity<User> updateUserProfileByEmail(@AuthenticationPrincipal UserDetails userDetails, @RequestBody User updatedUser) {
+        String email = userDetails.getUsername();
+        try {
+            User user = userService.updateUserByEmail(email, updatedUser); // Update service method to update by email
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 
 }
