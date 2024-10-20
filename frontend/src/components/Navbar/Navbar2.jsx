@@ -1,11 +1,11 @@
 /*Navbar for after login pages*/
-import React, { useEffect } from "react";
+import React from "react";
 import "./Navbar.css";
 import logob from "../../assets/logob.png";
 import profilelogo from "../../assets/profile-logo.png";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../utils/AuthContext";
-import { useNavigate } from "react-router-dom";
+
 const Navbar2 = () => {
   // useEffect(() => {
   //   const handleScroll = () => {
@@ -53,21 +53,23 @@ const Navbar2 = () => {
         <Link to="/dashboard">Home</Link>
         <Link to="/find-route">Route</Link>
         <Link to="/find-hotel">Hotels</Link>
-        
+
         <Link to="/find-places">Places</Link>
         <Link to={planCreated ? "/schedule-plan" : "/create-plan"}>
           Schedule
         </Link>
-          </nav>
-          <a href="/profile" className="nav-profile">
-            <img src={profilelogo} alt="Profile" className="profile-logo" />
-          </a>
-      
-      <Link to="/" className="link-button">
-        <button onClick={handleLogout} className="logout-btn">
-          LOG OUT
-        </button>
-      </Link>
+      </nav>
+      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <a href="/profile" className="nav-profile">
+          <img src={profilelogo} alt="Profile" className="profile-logo" />
+        </a>
+
+        <Link to="/" className="link-button">
+          <button onClick={handleLogout} className="logout-btn">
+            LOG OUT
+          </button>
+        </Link>
+      </div>
     </header>
   );
 };

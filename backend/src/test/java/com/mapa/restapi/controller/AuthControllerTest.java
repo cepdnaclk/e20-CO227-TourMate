@@ -16,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -45,6 +47,12 @@ public class AuthControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        // Mock the authentication and security context
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
@@ -78,16 +86,16 @@ public class AuthControllerTest {
         user.setIdentifier("testID");
 
         UserDto userDto = UserDto.builder().firstname(user.getFirstname()).build();
-        String jsonRequest = objectMapper.writeValueAsString(user); //Convert user into jason format
+        String jsonRequest = objectMapper.writeValueAsString(user); // Convert user into JSON format
 
-        //What will userService return
+        // What will userService return
         when(userService.findByEmail(anyString())).thenReturn(null);
         when(userService.saveUser(any(User.class))).thenReturn(userDto);
 
         mockMvc.perform(post("/auth/signup")
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk());    //Expected status code (200)
+                .andExpect(status().isOk()); // Expected status code (200)
 
         verify(userService, times(1)).findByEmail(anyString());
         verify(userService, times(1)).saveUser(any(User.class));
@@ -99,12 +107,11 @@ public class AuthControllerTest {
 
         mockMvc.perform(post("/auth/signup")
                         .contentType("application/json")
-                        .content("{\"fisrtname\":\"Test User\", \"email\":\"test@example.com\", \"identifier\":\"testID\"}"))
+                        .content("{\"firstname\":\"Test User\", \"email\":\"test@example.com\", \"identifier\":\"testID\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Email Already Registered"));
 
         verify(userService, times(1)).findByEmail(anyString());
         verify(userService, never()).saveUser(any(User.class));
     }
-
 }
