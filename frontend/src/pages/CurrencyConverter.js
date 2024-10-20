@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar2 from "../components/Navbar/Navbar2";
+import Navbar1 from "../components/Navbar/Navbar";
+import { useAuth } from "../utils/AuthContext"; // Use the useAuth hook
 
 const CurrencyConverter = () => {
   const [fromCurrency, setFromCurrency] = useState("");
@@ -13,6 +15,8 @@ const CurrencyConverter = () => {
   useEffect(() => {
     const apiKey = "2b39ccc55f90698064f779ed"; // Replace with your ExchangeRate-API key
     const url = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/USD`;
+
+    
 
     const fetchCurrencies = async () => {
       try {
@@ -63,10 +67,12 @@ const CurrencyConverter = () => {
       setLoading(false);
     }
   };
+  const { isAuthenticated } = useAuth();
 
   return (
-    <>
-      <div className="container mt-4">
+    <div  style={{height:'500px' ,paddingTop:'100px'}} >
+      {isAuthenticated ? <Navbar2 /> : <Navbar1 />} 
+      <div className="container mt-4" >
         <h2 className="mb-4">Currency Converter</h2>
         {error && <p className="text-danger">Error: {error}</p>}
         <div className="row g-3">
@@ -136,7 +142,7 @@ const CurrencyConverter = () => {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

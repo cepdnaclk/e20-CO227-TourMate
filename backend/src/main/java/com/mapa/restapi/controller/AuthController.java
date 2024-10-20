@@ -38,7 +38,7 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> createUser(@RequestBody User user) {
-
+        String pw = user.getPassword();
         if (userService.findByEmail(user.getEmail()) != null) {
             return ResponseEntity.badRequest().body("{\"message\": \"Email is Already Registered\"}");
         }
@@ -47,6 +47,11 @@ public class AuthController {
         if (userdto == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Error while signing in\"}");
         }
+        LoginDto loginDto = new LoginDto();
+        loginDto.setEmail(user.getEmail());
+        loginDto.setPassword(pw);
+
+        SendResponse sendResponse = new SendResponse(login(loginDto), userdto);
         return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Sign in success\"}");
     }
 

@@ -2,6 +2,7 @@
 import React, { useEffect } from "react";
 import "./Navbar.css";
 import logob from "../../assets/logob.png";
+import profilelogo from "../../assets/profile-logo.png";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../utils/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -49,15 +50,19 @@ const Navbar2 = () => {
         className="nav-links"
         style={{ display: "flex", gap: "30px", alignItems: "center" }}
       >
+        <Link to="/dashboard">Home</Link>
         <Link to="/find-route">Route</Link>
         <Link to="/find-hotel">Hotels</Link>
-        <Link to="/find-places">Restaurants</Link>
+        
         <Link to="/find-places">Places</Link>
         <Link to={planCreated ? "/schedule-plan" : "/create-plan"}>
           Schedule
         </Link>
-          <Link to="/profile">Profile</Link>
-      </nav>
+          </nav>
+          <a href="/profile" className="nav-profile">
+            <img src={profilelogo} alt="Profile" className="profile-logo" />
+          </a>
+      
       <Link to="/" className="link-button">
         <button onClick={handleLogout} className="logout-btn">
           LOG OUT

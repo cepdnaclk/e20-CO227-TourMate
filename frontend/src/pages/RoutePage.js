@@ -5,7 +5,9 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import Navbar from "../components/Navbar/Navbar";
+import Navbar2 from "../components/Navbar/Navbar2";
+import Navbar1 from "../components/Navbar/Navbar";
+import { useAuth } from "../utils/AuthContext";
 
 // Ensure the marker icon is correctly displayed
 delete L.Icon.Default.prototype._getIconUrl;
@@ -244,9 +246,10 @@ const RoutePage = () => {
       console.error("Geolocation is not supported.");
     }
   };
-
+  const { isAuthenticated } = useAuth();
   return (
-    <>
+    <div  style={{paddingTop:'120px'}}>
+    {isAuthenticated ? <Navbar2 /> : <Navbar1 />} 
       <div
         style={{
           fontFamily: "Arial, sans-serif",
@@ -414,7 +417,7 @@ const RoutePage = () => {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

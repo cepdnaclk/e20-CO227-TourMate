@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import Navbar2 from "../components/Navbar/Navbar2";
+import Navbar1 from "../components/Navbar/Navbar";
+import { useAuth } from "../utils/AuthContext";
 
 const Weather = () => {
   const [location, setLocation] = useState("");
@@ -34,10 +36,13 @@ const Weather = () => {
     event.preventDefault();
     await getWeather(location);
   };
+  
+  const { isAuthenticated } = useAuth();
 
   return (
-    <>
-      <div className="container mt-5">
+    <div style={{ height: '530px' ,paddingTop: '100px' }}>
+      {isAuthenticated ? <Navbar2 /> : <Navbar1 />}
+      <div className="container mt-5" >
         <h2 className="text-center">Weather Report</h2>
         <form
           onSubmit={handleSubmit}
@@ -59,39 +64,43 @@ const Weather = () => {
           <div className="text-center">
             <div className="card" style={{ backgroundColor: "lightblue" }}>
               <div className="card-body">
-                <h5 className="card-title">
-                  Weather Details for {weather.name}
-                </h5>
-                <p className="card-text">
-                  Current Temperature: {weather.main.temp}°C
-                </p>
-                <p className="card-text">
-                  Weather: {weather.weather[0].description}
-                </p>
-                <p className="card-text">Humidity: {weather.main.humidity}%</p>
-                <p className="card-text">
-                  Pressure: {weather.main.pressure} hPa
-                </p>
-                <p className="card-text">
-                  Wind Speed: {weather.wind.speed} m/s
-                </p>
-                <p className="card-text">
-                  Visibility: {weather.visibility / 1000} km
-                </p>
-                <p className="card-text">
-                  Sunrise:{" "}
-                  {new Date(weather.sys.sunrise * 1000).toLocaleTimeString()}
-                </p>
-                <p className="card-text">
-                  Sunset:{" "}
-                  {new Date(weather.sys.sunset * 1000).toLocaleTimeString()}
-                </p>
+                <h5 className="card-title">Weather Details for {weather.name}</h5>
+                <div className="row">
+                  <div className="col-md-6">
+                    <p className="card-text">
+                      Current Temperature: {weather.main.temp}°C
+                    </p>
+                    <p className="card-text">
+                      Humidity: {weather.main.humidity}%
+                    </p>
+                    <p className="card-text">
+                      Wind Speed: {weather.wind.speed} m/s
+                    </p>
+                    <p className="card-text">
+                      Sunrise: {new Date(weather.sys.sunrise * 1000).toLocaleTimeString()}
+                    </p>
+                  </div>
+                  <div className="col-md-6">
+                    <p className="card-text">
+                      Weather: {weather.weather[0].description}
+                    </p>
+                    <p className="card-text">
+                      Pressure: {weather.main.pressure} hPa
+                    </p>
+                    <p className="card-text">
+                      Visibility: {weather.visibility / 1000} km
+                    </p>
+                    <p className="card-text">
+                      Sunset: {new Date(weather.sys.sunset * 1000).toLocaleTimeString()}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

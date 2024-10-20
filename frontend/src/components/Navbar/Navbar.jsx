@@ -1,8 +1,31 @@
 import React, { useEffect } from "react";
 import "./Navbar.css";
 import logob from "../../assets/logob.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  // Function to handle the "Explore" scroll action
+  const handleExploreScroll = () => {
+    navigate("/"); 
+    setTimeout(() => {
+      const placeSection = document.querySelector(".places-container");
+      if (placeSection) {
+        placeSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100); 
+  };
+
+  const handleHomeScroll = () => {
+    navigate("/"); 
+    setTimeout(() => {
+      const placeSection = document.querySelector(".home");
+      if (placeSection) {
+        placeSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100); 
+  };
+
   //   useEffect(() => {
   //     const handleScroll = () => {
   //       const header = document.querySelector(".header");
@@ -27,7 +50,7 @@ const Navbar = () => {
   //       window.removeEventListener("scroll", handleScroll);
   //     };
   //   }, []);
-
+  
   return (
     <header className="nav-header">
       <a href="/" className="nav-logo">
@@ -36,12 +59,11 @@ const Navbar = () => {
 
       <nav
         className="nav-links"
-        style={{ display: "flex", gap: "30px", alignItems: "center" }}
+        style={{ display: "flex", gap: "80px", alignItems: "center" }}
       >
-        <Link to="/">Home</Link>
-        <Link to="/">Tours</Link>
-        <Link to="/">About Us</Link>
-        <Link to="/">Contact me</Link>
+        <Link to="/" onClick={handleHomeScroll}>Home</Link>
+        <Link to="/contact-us">ContactUS</Link>
+        <Link to="/" onClick={handleExploreScroll}>Explore</Link>
       </nav>
       <Link to="/signup" className="link-button">
         <button className="signin-btn">SIGN IN</button>

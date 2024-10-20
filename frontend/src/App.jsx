@@ -1,5 +1,6 @@
 import "./App.css";
 import Login from "./pages/Login";
+import ContactUs from "./pages/ContactUs.jsx";
 import Signup from "./pages/Signup";
 import Home from "./pages/home/Home";
 import Plan from "./pages/plan/Plan";
@@ -59,6 +60,7 @@ const App = () => {
                   element={<EmergencyConnector />}
                 />
                 <Route path="/weather" element={<Weather />} />
+                <Route path="/contact-us" element={<ContactUs />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
               </Routes>
             </div>
