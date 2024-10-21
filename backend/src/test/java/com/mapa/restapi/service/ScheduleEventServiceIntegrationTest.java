@@ -36,6 +36,7 @@ public class ScheduleEventServiceIntegrationTest {
     public void setUp() {
         // Create a test user for the schedule
         testUser = new User();
+        testUser.setUserid(1L);
         testUser.setFirstname("John");
         testUser.setLastname("Doe");
         testUser.setEmail("john.doe@example.com");
@@ -98,7 +99,7 @@ public class ScheduleEventServiceIntegrationTest {
         scheduleEventRepo.save(scheduleEvent);
 
         // Delete the schedule by ID
-        int result = scheduleEventService.deleteScheduleById(testUser.getUserid(), scheduleEvent.getScheduleId());
+        int result = scheduleEventService.deleteScheduleById(testUser.getEmail(), scheduleEvent.getScheduleId());
         assertEquals(0, result);  // Success
 
         // Ensure the schedule was deleted
