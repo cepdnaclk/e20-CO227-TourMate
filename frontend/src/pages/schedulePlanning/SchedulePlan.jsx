@@ -23,6 +23,7 @@ import {
   Error,
   ArrowForwardIos,
   Create,
+  SentimentDissatisfied,
 } from "@mui/icons-material";
 import { getPlaceData, getHotelData } from "../../api";
 import Navbar2 from "../../components/Navbar/Navbar2";
@@ -67,6 +68,7 @@ const SchedulePlan = () => {
   const [suggestPlaces, setSuggestPlaces] = useState();
   const [citySearch, setCitySearch] = useState("");
   const [filteredBookmarks, setFilteredBookmarks] = useState([]);
+  const [scheduleError, setScheduleError] = useState("");
 
   // Fetch user plan
   useEffect(() => {
@@ -462,6 +464,7 @@ const SchedulePlan = () => {
       })
       .on("routingerror", (error) => {
         console.error("Routing error:", error);
+        setScheduleError("Error generating route. Please try again.");
         alert("An error occurred while calculating the route.");
         setIsLoading(false);
       })
@@ -1121,6 +1124,41 @@ const SchedulePlan = () => {
 
     setFilteredBookmarks(filterBookmarks);
   }, [citySearch, bookmarkPlaces]);
+
+  if (step === 1 && scheduleError.length > 0) {
+    return (
+      <>
+        <Navbar2 />
+        <Box
+          sx={{ display: "flex", justifyContent: "center", marginTop: "120px" }}
+        >
+          <h1 className="Schedule-Header">
+            Schedule {step === 0 ? "Plan" : "Result"}
+          </h1>
+        </Box>
+        <div className="container">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Typography
+                variant="h6"
+                style={{ color: "red", marginRight: "10px" }}
+              >
+                {scheduleError}
+              </Typography>
+              <SentimentDissatisfied fontSize="medium" />
+            </Box>
+          </Box>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
