@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,11 +93,11 @@ public class ScheduleEventService {
 
     }
 
-
-    public int deleteScheduleById(Long userId, Long scheduleId) {
+    @Transactional
+    public int deleteScheduleById(String email, Long scheduleId) {
 
         ScheduleEvent scheduleEvent = scheduleEventRepo.findById(scheduleId).orElseThrow(()->new RuntimeException("Schedule not found with id: " + scheduleId));
-        if (scheduleEvent.getUser().getUserid()==userId){
+        if (Objects.equals(scheduleEvent.getUser().getEmail(), email)){
             scheduleEventRepo.deleteById(scheduleId);
             return 0;
         }

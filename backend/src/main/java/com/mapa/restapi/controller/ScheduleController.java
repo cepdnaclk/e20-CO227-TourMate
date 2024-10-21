@@ -76,9 +76,10 @@ public class ScheduleController {
 
     }
 
-    @DeleteMapping("/schedule/deleteSchedule/{scheduleId}/{userId}")
-    public ResponseEntity<String> deleteSchedule(@PathVariable Long scheduleId , @PathVariable Long userId){
-        int code = scheduleEventService.deleteScheduleById(userId,scheduleId);
+    @DeleteMapping("/schedule/deleteSchedule/{scheduleId}")
+    public ResponseEntity<String> deleteSchedule(@PathVariable Long scheduleId , @AuthenticationPrincipal UserDetails userDetails){
+        String email = userDetails.getUsername();
+        int code = scheduleEventService.deleteScheduleById(email,scheduleId);
         if (code==0){
             return ResponseEntity.ok("Successfully deleted Schedule");
         }

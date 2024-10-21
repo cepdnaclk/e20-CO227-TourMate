@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import "./Profile.css";
 import Navbar from "../../components/Navbar/Navbar2";
 import Profilepic from "../../assets/profilePic.jpg";
-import { CircularProgress } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
+import { Delete, Download, ExpandMore } from "@mui/icons-material";
 
 const Profile = () => {
   const [user, setUser] = useState({
@@ -16,8 +17,15 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({ ...user });
   const [loading, setLoading] = useState(true);
+  const [schedules, setSchedules] = useState([]);
 
   const token = localStorage.getItem("token");
+
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const handleDropdownToggle = () => {
+    setShowDropdown((prev) => !prev);
+  };
 
   // Fetch user data with authentication
   useEffect(() => {
@@ -26,12 +34,12 @@ const Profile = () => {
         const response = await fetch(`http://localhost:1200/api/user/profile`, {
           method: "GET",
           headers: {
-            authorization: `Bearer ${token}`, // Pass Bearer token
+            authorization: `Bearer ${token}`,
           },
         });
 
         if (response.ok) {
-          const data = await response.json(); // Convert the response to JSON
+          const data = await response.json();
           setUser(data);
           setUpdatedUser(data);
         } else {
@@ -44,7 +52,88 @@ const Profile = () => {
       }
     };
     fetchProfile();
+    fetchSchedules();
   }, [token]);
+
+  const fetchSchedules = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:1200/api/schedule/getschedules`,
+        {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setSchedules(data);
+      } else {
+        console.error("Failed to fetch user schedules");
+      }
+    } catch (error) {
+      console.error("There was an error fetching the user schedules!", error);
+    }
+  };
+
+  // Delete schedule
+  const handleDelete = async (schedule) => {
+    try {
+      const response = await fetch(
+        `http://localhost:1200/api/schedule/deleteSchedule/${schedule.scheduleId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        setSchedules(
+          schedules.filter((s) => s.scheduleId !== schedule.scheduleId)
+        );
+      } else {
+        console.error("Failed to delete schedule");
+      }
+    } catch (error) {
+      console.error("There was an error deleting the schedule!", error);
+    }
+  };
+
+  // Download PDF
+  const handleDownload = async (schedule) => {
+    try {
+      const response = await fetch(
+        `http://localhost:1200/api/schedule/${schedule.scheduleId}/pdf`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "schedule.pdf");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } else {
+        console.error("Error downloading PDF");
+      }
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -163,6 +252,41 @@ const Profile = () => {
           </div>
 
           <div className="button-container">
+            {schedules.length > 0 && (
+              <div className="schedule-container">
+                <h2>Schedules</h2>
+                <Button
+                  variant="outlined"
+                  onClick={handleDropdownToggle}
+                  endIcon={<ExpandMore />}
+                >
+                  Show Schedules
+                </Button>
+                {showDropdown && (
+                  <div className="schedule-dropdown">
+                    {schedules.map((schedule, index) => (
+                      <div className="schedule-item" key={index}>
+                        <span>
+                          {schedule.startLocation} - {schedule.endLocation}
+                        </span>
+                        <div className="schedule-actions">
+                          <Download
+                            className="icon"
+                            onClick={() => handleDownload(schedule)}
+                            titleAccess="Download"
+                          />
+                          <Delete
+                            className="icon"
+                            onClick={() => handleDelete(schedule)}
+                            titleAccess="Delete"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             {isEditing ? (
               <button className="save-button" onClick={handleSave}>
                 Save

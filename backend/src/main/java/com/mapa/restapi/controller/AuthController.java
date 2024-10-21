@@ -51,8 +51,7 @@ public class AuthController {
         loginDto.setEmail(user.getEmail());
         loginDto.setPassword(pw);
 
-        SendResponse sendResponse = new SendResponse(login(loginDto), userdto);
-        return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Sign in success\"}");
+        return ResponseEntity.status(HttpStatus.OK).body(login(loginDto));
     }
 
 

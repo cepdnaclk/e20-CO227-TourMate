@@ -14,6 +14,8 @@ import IconButton from "@mui/material/IconButton";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import SampleImage1 from "../assets/images/signup.jpg";
+import { useAuth } from "../utils/AuthContext";
+
 const paperStyle = {
   padding: 20,
   height: "100%",
@@ -27,6 +29,7 @@ const textstyle = {
   textAlign: "center",
   marginBottom: 2, // adds some spacing below the text
 };
+
 export default function Signup() {
   const navigate = useNavigate();
 
@@ -48,6 +51,7 @@ export default function Signup() {
   const passwordRef = useRef(null); // Create a reference to the password field
   const emailInputRef = useRef(null); // Create a reference to the email field
   const [formError, setFormError] = useState("");
+  const { login } = useAuth();
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -83,15 +87,17 @@ export default function Signup() {
         },
         body: JSON.stringify(formData),
       });
-      const responseData = await response.json();
       // Check if response is not empty
       if (response.ok) {
-        console.log("Response from the backend:", responseData);
-        console.log("Form Data Submitted Successfully");
-        alert("Form is submitted");
-        navigate("/Dashboard");
+        const jwtToken = await response.text(); // Read the JWT token from the response body
+        console.log("Login successful, received JWT token:");
+        // Store the token securely, e.g., in localStorage or session storage
+        login(jwtToken); // Update the auth context with the JWT token
+
         setFormData(initialFormData);
+        navigate("/Dashboard");
       } else {
+        const responseData = await response.json();
         console.error("Failed to submit form data:");
         setFormError(responseData.message);
         emailInputRef.current.focus();
