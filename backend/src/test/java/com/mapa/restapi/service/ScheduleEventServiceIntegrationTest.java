@@ -36,7 +36,6 @@ public class ScheduleEventServiceIntegrationTest {
     public void setUp() {
         // Create a test user for the schedule
         testUser = new User();
-        testUser.setUserid(1L);
         testUser.setFirstname("John");
         testUser.setLastname("Doe");
         testUser.setEmail("john.doe@example.com");
