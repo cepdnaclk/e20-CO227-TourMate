@@ -39,14 +39,14 @@ export default function Place({
     if (bookmarked) {
       setBookmark(true);
     }
-  }, [place]);
+  }, [place, bookmarked]);
 
   const handleBookmark = async () => {
     const typeNames = place.subtype.map((sub) => sub.name).join(", ");
     try {
       const url = Bookmark
-        ? "http://localhost:1200/removebookmark"
-        : "http://localhost:1200/addbookmarks";
+        ? "http://localhost:1200/api/user/removebookmark"
+        : "http://localhost:1200/api/user/addbookmarks";
 
       const response = await fetch(url, {
         method: "POST",
@@ -60,8 +60,8 @@ export default function Place({
           name: place.name,
           city: place.parent_display_name,
           imgUrl: place.photo.images.large.url,
-          latitude: place.latitude,
-          longitude: place.longitude,
+          latitude: Number(place.latitude),
+          longitude: Number(place.longitude),
           rating: place.rating,
           phone: place.phone,
           web_url: place.web_url,
@@ -78,7 +78,7 @@ export default function Place({
         console.log("Error adding/removing bookmark:", response.statusText);
       }
     } catch (error) {
-      console.log("Error in fetching data:", error);
+      console.error("Error in fetching data:", error);
     }
   };
 
@@ -98,7 +98,7 @@ export default function Place({
             : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
         }
         title={place.name}
-        onMouseEnter={() => setCardSelect(index)}
+        onClick={() => setCardSelect(index)}
         className="card-media"
       />
       <CardContent>

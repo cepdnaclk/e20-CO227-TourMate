@@ -10,28 +10,6 @@ CREATE TABLE user (
     identifier VARCHAR(255)
 );
 
-CREATE TABLE entity_type (
-    entityID BIGINT AUTO_INCREMENT PRIMARY KEY,
-    entityType VARCHAR(255) 
-);
-
-CREATE TABLE restaurant (
-    restaurantID BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
-    coordinates VARCHAR(255),
-    address VARCHAR(255),
-    entityID BIGINT,
-    FOREIGN KEY (entityID) REFERENCES entity_type(entityID) ON DELETE CASCADE
-);
-
-CREATE TABLE hotel (
-    hotelID BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
-    coordinates VARCHAR(255),
-    address VARCHAR(255),
-    entityID BIGINT,
-    FOREIGN KEY (entityID) REFERENCES entity_type(entityID) ON DELETE CASCADE
-);
 
 CREATE TABLE tourist_attraction (
     attractionID BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -43,21 +21,6 @@ CREATE TABLE tourist_attraction (
     city varchar(100),
     title varchar(255),
     FOREIGN KEY (entityID) REFERENCES entity_type(entityID) ON DELETE CASCADE 
-);
-
-CREATE TABLE user_history (
-    historyID BIGINT AUTO_INCREMENT PRIMARY KEY,
-    date DATE,
-    user_id BIGINT,
-    FOREIGN KEY (user_id) REFERENCES user(userid) ON DELETE CASCADE on update cascade
-);
-
-CREATE TABLE history_place_map (
-    history_id BIGINT,
-    attraction_id BIGINT,
-    FOREIGN KEY (history_id) REFERENCES user_history(historyID) ON DELETE CASCADE on update cascade,
-    FOREIGN KEY (attraction_id) REFERENCES tourist_attraction(attractionID) ON DELETE CASCADE,
-    PRIMARY KEY (history_id, attraction_id)
 );
 
 CREATE TABLE bookmarked_place (
@@ -81,13 +44,7 @@ CREATE TABLE user_plan (
     FOREIGN KEY (user_ID) REFERENCES user(userid) ON DELETE CASCADE on update cascade
 );
 
-CREATE TABLE plan_items (
-    planItemID BIGINT AUTO_INCREMENT PRIMARY KEY,
-    plan_id BIGINT,
-    bookmark_id BIGINT,
-    FOREIGN KEY (plan_id) REFERENCES user_plan(planid) ON DELETE CASCADE on update cascade,
-    FOREIGN KEY (bookmark_id) REFERENCES bookmarked_place(bookmarkID) ON DELETE CASCADE on update cascade
-);
+
 
 
 

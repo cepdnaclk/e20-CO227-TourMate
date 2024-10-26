@@ -10,7 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"bookmarkedPlaces"})
 public class TouristAttraction {
 
     @Id
@@ -18,19 +17,17 @@ public class TouristAttraction {
     private long attractionID;
     private String type;
 
-    @Column(length = 1000)
+    @Column(length = 2000)
     private String description;
     private String name;
     private String city;
     private String imgUrl;
-    private String latitude;
-    private String longitude;
+    private double latitude;
+    private double longitude;
     private String rating;
     private String web_url;
     private String phone;
     private Long apiLocationId;
     private String address;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<BookmarkedPlace> bookmarkedPlaces;
 }

@@ -5,6 +5,7 @@ import Map from "../components/Map/Map";
 import List from "../components/List/List";
 import { getPlaceData } from "../api";
 import { useEffect, useState, useRef } from "react";
+import Navbar from "../components/Navbar/Navbar2";
 
 const SearchArea = ({ setSearchClicked, searchAreaBtn }) => {
   const handleClick = () => {
@@ -56,6 +57,7 @@ function SearchPlace() {
     return latDiff > threshold || lngDiff > threshold;
   };
 
+  // Get current location
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       ({ coords: { latitude, longitude } }) => {
@@ -109,8 +111,9 @@ function SearchPlace() {
   return (
     <>
       <CssBaseline />
+      <Navbar />
       <SearchHeader setCoordinates={setCoordinates} />
-      <Grid container spacing={3} style={{ width: "100%" }}>
+      <Grid container spacing={3} style={{ width: "90%", marginLeft: "3%" }}>
         <Grid item xs={12} md={4}>
           <List
             places={filteredPlaces.length ? filteredPlaces : places}

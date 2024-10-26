@@ -1,6 +1,5 @@
 package com.mapa.restapi.controller;
 
-
 import com.mapa.restapi.dto.UserDto;
 import com.mapa.restapi.model.TouristAttraction;
 import com.mapa.restapi.model.User;
@@ -9,20 +8,17 @@ import com.mapa.restapi.service.BookmarkPlaceService;
 import com.mapa.restapi.service.UserPlanService;
 import com.mapa.restapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins="*")  //allow for all the ports
+@CrossOrigin(origins="*")//allow for all the ports
+@RequestMapping("/api/user")
 public class UserController {
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private BookmarkPlaceService bookmarkPlaceService;
@@ -30,12 +26,15 @@ public class UserController {
     @Autowired
     private UserPlanService userPlanService;
 
+    @Autowired
+    private UserService userService;
+
     @PostMapping("/addbookmarks")
     public ResponseEntity<?> addBookmarks(@RequestBody TouristAttraction place , @AuthenticationPrincipal UserDetails userDetails){
 
         String username = userDetails.getUsername();
         int code = bookmarkPlaceService.addBookmark(username,place);
-        if (code==1){
+        if (code==0){
             return ResponseEntity.ok().body("Bookmark added successfully");
         }
         return ResponseEntity.badRequest().body("Bookmark could not be added");
@@ -45,16 +44,17 @@ public class UserController {
     public ResponseEntity<?> removeBookmarks(@RequestBody TouristAttraction place){
 
         int code = bookmarkPlaceService.removeBookmark(place);
-        if (code==1){
+        if (code==0){
             return ResponseEntity.ok().body("Bookmark removed");
         }
         return ResponseEntity.badRequest().body("Error while removing bookmark");
     }
 
+    //Get Bookmark Id
     @GetMapping("/getbookmarks")
     public ResponseEntity<?> getBookmarks(@AuthenticationPrincipal UserDetails userDetails){
         String username = userDetails.getUsername();
-        List<Long> code = bookmarkPlaceService.getBookmarks(username);
+        List<Long> code = bookmarkPlaceService.getBookmarksId(username);
         return ResponseEntity.ok().body(code);
     }
 
@@ -69,23 +69,51 @@ public class UserController {
 
     }
 
-
-    @PostMapping("/signup")
-    public ResponseEntity<?> createUser(@RequestBody User user) {
-        if (userService.findByEmail(user.getEmail()) != null) {
-            return ResponseEntity.badRequest().body("Email Already Registered");
-        }
-
-        UserDto userdto = userService.saveUser(user);
-        if (userdto == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        System.out.println(userdto);
-        return ResponseEntity.status(HttpStatus.OK).body(userdto);
+    @PostMapping("/addPlan")
+    public ResponseEntity<?> addPlan(@RequestBody UserPlan plan,@AuthenticationPrincipal UserDetails userDetails){
+        String username = userDetails.getUsername();
+        userPlanService.addPlan(plan,username);
+        return ResponseEntity.ok().body("Plan added");
     }
 
+    @GetMapping("/getPlan")
+    public ResponseEntity<?> getPlan(@AuthenticationPrincipal UserDetails userDetails){
+        String username = userDetails.getUsername();
+        UserPlan plan =userPlanService.getPlanByID(username);
+        if (plan==null){
+            return ResponseEntity.ok().body("Plan not found");
+        }
+        return ResponseEntity.ok().body(plan);
+    }
 
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getUserProfileByEmail(@AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+        Optional<User> user = userService.getUserByEmail(email);
+        if (user.isPresent()) {
+            UserDto dto = new UserDto();
+            dto.setUserid(user.get().getUserid());
+            dto.setFirstname(user.get().getFirstname());
+            dto.setLastname(user.get().getLastname());
+            dto.setEmail(user.get().getEmail());
+            dto.setIdentifier(user.get().getIdentifier());
+            dto.setUsertype(user.get().getUsertype());
+            return ResponseEntity.ok(dto);
+        }
+        return ResponseEntity.notFound().build();
+    }
 
+    // Update user profile by email
+    @PutMapping("/profile")
+    public ResponseEntity<User> updateUserProfileByEmail(@AuthenticationPrincipal UserDetails userDetails, @RequestBody User updatedUser) {
+        String email = userDetails.getUsername();
+        try {
+            User user = userService.updateUserByEmail(email, updatedUser); // Update service method to update by email
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 
 }

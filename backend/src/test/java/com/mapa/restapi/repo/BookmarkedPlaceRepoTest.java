@@ -1,11 +1,10 @@
 package com.mapa.restapi.repo;
 
-import com.mapa.restapi.exception.EntityServiceException;
 import com.mapa.restapi.model.BookmarkedPlace;
-import com.mapa.restapi.model.EntityType;
 import com.mapa.restapi.model.User;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,53 +12,54 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
+@Transactional
 class BookmarkedPlaceRepoTest {
 
     @Autowired
     private BookmarkedPlaceRepo bookmarkedPlaceRepo;
 
     @Autowired
-    private static UserRepo userRepo;
+    private UserRepo userRepo;
 
-    @Autowired
-    private  EntityTypeRepo entityTypeRepo;
+    private User testUser;
+    private BookmarkedPlace bookmarkedPlace;
 
-    private static User testUser;
+    @BeforeEach
+    void setUp() {
+        // Create and save a test user if it doesn't already exist
+        testUser = userRepo.findByEmail("test@test.com").orElseGet(() -> {
+            User user = new User();
+            user.setEmail("test@test.com");
+            user.setFirstname("Test User");
+            return userRepo.save(user);
+        });
 
-    @BeforeAll
-    static void setUp(@Autowired UserRepo userRepoInstance) {
-        userRepo = userRepoInstance;
-        testUser = userRepo.findByEmail("test@test.com").orElse(null);
-
+        // Create and save a bookmarked place
+        bookmarkedPlace = BookmarkedPlace.builder()
+                .user(testUser)
+                .date(LocalDate.now())
+                .build();
+        bookmarkedPlaceRepo.save(bookmarkedPlace);
     }
 
-    @AfterAll
-    static void tearDown() {
+    @AfterEach
+    void tearDown() {
+        // Clean up after each test
+        bookmarkedPlaceRepo.delete(bookmarkedPlace);
     }
-
 
     @Test
-    public void findBookmarkedPlace_by_userID() throws EntityServiceException {
+    public void findBookmarkedPlace_by_userID() {
+        // Act: Retrieve bookmarked places for the test user
         List<BookmarkedPlace> places = bookmarkedPlaceRepo.findByUserID(testUser.getUserid()).orElse(null);
 
-        for (BookmarkedPlace place : places) {
-            System.out.println(place.getAttraction_id().getName());
-        }
-
+        // Assert
         assertNotNull(places);
-    }
-
-    @Test
-    public void findBookmarkedPlace_by_user() throws EntityServiceException {
-        List<BookmarkedPlace> places = bookmarkedPlaceRepo.findByUser(testUser).orElse(null);
-
-        for (BookmarkedPlace place : places) {
-            System.out.println(place.getAttraction_id().getName());
-        }
-
-        assertNotNull(places);
+        assertEquals(1, places.size()); // Ensure only one place is found
+        assertEquals(bookmarkedPlace.getUser().getUserid(), places.get(0).getUser().getUserid());
     }
 }

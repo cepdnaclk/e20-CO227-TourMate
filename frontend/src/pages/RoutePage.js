@@ -5,6 +5,9 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import Navbar2 from "../components/Navbar/Navbar2";
+import Navbar1 from "../components/Navbar/Navbar";
+import { useAuth } from "../utils/AuthContext";
 
 // Ensure the marker icon is correctly displayed
 delete L.Icon.Default.prototype._getIconUrl;
@@ -243,173 +246,177 @@ const RoutePage = () => {
       console.error("Geolocation is not supported.");
     }
   };
-
+  const { isAuthenticated } = useAuth();
   return (
-    <div
-      style={{
-        fontFamily: "Arial, sans-serif",
-        padding: "20px",
-        maxWidth: "1000px",
-        margin: "0 auto",
-        backgroundColor: "#f0f0f0",
-        borderRadius: "10px",
-        boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-      }}
-    >
-      <h1
-        style={{
-          textAlign: "center",
-          marginBottom: "20px",
-          color: "#007BFF",
-          fontSize: "32px",
-          fontWeight: "bold",
-          textTransform: "uppercase",
-        }}
-      >
-        Route Finder
-      </h1>
+    <div  style={{paddingTop:'120px'}}>
+    {isAuthenticated ? <Navbar2 /> : <Navbar1 />} 
       <div
         style={{
-          marginBottom: "20px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          fontFamily: "Arial, sans-serif",
+          marginTop: "100px",
+          padding: "20px",
+          maxWidth: "1000px",
+          margin: "0 auto",
+          backgroundColor: "#f0f0f0",
+          borderRadius: "10px",
+          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <div style={{ marginRight: "20px" }}>
-          <label
-            htmlFor="start"
-            style={{ display: "block", marginBottom: "5px", color: "#333" }}
-          >
-            Start Location:
-          </label>
-          <input
-            type="text"
-            id="start"
-            placeholder="Enter start location"
-            style={{
-              padding: "8px",
-              width: "250px",
-              borderRadius: "5px",
-              border: "1px solid #ccc",
-              marginRight: "10px",
-              fontSize: "14px",
-            }}
-            value={startLocation}
-            onChange={(e) => setStartLocation(e.target.value)}
-          />
-          <button
-            onClick={useCurrentLocation}
-            style={{
-              padding: "8px 16px",
-              backgroundColor: "#28A745", // Green color
-              color: "white",
-              border: "none",
-              cursor: "pointer",
-              borderRadius: "5px",
-              marginLeft: "10px",
-              fontSize: "14px",
-            }}
-          >
-            Use Current Location
-          </button>
-        </div>
-        <div>
-          <label
-            htmlFor="destination"
-            style={{ display: "block", marginBottom: "5px", color: "#333" }}
-          >
-            Destination:
-          </label>
-          <input
-            type="text"
-            id="destination"
-            placeholder="Enter destination"
-            style={{
-              padding: "8px",
-              width: "250px",
-              borderRadius: "5px",
-              border: "1px solid #ccc",
-              marginRight: "10px",
-              fontSize: "14px",
-            }}
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-          />
-          <button
-            onClick={findRoute}
-            style={{
-              padding: "8px 16px",
-              backgroundColor: "#007BFF",
-              color: "white",
-              border: "none",
-              cursor: "pointer",
-              borderRadius: "5px",
-              fontSize: "14px",
-            }}
-          >
-            Find Route
-          </button>
-        </div>
-      </div>
-      <div
-        id="map"
-        style={{
-          height: "500px",
-          width: "100%",
-          border: "1px solid #ccc",
-          borderRadius: "5px",
-          marginBottom: "20px",
-        }}
-      ></div>
-      {travelTime && distance && (
-        <div
+        <h1
           style={{
             textAlign: "center",
             marginBottom: "20px",
-            backgroundColor: "#ffffff",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
-            padding: "10px",
+            color: "#007BFF",
+            fontSize: "32px",
+            fontWeight: "bold",
+            textTransform: "uppercase",
           }}
         >
-          <p>
-            <strong>Travel Time:</strong> {travelTime.toFixed(2)} minutes
-          </p>
-          <p>
-            <strong>Distance:</strong> {distance.toFixed(2)} kilometers
-          </p>
+          Route Finder
+        </h1>
+        <div
+          style={{
+            marginBottom: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div style={{ marginRight: "20px" }}>
+            <label
+              htmlFor="start"
+              style={{ display: "block", marginBottom: "5px", color: "#333" }}
+            >
+              Start Location:
+            </label>
+            <input
+              type="text"
+              id="start"
+              placeholder="Enter start location"
+              style={{
+                padding: "8px",
+                width: "250px",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                marginRight: "10px",
+                fontSize: "14px",
+              }}
+              value={startLocation}
+              onChange={(e) => setStartLocation(e.target.value)}
+            />
+            <button
+              onClick={useCurrentLocation}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#28A745", // Green color
+                color: "white",
+                border: "none",
+                cursor: "pointer",
+                borderRadius: "5px",
+                marginLeft: "10px",
+                fontSize: "14px",
+              }}
+            >
+              Use Current Location
+            </button>
+          </div>
+          <div>
+            <label
+              htmlFor="destination"
+              style={{ display: "block", marginBottom: "5px", color: "#333" }}
+            >
+              Destination:
+            </label>
+            <input
+              type="text"
+              id="destination"
+              placeholder="Enter destination"
+              style={{
+                padding: "8px",
+                width: "250px",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                marginRight: "10px",
+                fontSize: "14px",
+              }}
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
+            />
+            <button
+              onClick={findRoute}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#007BFF",
+                color: "white",
+                border: "none",
+                cursor: "pointer",
+                borderRadius: "5px",
+                fontSize: "14px",
+              }}
+            >
+              Find Route
+            </button>
+          </div>
         </div>
-      )}
-      {routeInstructions.length > 0 && (
-        <div style={{ marginBottom: "20px" }}>
-          <h2
+        <div
+          id="map"
+          style={{
+            height: "500px",
+            width: "100%",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+            marginBottom: "20px",
+          }}
+        ></div>
+        {travelTime && distance && (
+          <div
             style={{
               textAlign: "center",
-              marginBottom: "10px",
-              color: "#007BFF",
-              fontSize: "24px",
-              fontWeight: "bold",
-              textTransform: "uppercase",
+              marginBottom: "20px",
+              backgroundColor: "#ffffff",
+              border: "1px solid #ccc",
+              borderRadius: "5px",
+              padding: "10px",
             }}
           >
-            Route Instructions
-          </h2>
-          <ol
-            style={{
-              listStyleType: "decimal",
-              paddingLeft: "20px",
-              fontSize: "16px",
-            }}
-          >
-            {routeInstructions.map((instruction) => (
-              <li key={instruction.step} style={{ marginBottom: "10px" }}>
-                {instruction.text}
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
+            <p>
+              <strong>Travel Time:</strong> {travelTime.toFixed(2)} minutes
+            </p>
+            <p>
+              <strong>Distance:</strong> {distance.toFixed(2)} kilometers
+            </p>
+          </div>
+        )}
+        {routeInstructions.length > 0 && (
+          <div style={{ marginBottom: "20px" }}>
+            <h2
+              style={{
+                textAlign: "center",
+                marginBottom: "10px",
+                color: "#007BFF",
+                fontSize: "24px",
+                fontWeight: "bold",
+                textTransform: "uppercase",
+              }}
+            >
+              Route Instructions
+            </h2>
+            <ol
+              style={{
+                listStyleType: "decimal",
+                paddingLeft: "20px",
+                fontSize: "16px",
+              }}
+            >
+              {routeInstructions.map((instruction) => (
+                <li key={instruction.step} style={{ marginBottom: "10px" }}>
+                  {instruction.text}
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

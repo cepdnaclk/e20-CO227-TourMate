@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -14,6 +14,8 @@ import IconButton from "@mui/material/IconButton";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import SampleImage1 from "../assets/images/signup.jpg";
+import { useAuth } from "../utils/AuthContext";
+
 const paperStyle = {
   padding: 20,
   height: "100%",
@@ -27,6 +29,7 @@ const textstyle = {
   textAlign: "center",
   marginBottom: 2, // adds some spacing below the text
 };
+
 export default function Signup() {
   const navigate = useNavigate();
 
@@ -42,63 +45,112 @@ export default function Signup() {
   };
 
   const [formData, setFormData] = useState(initialFormData);
+  const [passwordStrength, setPasswordStrength] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordTip, setPasswordTip] = useState("");
+  const passwordRef = useRef(null); // Create a reference to the password field
+  const emailInputRef = useRef(null); // Create a reference to the email field
+  const [formError, setFormError] = useState("");
+  const { login } = useAuth();
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
 
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "password") {
+      checkPasswordStrength(value);
+    }
+
+    if (name === "email") {
+      setFormError("");
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Log form data to the console
-    console.log("Form Data to be submitted:", formData);
+    // Check if password is weak or too short
+    if (
+      passwordStrength === "Weak" ||
+      passwordStrength === "Too short" ||
+      passwordStrength === "Medium"
+    ) {
+      passwordRef.current.focus(); // Set focus on the password field
+      return;
+    }
 
     try {
-      const response = await fetch("http://localhost:1200/signup", {
+      const response = await fetch("http://localhost:1200/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
-
-      // Log the raw response
-      console.log("Raw response:", response);
-
       // Check if response is not empty
       if (response.ok) {
-        const responseData = await response.json();
-        console.log("Response from the backend:", responseData);
+        const jwtToken = await response.text(); // Read the JWT token from the response body
+        console.log("Login successful, received JWT token:");
+        // Store the token securely, e.g., in localStorage or session storage
+        login(jwtToken); // Update the auth context with the JWT token
 
-        if (responseData) {
-          console.log("Form Data Submitted Successfully");
-          alert("Form is submitted");
-          navigate("/");
-          setFormData(initialFormData);
-        } else {
-          console.error(
-            "Failed to submit form data:",
-            response.status,
-            responseData
-          );
-          alert(
-            `Failed to submit form data: ${response.status} - ${responseData}`
-          );
-        }
+        setFormData(initialFormData);
+        navigate("/Dashboard");
       } else {
-        console.error("Failed to submit form data:", response.status);
-        alert(`Failed to submit form data: ${response.status}`);
+        const responseData = await response.json();
+        console.error("Failed to submit form data:");
+        setFormError(responseData.message);
+        emailInputRef.current.focus();
       }
     } catch (error) {
       console.error("Error submitting form data:", error);
       alert("Error submitting form data");
     }
   };
-  const [showPassword, setShowPassword] = useState(false);
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const checkPasswordStrength = (password) => {
+    let strength = "";
+    if (password.length >= 8) {
+      const hasUpperCase = /[A-Z]/.test(password);
+      const hasLowerCase = /[a-z]/.test(password);
+      const hasNumbers = /\d/.test(password);
+      const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+      if (hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChars) {
+        strength = "Strong";
+        setPasswordTip("Great! Your password is strong.");
+      } else if ((hasUpperCase || hasLowerCase) && hasNumbers) {
+        strength = "Medium";
+        setPasswordTip(
+          "Try mixing upper and lower case letters, adding special characters"
+        );
+      } else {
+        strength = "Weak";
+        setPasswordTip(
+          "Your password is weak. Use a mix of letters, numbers, and special characters."
+        );
+      }
+    } else {
+      strength = "Too short";
+      setPasswordTip("Password should be at least 8 characters long.");
+    }
+    setPasswordStrength(strength);
+  };
+
+  const getPasswordStrengthColor = () => {
+    switch (passwordStrength) {
+      case "Strong":
+        return "green";
+
+      case "Medium":
+        return "orange";
+      default:
+        return "red";
+    }
   };
 
   return (
@@ -128,9 +180,18 @@ export default function Signup() {
                 }}
               />
               <Typography>
-                <form onSubmit={handleSubmit}>
+                <form
+                  onSubmit={handleSubmit}
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    flexDirection: "column",
+                  }}
+                >
                   <div>
-                    <label htmlFor="firstname">First Name</label>
+                    <label htmlFor="firstname" style={{ marginBottom: "10px" }}>
+                      First Name
+                    </label>
                     <br />
                     <TextField
                       type="text"
@@ -148,7 +209,9 @@ export default function Signup() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="lastname">Last Name</label>
+                    <label htmlFor="lastname" style={{ marginBottom: "10px" }}>
+                      Last Name
+                    </label>
                     <br />
                     <TextField
                       type="text"
@@ -156,7 +219,6 @@ export default function Signup() {
                       placeholder="Lastname"
                       value={formData.lastname}
                       onChange={handleInputChange}
-                      required
                       fullWidth
                       InputProps={{
                         style: {
@@ -166,8 +228,22 @@ export default function Signup() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="email">Email</label>
+                    <label htmlFor="email" style={{ marginBottom: "10px" }}>
+                      Email
+                    </label>
                     <br />
+                    {formError.length > 0 && (
+                      <FormHelperText
+                        sx={{
+                          color: "red",
+                          fontSize: "14px",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        {formError}
+                      </FormHelperText>
+                    )}
+
                     <TextField
                       type="email"
                       name="email"
@@ -176,6 +252,7 @@ export default function Signup() {
                       onChange={handleInputChange}
                       required
                       fullWidth
+                      inputRef={emailInputRef}
                       InputProps={{
                         style: {
                           height: "40px",
@@ -223,6 +300,17 @@ export default function Signup() {
                   <div>
                     <label htmlFor="password">Password</label>
                     <br />
+                    {passwordTip && (
+                      <FormHelperText
+                        style={{
+                          fontSize: "13px",
+                          color:
+                            passwordStrength === "Strong" ? "green" : "red",
+                        }}
+                      >
+                        {passwordTip}
+                      </FormHelperText>
+                    )}
                     <TextField
                       type={showPassword ? "text" : "password"}
                       name="password"
@@ -231,6 +319,7 @@ export default function Signup() {
                       onChange={handleInputChange}
                       required
                       fullWidth
+                      inputRef={passwordRef}
                       InputProps={{
                         style: {
                           height: "40px",
@@ -250,7 +339,19 @@ export default function Signup() {
                         ),
                       }}
                     />
-                    <FormHelperText>Enter a strong password</FormHelperText>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <FormHelperText style={{ fontSize: "15px" }}>
+                        Password strength:
+                      </FormHelperText>
+                      <FormHelperText
+                        style={{
+                          color: getPasswordStrengthColor(),
+                          fontSize: "15px",
+                        }}
+                      >
+                        {passwordStrength && ` ${passwordStrength}`}
+                      </FormHelperText>
+                    </Box>
                   </div>
                   <div>
                     <label htmlFor="usertype">
@@ -268,7 +369,9 @@ export default function Signup() {
                   </div>
                   {formData.usertype === "local" ? (
                     <div>
-                      <label htmlFor="nic">NIC Number</label>
+                      <label htmlFor="nic" style={{ marginBottom: "10px" }}>
+                        NIC Number
+                      </label>
                       <br />
                       <TextField
                         type="text"
@@ -287,7 +390,12 @@ export default function Signup() {
                     </div>
                   ) : (
                     <div>
-                      <label htmlFor="passport">Passport Number</label>
+                      <label
+                        htmlFor="passport"
+                        style={{ marginBottom: "10px" }}
+                      >
+                        Passport Number
+                      </label>
                       <br />
                       <TextField
                         type="text"
@@ -315,7 +423,7 @@ export default function Signup() {
                     SIGN UP
                   </Button>
                   <p>
-                    Already have an account? <Link to="/login">Sign in</Link>
+                    Already have an account? <Link to="/login">Log in</Link>
                   </p>
                 </form>
               </Typography>

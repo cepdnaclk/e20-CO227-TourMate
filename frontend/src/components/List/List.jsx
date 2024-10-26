@@ -10,11 +10,24 @@ import {
   Typography,
   Grid,
   CircularProgress,
+  Box,
 } from "@mui/material";
 import React, { useState, useEffect, createRef } from "react";
 import "./List.css";
 import Place from "../Place/Place";
 
+/**
+ * List component which render Place in SearchPlace page
+ *
+ * @param {Array} places list of places from  API
+ * @param {number} childClicked index of selected place
+ * @param {boolean} isLoading whether the component is loading
+ * @param {number} rating filter places by rating
+ * @param {function} setRating setter for rating
+ * @param {string} type filter places by type
+ * @param {function} setType setter for type
+ * @param {function} setCardSelect setter for selected place index
+ */
 export default function List({
   places,
   childClicked,
@@ -38,20 +51,23 @@ export default function List({
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
-        const response = await fetch("http://localhost:1200/getbookmarks", {
-          method: "get",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        const response = await fetch(
+          "http://localhost:1200/api/user/getbookmarks",
+          {
+            method: "get",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();
-          console.log({ data });
+          console.log("Bookmarks:", data);
           setBookmarks(data);
         } else {
-          console.log("Error :", response.status);
+          console.log("Error getting bookmarks:", response.status);
         }
       } catch (error) {
         console.log("Error fetching bookmarks");
@@ -66,37 +82,39 @@ export default function List({
       className="container"
       style={{ position: "relative", height: "80vh", overflowY: "auto" }}
     >
-      <Typography variant="h6">Restaurant, Hotels & Attractions</Typography>
+      <Typography variant="h6">Restaurant & Attractions</Typography>
       {isLoading ? (
         <div className="loading">
           <CircularProgress size="5rem" />
         </div>
       ) : (
         <>
-          <FormControl className="formControl">
-            <InputLabel>Type</InputLabel>
-            <Select
-              value={type}
-              className="select"
-              onChange={(e) => setType(e.target.value)}
-            >
-              <MenuItem value="restaurants">Restaurants</MenuItem>
-              <MenuItem value="hotels">Hotels</MenuItem>
-              <MenuItem value="attractions">Attractions</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl className="formControl">
-            <InputLabel>Rating</InputLabel>
-            <Select
-              value={rating}
-              className="select"
-              onChange={(e) => setRating(e.target.value)}
-            >
-              <MenuItem value={0}>All</MenuItem>
-              <MenuItem value={3}>Above 3.0</MenuItem>
-              <MenuItem value={4}>Above 4.0</MenuItem>
-            </Select>
-          </FormControl>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <FormControl className="formControl" sx={{ zIndex: "10" }}>
+              <InputLabel>Type</InputLabel>
+              <Select
+                value={type}
+                className="select"
+                onChange={(e) => setType(e.target.value)}
+              >
+                <MenuItem value="restaurants">Restaurants</MenuItem>
+                <MenuItem value="hotels">Hotels</MenuItem>
+                <MenuItem value="attractions">Attractions</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl className="formControl" sx={{ zIndex: "10" }}>
+              <InputLabel>Rating</InputLabel>
+              <Select
+                value={rating}
+                className="select"
+                onChange={(e) => setRating(e.target.value)}
+              >
+                <MenuItem value={0}>All</MenuItem>
+                <MenuItem value={3}>Above 3.0</MenuItem>
+                <MenuItem value={4}>Above 4.0</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
           <Grid
             container
             spacing={3}
