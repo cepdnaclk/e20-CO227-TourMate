@@ -45,7 +45,7 @@ Travelers often struggle with organizing efficient, budget-friendly itineraries 
 ## Links
 
 - [Project Repository](https://github.com/cepdnaclk/e20-co227-TourMate ){:target="_blank"}
-- [Project Page](https://cepdnaclk.github.io/e20-co227-TourMate){:target="_blank"}
+- [Project Page](https://cepdnaclk.github.io/e20-co227-TourMate/){:target="_blank"}
 - [Department of Computer Engineering](http://www.ce.pdn.ac.lk/)
 - [University of Peradeniya](https://eng.pdn.ac.lk/)
 
