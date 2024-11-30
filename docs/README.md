@@ -3,7 +3,7 @@ layout: home
 permalink: index.html
 
 # Please update this with your repository name and title
-repository-name: e20-CO227-TourMate
+repository-name: e20-co227-TourMate
 title: TourMate
 ---
 
@@ -44,7 +44,7 @@ Travelers often struggle with organizing efficient, budget-friendly itineraries 
 
 ## Links
 
-- [Project Repository](https://github.com/cepdnaclk/e20-CO227-TourMate ){:target="_blank"}
+- [Project Repository](https://github.com/cepdnaclk/e20-co227-TourMate ){:target="_blank"}
 - [Project Page](https://cepdnaclk.github.io/e20-co227-TourMate){:target="_blank"}
 - [Department of Computer Engineering](http://www.ce.pdn.ac.lk/)
 - [University of Peradeniya](https://eng.pdn.ac.lk/)
