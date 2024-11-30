@@ -13,12 +13,6 @@ title: TourMate
 
 ---
 
-<!-- 
-This is a sample image, to show how to add images to your page. To learn more options, please refer [this](https://projects.ce.pdn.ac.lk/docs/faq/how-to-add-an-image/)
-
-![Sample Image](./images/sample.png)
- -->
-
 ## Team
 -  E/20/248, Mapagedara T.L.B, [email](mailto:e20248@eng.pdn.ac.lk)
 -  E/20/453, Yogesh R.J, [email](mailto:e20453@eng.pdn.ac.lk)
@@ -33,6 +27,12 @@ This is a sample image, to show how to add images to your page. To learn more op
 2. [Links](#links)
 
 ---
+
+This is a sample image, to show how to add images to your page. To learn more options, please refer [this](https://projects.ce.pdn.ac.lk/docs/faq/how-to-add-an-image/)
+
+[Sample Image](./images/home.png)
+
+
 
 ## Introduction
 
