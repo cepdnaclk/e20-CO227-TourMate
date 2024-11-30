@@ -5,7 +5,6 @@ import com.mapa.restapi.model.BookmarkedPlace;
 import com.mapa.restapi.model.TouristAttraction;
 import com.mapa.restapi.model.User;
 import com.mapa.restapi.repo.BookmarkedPlaceRepo;
-import com.mapa.restapi.repo.DestinationRepo;
 import com.mapa.restapi.repo.TouristAttractionRepo;
 import com.mapa.restapi.repo.UserRepo;
 import org.junit.jupiter.api.BeforeEach;
