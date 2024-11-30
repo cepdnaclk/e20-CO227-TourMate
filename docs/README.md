@@ -3,7 +3,7 @@ layout: home
 permalink: index.html
 
 # Please update this with your repository name and title
-repository-name: e20-co227-TourMate
+repository-name: e20-CO227-TourMate
 title: TourMate
 ---
 
