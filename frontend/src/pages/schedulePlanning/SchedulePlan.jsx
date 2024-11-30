@@ -1161,625 +1161,631 @@ const SchedulePlan = () => {
   }
 
   return (
-    <>
-      <Navbar2 />
+    <div>
       <div>
-        <Box
-          sx={{ display: "flex", justifyContent: "center", marginTop: "120px" }}
-        >
-          <h1 className="Schedule-Header">
-            Schedule {step === 0 ? "Plan" : "Result"}
-          </h1>
-        </Box>
+        <Navbar2 />
+        <div>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "120px",
+            }}
+          >
+            <h1 className="Schedule-Header">
+              Schedule {step === 0 ? "Plan" : "Result"}
+            </h1>
+          </Box>
 
-        <div className="container">
-          {step === 0 && (
-            //Getting Stops and Bookmark places for schedule
-            <>
-              <div className="input-container">
-                <div>
-                  <label htmlFor="start" className="label">
-                    Start Location:
-                  </label>
-                  <input
-                    type="text"
-                    id="start"
-                    value={start}
-                    onChange={(e) => setStart(e.target.value)}
-                    list="startSuggestions"
-                    onInput={(e) =>
-                      handleLocationInput("start", e.target.value)
-                    }
-                    className="location-input"
-                    readOnly
-                  />
-                  <datalist id="startSuggestions"></datalist>
+          <div className="container">
+            {step === 0 && (
+              //Getting Stops and Bookmark places for schedule
+              <>
+                <div className="input-container">
+                  <div>
+                    <label htmlFor="start" className="label">
+                      Start Location:
+                    </label>
+                    <input
+                      type="text"
+                      id="start"
+                      value={start}
+                      onChange={(e) => setStart(e.target.value)}
+                      list="startSuggestions"
+                      onInput={(e) =>
+                        handleLocationInput("start", e.target.value)
+                      }
+                      className="location-input"
+                      readOnly
+                    />
+                    <datalist id="startSuggestions"></datalist>
+                  </div>
+                  <div>
+                    <label htmlFor="startDateTime" className="label">
+                      Journey Start Time & Date:
+                    </label>
+                    <input
+                      type="datetime-local"
+                      id="startDateTime"
+                      value={startDateTime}
+                      onChange={(e) => setStartDateTime(e.target.value)}
+                      className="date-input"
+                      min={new Date().toISOString().split("T")[0] + "T00:00"}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="destination" className="label">
+                      Destination:
+                    </label>
+                    <input
+                      type="text"
+                      id="destination"
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                      list="destinationSuggestions"
+                      onInput={(e) =>
+                        handleLocationInput("destination", e.target.value)
+                      }
+                      className="location-input"
+                      readOnly
+                    />
+                    <datalist id="destinationSuggestions"></datalist>
+                  </div>
+                  <Button
+                    component={Link}
+                    to="/create-plan"
+                    variant="text" // Makes it a filled button
+                    color="secondary" // Choose color from Material-UI theme (primary, secondary, etc.)
+                    endIcon={<Create />}
+                  >
+                    New Plan
+                  </Button>
                 </div>
-                <div>
-                  <label htmlFor="startDateTime" className="label">
-                    Journey Start Time & Date:
-                  </label>
-                  <input
-                    type="datetime-local"
-                    id="startDateTime"
-                    value={startDateTime}
-                    onChange={(e) => setStartDateTime(e.target.value)}
-                    className="date-input"
-                    min={new Date().toISOString().split("T")[0] + "T00:00"}
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="destination" className="label">
-                    Destination:
-                  </label>
-                  <input
-                    type="text"
-                    id="destination"
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    list="destinationSuggestions"
-                    onInput={(e) =>
-                      handleLocationInput("destination", e.target.value)
-                    }
-                    className="location-input"
-                    readOnly
-                  />
-                  <datalist id="destinationSuggestions"></datalist>
-                </div>
-                <Button
-                  component={Link}
-                  to="/create-plan"
-                  variant="text" // Makes it a filled button
-                  color="secondary" // Choose color from Material-UI theme (primary, secondary, etc.)
-                  endIcon={<Create />}
-                >
-                  New Plan
-                </Button>
-              </div>
 
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="h5">Your Bookmarks:</Typography>
-                <Button
-                  variant="contained"
-                  onClick={handleManageBookmarksClick}
-                >
-                  Manage Bookmarks
-                </Button>
-              </Box>
-              {bookmarkPlaces.length === 0 && (
-                <Typography variant="h5" sx={{ margin: "10px", color: "red" }}>
-                  No bookmarks found.Click Manage Bookmarks to add Some
-                </Typography>
-              )}
-              {bookmarkPlaces.length > 0 && (
-                <>
-                  <input
-                    type="text"
-                    placeholder="Filter by city"
-                    value={citySearch}
-                    onChange={(e) => setCitySearch(e.target.value)}
-                    style={{
-                      border: "1px solid black",
-                      borderRadius: "5px",
-                      padding: "5px",
-                    }}
-                  ></input>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                    {(bookmarkPlaces.length > 0 && filteredBookmarks.length > 0
-                      ? filteredBookmarks
-                      : bookmarkPlaces
-                    ).map((bookmark, index) => (
-                      <div
-                        key={index}
-                        className="bookmark-card"
-                        onClick={() => handleBookmarkClick(bookmark, index)}
-                      >
-                        <img
-                          src={
-                            bookmark.imgUrl
-                              ? bookmark.imgUrl
-                              : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
-                          }
-                          alt={bookmark.name}
-                          className="bookmark-image"
-                        />
-                        <div className="bookmark-details">
-                          <Box
-                            display="flex"
-                            justifyContent="space-between"
-                            alignItems="center"
-                          >
-                            <h4>{bookmark.name}</h4>
-                          </Box>
-                          <Rating
-                            name={`bookmark-rating-${index}`}
-                            value={Number(bookmark.rating)}
-                            precision={0.5} // Allows half-star increments
-                            readOnly
-                            size="small"
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Typography variant="h5">Your Bookmarks:</Typography>
+                  <Button
+                    variant="contained"
+                    onClick={handleManageBookmarksClick}
+                  >
+                    Manage Bookmarks
+                  </Button>
+                </Box>
+                {bookmarkPlaces.length === 0 && (
+                  <Typography
+                    variant="h5"
+                    sx={{ margin: "10px", color: "red" }}
+                  >
+                    No bookmarks found.Click Manage Bookmarks to add Some
+                  </Typography>
+                )}
+                {bookmarkPlaces.length > 0 && (
+                  <>
+                    <input
+                      type="text"
+                      placeholder="Filter by city"
+                      value={citySearch}
+                      onChange={(e) => setCitySearch(e.target.value)}
+                      style={{
+                        border: "1px solid black",
+                        borderRadius: "5px",
+                        padding: "5px",
+                      }}
+                    ></input>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                      {(bookmarkPlaces.length > 0 &&
+                      filteredBookmarks.length > 0
+                        ? filteredBookmarks
+                        : bookmarkPlaces
+                      ).map((bookmark, index) => (
+                        <div
+                          key={index}
+                          className="bookmark-card"
+                          onClick={() => handleBookmarkClick(bookmark, index)}
+                        >
+                          <img
+                            src={
+                              bookmark.imgUrl
+                                ? bookmark.imgUrl
+                                : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
+                            }
+                            alt={bookmark.name}
+                            className="bookmark-image"
                           />
+                          <div className="bookmark-details">
+                            <Box
+                              display="flex"
+                              justifyContent="space-between"
+                              alignItems="center"
+                            >
+                              <h4>{bookmark.name}</h4>
+                            </Box>
+                            <Rating
+                              name={`bookmark-rating-${index}`}
+                              value={Number(bookmark.rating)}
+                              precision={0.5} // Allows half-star increments
+                              readOnly
+                              size="small"
+                            />
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <Typography sx={{ ml: 0.5 }}>
+                                {bookmark.city}
+                              </Typography>
+                            </Box>
+                          </div>
                           <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "center",
-                            }}
+                            sx={{ position: "absolute", top: -3, right: -3 }}
                           >
-                            <Typography sx={{ ml: 0.5 }}>
-                              {bookmark.city}
-                            </Typography>
+                            {stops.includes(bookmark.name) ? (
+                              <CheckCircle
+                                style={{ color: "red" }}
+                                fontSize="large"
+                              />
+                            ) : (
+                              <></>
+                            )}
                           </Box>
                         </div>
-                        <Box sx={{ position: "absolute", top: -3, right: -3 }}>
-                          {stops.includes(bookmark.name) ? (
-                            <CheckCircle
-                              style={{ color: "red" }}
-                              fontSize="large"
-                            />
-                          ) : (
-                            <></>
-                          )}
-                        </Box>
-                      </div>
-                    ))}
-                  </Box>
-                </>
-              )}
+                      ))}
+                    </Box>
+                  </>
+                )}
 
-              {stops.map((stop, index) => (
-                <div key={index}>
-                  <label htmlFor={`stop${index + 1}`}>Stop {index + 1}:</label>
-                  <input
-                    type="text"
-                    id={`stop${index + 1}`}
-                    value={stop || ""}
-                    onInput={(e) => handleStopInput(index, e.target.value)}
-                    list={`stop${index + 1}Suggestions`}
-                    placeholder="Enter stop location"
-                    className="stop-input"
-                  />
-                  <datalist id={`stop${index + 1}Suggestions`}></datalist>
-                  <div
-                    className="waiting-time"
-                    style={{ display: stop ? "block" : "none" }}
-                  >
-                    <label style={{ marginRight: 10 }}>Waiting Time:</label>
+                {stops.map((stop, index) => (
+                  <div key={index}>
+                    <label htmlFor={`stop${index + 1}`}>
+                      Stop {index + 1}:
+                    </label>
                     <input
-                      type="radio"
-                      name={`waitingTime${index + 1}`}
-                      value="15"
-                      className="radio"
-                      onChange={(e) =>
-                        handleWaitingTimeInput(index, e.target.value)
-                      } // Add onChange handler
-                      checked={waitingTimes[index] === 15} // Add checked condition
-                    />{" "}
-                    15 min
-                    <input
-                      type="radio"
-                      name={`waitingTime${index + 1}`}
-                      value="30"
-                      className="radio"
-                      onChange={(e) =>
-                        handleWaitingTimeInput(index, e.target.value)
-                      } // Add onChange handler
-                      checked={waitingTimes[index] === 30} // Add checked condition
-                    />{" "}
-                    30 min
-                    <input
-                      type="radio"
-                      name={`waitingTime${index + 1}`}
-                      value="60"
-                      className="radio"
-                      onChange={(e) =>
-                        handleWaitingTimeInput(index, e.target.value)
-                      } // Add onChange handler
-                      checked={waitingTimes[index] === 60} // Add checked condition
-                    />{" "}
-                    1 hour
-                    <input
-                      type="radio"
-                      name={`waitingTime${index + 1}`}
-                      value="120"
-                      className="radio"
-                      onChange={(e) =>
-                        handleWaitingTimeInput(index, e.target.value)
-                      } // Add onChange handler
-                      checked={waitingTimes[index] === 120} // Add checked condition
-                    />{" "}
-                    2 hours
+                      type="text"
+                      id={`stop${index + 1}`}
+                      value={stop || ""}
+                      onInput={(e) => handleStopInput(index, e.target.value)}
+                      list={`stop${index + 1}Suggestions`}
+                      placeholder="Enter stop location"
+                      className="stop-input"
+                    />
+                    <datalist id={`stop${index + 1}Suggestions`}></datalist>
+                    <div
+                      className="waiting-time"
+                      style={{ display: stop ? "block" : "none" }}
+                    >
+                      <label style={{ marginRight: 10 }}>Waiting Time:</label>
+                      <input
+                        type="radio"
+                        name={`waitingTime${index + 1}`}
+                        value="15"
+                        className="radio"
+                        onChange={(e) =>
+                          handleWaitingTimeInput(index, e.target.value)
+                        } // Add onChange handler
+                        checked={waitingTimes[index] === 15} // Add checked condition
+                      />{" "}
+                      15 min
+                      <input
+                        type="radio"
+                        name={`waitingTime${index + 1}`}
+                        value="30"
+                        className="radio"
+                        onChange={(e) =>
+                          handleWaitingTimeInput(index, e.target.value)
+                        } // Add onChange handler
+                        checked={waitingTimes[index] === 30} // Add checked condition
+                      />{" "}
+                      30 min
+                      <input
+                        type="radio"
+                        name={`waitingTime${index + 1}`}
+                        value="60"
+                        className="radio"
+                        onChange={(e) =>
+                          handleWaitingTimeInput(index, e.target.value)
+                        } // Add onChange handler
+                        checked={waitingTimes[index] === 60} // Add checked condition
+                      />{" "}
+                      1 hour
+                      <input
+                        type="radio"
+                        name={`waitingTime${index + 1}`}
+                        value="120"
+                        className="radio"
+                        onChange={(e) =>
+                          handleWaitingTimeInput(index, e.target.value)
+                        } // Add onChange handler
+                        checked={waitingTimes[index] === 120} // Add checked condition
+                      />{" "}
+                      2 hours
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
-              <button
-                id="findRoute"
-                onClick={findRoute}
-                style={{ marginTop: 20 }}
-              >
-                Generate Schedule
-              </button>
-            </>
-          )}{" "}
-          {step === 1 && (
-            //Schedule Display segment with route map
-            <>
-              <Grid
-                container
-                spacing={3}
-                sx={{ height: "50%", minHeight: "500px", marginBottom: "50px" }}
-              >
-                {isLoading ? (
-                  <Box
-                    sx={{
-                      alignItems: "center",
-                      justifyContent: "center", // Add this line
-                      position: "fixed",
-                      top: "50vh",
-                      left: "80vh",
-                    }}
-                  >
+                <button
+                  id="findRoute"
+                  onClick={findRoute}
+                  style={{ marginTop: 20 }}
+                >
+                  Generate Schedule
+                </button>
+              </>
+            )}{" "}
+            {step === 1 && (
+              //Schedule Display segment with route map
+              <>
+                <Grid
+                  container
+                  spacing={3}
+                  sx={{
+                    height: "50%",
+                    minHeight: "500px",
+                    marginBottom: "50px",
+                  }}
+                >
+                  {isLoading ? (
                     <Box
                       sx={{
-                        display: "flex",
-                        flexDirection: "column",
                         alignItems: "center",
+                        justifyContent: "center", // Add this line
+                        position: "fixed",
+                        top: "50vh",
+                        left: "80vh",
                       }}
                     >
-                      <Typography variant="h5">
-                        Generating Schedule For You
-                      </Typography>
-                      <CircularProgress />
-                    </Box>
-                  </Box>
-                ) : (
-                  <Grid
-                    item
-                    xs={12}
-                    md={4}
-                    sx={{ maxHeight: "500px", overflow: "auto" }}
-                  >
-                    {arrivalTable.map((row, index) => (
-                      <Box
-                        sx={{
-                          display: isLoading ? "none" : "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                        key={index}
-                      >
-                        <Place />
-                        <Typography variant="h5">{row.from}</Typography>
-                        <Typography variant="h6" sx={{ color: "grey" }}>
-                          {row.departure}
-                        </Typography>
-                        {index < arrivalTable.length && (
-                          <Divider
-                            orientation="vertical"
-                            sx={{
-                              height: "40px", // Adjust the height as needed
-                              width: "2px", // Adjust the thickness of the line
-                              backgroundColor: "grey",
-                              marginY: 1, // Add some space between items
-                            }}
-                          />
-                        )}
-                      </Box>
-                    ))}
-                    {/* Render the last element separately */}
-                    {arrivalTable.length > 0 && (
                       <Box
                         sx={{
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
-                          marginTop: 2, // Adjust spacing as needed
                         }}
                       >
-                        <Place />
                         <Typography variant="h5">
-                          {arrivalTable[arrivalTable.length - 1].to}
+                          Generating Schedule For You
                         </Typography>
-                        <Typography variant="h6" sx={{ color: "grey" }}>
-                          {arrivalTable[arrivalTable.length - 1].arrival}
+                        <CircularProgress />
+                      </Box>
+                    </Box>
+                  ) : (
+                    <Grid
+                      item
+                      xs={12}
+                      md={4}
+                      sx={{ maxHeight: "500px", overflow: "auto" }}
+                    >
+                      {arrivalTable.map((row, index) => (
+                        <Box
+                          sx={{
+                            display: isLoading ? "none" : "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                          key={index}
+                        >
+                          <Place />
+                          <Typography variant="h5">{row.from}</Typography>
+                          <Typography variant="h6" sx={{ color: "grey" }}>
+                            {row.departure}
+                          </Typography>
+                          {index < arrivalTable.length && (
+                            <Divider
+                              orientation="vertical"
+                              sx={{
+                                height: "40px", // Adjust the height as needed
+                                width: "2px", // Adjust the thickness of the line
+                                backgroundColor: "grey",
+                                marginY: 1, // Add some space between items
+                              }}
+                            />
+                          )}
+                        </Box>
+                      ))}
+                      {/* Render the last element separately */}
+                      {arrivalTable.length > 0 && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            marginTop: 2, // Adjust spacing as needed
+                          }}
+                        >
+                          <Place />
+                          <Typography variant="h5">
+                            {arrivalTable[arrivalTable.length - 1].to}
+                          </Typography>
+                          <Typography variant="h6" sx={{ color: "grey" }}>
+                            {arrivalTable[arrivalTable.length - 1].arrival}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Grid>
+                  )}
+                  <Grid item xs={12} md={8}>
+                    <div
+                      id="map"
+                      style={{
+                        height: "100%",
+                        visibility: isLoading ? "hidden" : "visible",
+                      }}
+                    ></div>
+                  </Grid>
+                </Grid>
+
+                {isLoading ? (
+                  <></>
+                ) : (
+                  <>
+                    <div id="segmentDetails">
+                      <h2>Segment Details</h2>
+                      <div>
+                        {segmentDetails.map((segment, index) => (
+                          <div key={index} className="segment-container">
+                            <h4>
+                              From {segment.from} to {segment.to}
+                            </h4>
+                            <p>
+                              <strong>Distance:</strong> {segment.distance} km
+                            </p>
+                            <p>
+                              <strong>Time:</strong> {segment.time} minutes
+                            </p>
+                            <p>
+                              <strong>Waiting Time:</strong>{" "}
+                              {segment.waitingTime} minutes
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div id="arrivalTableContainer">
+                      <h2>Schedule Table</h2>
+                      <table id="arrivalTable">
+                        <thead>
+                          <tr>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Distance</th>
+                            <th>Estimated Departure Time</th>
+                            <th>Estimated Arrival Time</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {arrivalTable.map((row, index) => (
+                            <tr key={index}>
+                              <td>{row.from}</td>
+                              <td>{row.to}</td>
+                              <td>{row.distance} km</td>
+                              <td>{row.departure}</td>
+                              <td>{row.arrival}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {/* For Restaurants */}
+                    {mealRestaurants.length > 0 && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Typography variant="h5" sx={{ marginRight: "5px" }}>
+                          Pick Your Restaurant{" "}
                         </Typography>
+                        <RestaurantRounded />
                       </Box>
                     )}
-                  </Grid>
-                )}
-                <Grid item xs={12} md={8}>
-                  <div
-                    id="map"
-                    style={{
-                      height: "100%",
-                      visibility: isLoading ? "hidden" : "visible",
-                    }}
-                  ></div>
-                </Grid>
-              </Grid>
 
-              {isLoading ? (
-                <></>
-              ) : (
-                <>
-                  <div id="segmentDetails">
-                    <h2>Segment Details</h2>
-                    <div>
-                      {segmentDetails.map((segment, index) => (
-                        <div key={index} className="segment-container">
-                          <h4>
-                            From {segment.from} to {segment.to}
-                          </h4>
-                          <p>
-                            <strong>Distance:</strong> {segment.distance} km
-                          </p>
-                          <p>
-                            <strong>Time:</strong> {segment.time} minutes
-                          </p>
-                          <p>
-                            <strong>Waiting Time:</strong> {segment.waitingTime}{" "}
-                            minutes
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div id="arrivalTableContainer">
-                    <h2>Schedule Table</h2>
-                    <table id="arrivalTable">
-                      <thead>
-                        <tr>
-                          <th>From</th>
-                          <th>To</th>
-                          <th>Distance</th>
-                          <th>Estimated Departure Time</th>
-                          <th>Estimated Arrival Time</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {arrivalTable.map((row, index) => (
-                          <tr key={index}>
-                            <td>{row.from}</td>
-                            <td>{row.to}</td>
-                            <td>{row.distance} km</td>
-                            <td>{row.departure}</td>
-                            <td>{row.arrival}</td>
-                          </tr>
+                    {loadingRestaurants ? (
+                      <Box
+                        sx={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "center",
+                          marginTop: "20px",
+                        }}
+                      >
+                        <Typography
+                          variant="h6"
+                          sx={{ color: "green", marginRight: "10px" }}
+                        >
+                          Preparing Your Meal
+                        </Typography>
+                        <CircularProgress />
+                      </Box>
+                    ) : (
+                      <Box>
+                        {mealRestaurants.map((item, index) => (
+                          <Box key={index} mb={2}>
+                            <Typography variant="h6">
+                              Meal: {item.meal} {item.arrivalTime}
+                            </Typography>
+                            <Box display="flex" flexWrap="wrap" gap={2} mt={2}>
+                              {item.restaurants &&
+                              item.restaurants.length > 0 ? (
+                                item.restaurants
+                                  .slice(0, 5)
+                                  .map((restaurant, idx) => (
+                                    <DisplayCard
+                                      key={idx}
+                                      name={restaurant.name}
+                                      imgUrl={
+                                        restaurant?.photo?.images?.large?.url
+                                      }
+                                      rating={Number(restaurant.rating)}
+                                      location={restaurant?.address_obj?.city}
+                                      type="restaurant"
+                                      item={restaurant}
+                                      date={item.arrivalTime}
+                                      meal={item.meal}
+                                      handleClickCard={handleClickCard}
+                                      selected={selectedRestaurant.some(
+                                        (selectRestaurant) =>
+                                          selectRestaurant.item === restaurant
+                                      )}
+                                    />
+                                  ))
+                              ) : (
+                                <Typography
+                                  variant="h6"
+                                  color={"green"}
+                                  sx={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  Sorry . No Restaurants Found <Error />
+                                </Typography>
+                              )}
+                            </Box>
+                          </Box>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  {/* For Restaurants */}
-                  {mealRestaurants.length > 0 && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Typography variant="h5" sx={{ marginRight: "5px" }}>
-                        Pick Your Restaurant{" "}
-                      </Typography>
-                      <RestaurantRounded />
-                    </Box>
-                  )}
+                      </Box>
+                    )}
 
-                  {loadingRestaurants ? (
-                    <Box
-                      sx={{
-                        width: "100%",
-                        display: "flex",
-                        justifyContent: "center",
-                        marginTop: "20px",
-                      }}
-                    >
-                      <Typography
-                        variant="h6"
-                        sx={{ color: "green", marginRight: "10px" }}
+                    {/* For Hotel */}
+                    {hotels.length > 0 && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
                       >
-                        Preparing Your Meal
-                      </Typography>
-                      <CircularProgress />
-                    </Box>
-                  ) : (
-                    <Box>
-                      {mealRestaurants.map((item, index) => (
-                        <Box key={index} mb={2}>
-                          <Typography variant="h6">
-                            Meal: {item.meal} {item.arrivalTime}
-                          </Typography>
-                          <Box display="flex" flexWrap="wrap" gap={2} mt={2}>
-                            {item.restaurants && item.restaurants.length > 0 ? (
-                              item.restaurants
-                                .slice(0, 5)
-                                .map((restaurant, idx) => (
-                                  <DisplayCard
-                                    key={idx}
-                                    name={restaurant.name}
-                                    imgUrl={
-                                      restaurant?.photo?.images?.large?.url
-                                    }
-                                    rating={Number(restaurant.rating)}
-                                    location={restaurant?.address_obj?.city}
-                                    type="restaurant"
-                                    item={restaurant}
-                                    date={item.arrivalTime}
-                                    meal={item.meal}
-                                    handleClickCard={handleClickCard}
-                                    selected={selectedRestaurant.some(
-                                      (selectRestaurant) =>
-                                        selectRestaurant.item === restaurant
-                                    )}
-                                  />
-                                ))
-                            ) : (
-                              <Typography
-                                variant="h6"
-                                color={"green"}
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "center",
-                                }}
-                              >
-                                Sorry . No Restaurants Found <Error />
-                              </Typography>
-                            )}
-                          </Box>
-                        </Box>
-                      ))}
-                    </Box>
-                  )}
+                        <Typography variant="h5" sx={{ marginRight: "5px" }}>
+                          Pick Your Hotel{" "}
+                        </Typography>
+                        <HotelRounded />
+                      </Box>
+                    )}
 
-                  {/* For Hotel */}
-                  {hotels.length > 0 && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Typography variant="h5" sx={{ marginRight: "5px" }}>
-                        Pick Your Hotel{" "}
-                      </Typography>
-                      <HotelRounded />
-                    </Box>
-                  )}
-
-                  {hotelsLoading ? (
-                    <Box
-                      sx={{
-                        width: "100%",
-                        display: "flex",
-                        justifyContent: "center",
-                        marginTop: "20px",
-                      }}
-                    >
-                      <Typography
-                        variant="h6"
-                        sx={{ color: "green", marginRight: "10px" }}
+                    {hotelsLoading ? (
+                      <Box
+                        sx={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "center",
+                          marginTop: "20px",
+                        }}
                       >
-                        Preparing Accommodation for you
-                      </Typography>
-                      <CircularProgress />
-                    </Box>
-                  ) : (
-                    <Box>
-                      {/* For hotels with date */}
-                      {hotels.map((item, index) => (
-                        <Box key={index} mb={4}>
-                          {/* Display the date */}
-                          <Typography variant="h6" mb={2}>
-                            Hotels available on {item.date}
-                          </Typography>
+                        <Typography
+                          variant="h6"
+                          sx={{ color: "green", marginRight: "10px" }}
+                        >
+                          Preparing Accommodation for you
+                        </Typography>
+                        <CircularProgress />
+                      </Box>
+                    ) : (
+                      <Box>
+                        {/* For hotels with date */}
+                        {hotels.map((item, index) => (
+                          <Box key={index} mb={4}>
+                            {/* Display the date */}
+                            <Typography variant="h6" mb={2}>
+                              Hotels available on {item.date}
+                            </Typography>
 
-                          <Box display="flex" flexWrap="wrap" gap={2}>
-                            {item.hotels && item.hotels.length > 0 ? (
-                              item.hotels
-                                .slice(0, 5)
-                                .map((hotel, idx) => (
-                                  <DisplayCard
-                                    key={idx}
-                                    name={hotel.basicPropertyData.name}
-                                    imgUrl={
-                                      hotel.basicPropertyData.photos
-                                        ? hotel.basicPropertyData.photos.main
-                                            .lowResJpegUrl.absoluteUrl
-                                        : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
-                                    }
-                                    score={
-                                      hotel.basicPropertyData.reviews.totalScore
-                                    }
-                                    location={
-                                      hotel.basicPropertyData.location.city
-                                    }
-                                    type="hotel"
-                                    item={hotel}
-                                    date={item.date}
-                                    handleClickCard={handleClickCard}
-                                    selected={selectedHotel.some(
-                                      (selectHotel) =>
-                                        selectHotel.item === hotel
-                                    )}
-                                  />
-                                ))
-                            ) : (
-                              <Typography
-                                variant="h6"
-                                color={"green"}
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "center",
-                                }}
-                              >
-                                Sorry . No Hotels Found <Error />
-                              </Typography>
-                            )}
+                            <Box display="flex" flexWrap="wrap" gap={2}>
+                              {item.hotels && item.hotels.length > 0 ? (
+                                item.hotels
+                                  .slice(0, 5)
+                                  .map((hotel, idx) => (
+                                    <DisplayCard
+                                      key={idx}
+                                      name={hotel.basicPropertyData.name}
+                                      imgUrl={
+                                        hotel.basicPropertyData.photos
+                                          ? hotel.basicPropertyData.photos.main
+                                              .lowResJpegUrl.absoluteUrl
+                                          : "https://st4.depositphotos.com/14953852/24787/v/1600/depositphotos_247872612-stock-illustration-no-image-available-icon-vector.jpg"
+                                      }
+                                      score={
+                                        hotel.basicPropertyData.reviews
+                                          .totalScore
+                                      }
+                                      location={
+                                        hotel.basicPropertyData.location.city
+                                      }
+                                      type="hotel"
+                                      item={hotel}
+                                      date={item.date}
+                                      handleClickCard={handleClickCard}
+                                      selected={selectedHotel.some(
+                                        (selectHotel) =>
+                                          selectHotel.item === hotel
+                                      )}
+                                    />
+                                  ))
+                              ) : (
+                                <Typography
+                                  variant="h6"
+                                  color={"green"}
+                                  sx={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  Sorry . No Hotels Found <Error />
+                                </Typography>
+                              )}
+                            </Box>
                           </Box>
-                        </Box>
-                      ))}
-                    </Box>
-                  )}
-                  {}
+                        ))}
+                      </Box>
+                    )}
+                    {}
 
-                  <div id="summaryDiv">
-                    <h3>Overall Summary</h3>
+                    <div id="summaryDiv">
+                      <h3>Overall Summary</h3>
 
-                    <h3>Travel Assumptions</h3>
-                    <p>
-                      <strong>Allowed Travel Hours:</strong>{" "}
-                      {`${formatTime(dailyStartTime)} to ${formatTime(
-                        dailyEndTime
-                      )}`}
-                    </p>
-                    <p>
-                      <strong>
-                        If travel time exceeds the allowed time, the remaining
-                        journey will resume at {formatTime(dailyStartTime)} the
-                        next day.
-                      </strong>
-                    </p>
-                  </div>
-                </>
-              )}
-              {!isLoading && (
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Button onClick={() => setStep(0)} variant="outlined">
-                    <ArrowBackIos />
-                    Back
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setStep(2);
-                      downloadPdf();
-                    }}
-                    variant="outlined"
+                      <h3>Travel Assumptions</h3>
+                      <p>
+                        <strong>Allowed Travel Hours:</strong>{" "}
+                        {`${formatTime(dailyStartTime)} to ${formatTime(
+                          dailyEndTime
+                        )}`}
+                      </p>
+                      <p>
+                        <strong>
+                          If travel time exceeds the allowed time, the remaining
+                          journey will resume at {formatTime(dailyStartTime)}{" "}
+                          the next day.
+                        </strong>
+                      </p>
+                    </div>
+                  </>
+                )}
+                {!isLoading && (
+                  <Box
+                    sx={{ display: "flex", justifyContent: "space-between" }}
                   >
-                    Next
-                    <ArrowForwardIos />
-                  </Button>
-                </Box>
-              )}
-            </>
-          )}
-          {step === 2 && (
-            <>
-              {pdfLoading && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    height: "600px",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography>Preparing Pdf</Typography>
-                  <CircularProgress />
-                </Box>
-              )}
-
-              {!pdfLoading &&
-                (pdfError.length > 0 ? (
+                    <Button onClick={() => setStep(0)} variant="outlined">
+                      <ArrowBackIos />
+                      Back
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setStep(2);
+                        downloadPdf();
+                      }}
+                      variant="outlined"
+                    >
+                      Next
+                      <ArrowForwardIos />
+                    </Button>
+                  </Box>
+                )}
+              </>
+            )}
+            {step === 2 && (
+              <>
+                {pdfLoading && (
                   <Box
                     sx={{
                       display: "flex",
@@ -1788,49 +1794,67 @@ const SchedulePlan = () => {
                       alignItems: "center",
                     }}
                   >
-                    <Typography variant="h6" color="red">
-                      {pdfError}
-                    </Typography>
+                    <Typography>Preparing Pdf</Typography>
+                    <CircularProgress />
                   </Box>
-                ) : (
-                  <div>
-                    <Box sx={{ margin: "20px" }}>
-                      <button onClick={handleDownLoadPdf}>Download PDF</button>
+                )}
+
+                {!pdfLoading &&
+                  (pdfError.length > 0 ? (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        height: "600px",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography variant="h6" color="red">
+                        {pdfError}
+                      </Typography>
                     </Box>
+                  ) : (
+                    <div>
+                      <Box sx={{ margin: "20px" }}>
+                        <button onClick={handleDownLoadPdf}>
+                          Download PDF
+                        </button>
+                      </Box>
 
-                    {/* Embed the PDF in an iframe */}
-                    <iframe
-                      src={pdfUrl}
-                      title="Schedule PDF"
-                      width="100%"
-                      height="600px"
-                    ></iframe>
-                  </div>
-                ))}
+                      {/* Embed the PDF in an iframe */}
+                      <iframe
+                        src={pdfUrl}
+                        title="Schedule PDF"
+                        width="100%"
+                        height="600px"
+                      ></iframe>
+                    </div>
+                  ))}
 
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Button
-                  onClick={() => setStep(1)}
-                  disabled={pdfLoading}
-                  variant="outlined"
-                >
-                  <ArrowBackIos />
-                  Back
-                </Button>
-                <Button
-                  onClick={saveSchedule}
-                  disabled={pdfLoading}
-                  variant="outlined"
-                >
-                  Finish
-                  <ArrowForwardIos />
-                </Button>
-              </Box>
-            </>
-          )}
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Button
+                    onClick={() => setStep(1)}
+                    disabled={pdfLoading}
+                    variant="outlined"
+                  >
+                    <ArrowBackIos />
+                    Back
+                  </Button>
+                  <Button
+                    onClick={saveSchedule}
+                    disabled={pdfLoading}
+                    variant="outlined"
+                  >
+                    Finish
+                    <ArrowForwardIos />
+                  </Button>
+                </Box>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

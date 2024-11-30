@@ -93,18 +93,25 @@ public class ScheduleEventService {
 
     }
 
+    // Delete a schedule by its scheduleId
     @Transactional
     public int deleteScheduleById(String email, Long scheduleId) {
 
-        ScheduleEvent scheduleEvent = scheduleEventRepo.findById(scheduleId).orElseThrow(()->new RuntimeException("Schedule not found with id: " + scheduleId));
-        if (Objects.equals(scheduleEvent.getUser().getEmail(), email)){
+        // Retrieve the schedule by its ID from the repository
+        // If the schedule does not exist, throw an exception
+        ScheduleEvent scheduleEvent = scheduleEventRepo.findById(scheduleId)
+                .orElseThrow(() -> new RuntimeException("Schedule not found with id: " + scheduleId));
+        
+        // Check if the email of the user making the request matches the email associated with the schedule
+        if (Objects.equals(scheduleEvent.getUser().getEmail(), email)) {
+            // If the emails match, proceed to delete the schedule
             scheduleEventRepo.deleteById(scheduleId);
+            // Return 0 to indicate successful deletion
             return 0;
-        }
-        else {
+        } else {
+            // If the emails don't match, return 1 to indicate failure (unauthorized access)
             return 1;
         }
-
-
     }
+
 }
