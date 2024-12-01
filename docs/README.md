@@ -26,7 +26,8 @@ title: TourMate
 1. [Introduction](#introduction)
 2. [Core Features](#core-features)
 3. [Technology Stack](#technology-stack)
-4. [Links](#links)
+4. [Screenshots](#screenshots)
+5. [Links](#links)
 
 ---
 
@@ -57,7 +58,8 @@ Discover attractions, hotels, and dining spots with detailed reviews.
 + **APIs** : Open Street Map API, Booking.com API, TravelAdvisor API
 
 ## Screenshots
-![Sample Image](./images/logo.jpg) ![Sample Image](./images/logo.jpg) ![Sample Image](./images/logo.jpg)
+![Sample Image](./images/Demo1.png) ![Sample Image](./images/Demo2.png) ![Sample Image](./images/Demo3.png) 
+![Sample Image](./images/Demo4.png) ![Sample Image](./images/Demo5.png)
 
 ## Links
 
