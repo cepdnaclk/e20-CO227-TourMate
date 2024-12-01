@@ -24,23 +24,40 @@ title: TourMate
 
 ## Table of Contents
 1. [Introduction](#introduction)
-2. [Links](#links)
+2. [Core Features](#core-features)
+3. [Technology Stack](#technology-stack)
+4. [Links](#links)
 
 ---
-
-This is a sample image, to show how to add images to your page. To learn more options, please refer [this](https://projects.ce.pdn.ac.lk/docs/faq/how-to-add-an-image/)
 
 ![Sample Image](./images/logo.jpg)
 
 
-
 ## Introduction
+Travelers often struggle with organizing efficient, budget-friendly itineraries due to scattered information and limited personalized guidance, leading to time-consuming planning and potentially higher costs. TourMate addresses this by providing:
++ Tailored travel routes based on user preferences.
++ Detailed trip schedules including accommodations, meals, and restaurant recommendations.
++ Easy exploration and bookmarking of attractions and lodging.
++ Automated route and timing calculations for efficient planning.
+  
+This is an all-in-one travel planning solution that offers **hotel finding, place discovery, weather reporting**, and a **detailed trip schedule** that includes **accommodations, meal recommendations**, and **optimized routes**. By integrating these features, the platform ensures a seamless, cost-effective, and well-organized travel experience tailored to individual preferences.
 
-Travelers often struggle with organizing efficient, budget-friendly itineraries due to scattered information and limited personalized guidance, leading to time-consuming planning and potentially higher costs. Our tour guide app addresses this by providing tailored routes, accommodations, and schedules based on user preferences, enabling easy exploration and bookmarking of attractions, meals, and lodging. With automated route and timing calculations, the app saves users time and money while enriching their travel experience, allowing them to explore more effectively and with greater convenience.
+## Core Features
+1. **Customizable Itineraries** :
+Generate detailed schedules including accommodations, meals, and restaurant options.
+2. **Route Optimization** :
+Identify the best travel routes to save time.
+3. **Place Recommendations** :
+Discover attractions, hotels, and dining spots with detailed reviews.
 
-## Other Sub Topics
+## Technology Stack
++ **Frontend** : HTML, CSS, JavaScript, React.js .
++ **Backend** : Spring Boot.
++ **Database** : MySQL.
++ **APIs** : Open Street Map API, Booking.com API, TravelAdvisor API
 
-.....
+## Screenshots
+![Sample Image](./images/logo.jpg) ![Sample Image](./images/logo.jpg) ![Sample Image](./images/logo.jpg)
 
 ## Links
 
@@ -50,5 +67,4 @@ Travelers often struggle with organizing efficient, budget-friendly itineraries 
 - [University of Peradeniya](https://eng.pdn.ac.lk/)
 
 
-[//]: # (Please refer this to learn more about Markdown syntax)
 [//]: # (https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
